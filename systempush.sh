@@ -1,11 +1,11 @@
 #!/usr/bin/sh
 fnupdate () {
-	git checkout -b $1
-	git checkout  $1
 	#git reset --hard
 	git add --all
 	git rm -rf __py*
-	git commit -am 'fixing' 
+	git commit -am 'fixing' --allow-empty
+	git checkout -b $1
+	git checkout  $1
 	git push origin $1
 	if [ $? -ne 0 ];
 	then
@@ -19,12 +19,8 @@ fnupdate () {
 }
 
 cd /TopStor/
-echo `git show --abbrev-commit | grep commit ` > /TopStor/lastcommit
-git add --all
-git commit -am'fixing'
-sleep 1
+branch=`echo $@ | awk '{print $1}'`
 cjobs=(`echo TopStor pace topstorweb`)
-branch=$1
 branchc=`echo $branch | wc -c`
 if [ $branchc -le 3 ];
 then
@@ -32,6 +28,7 @@ then
 	exit
 fi 
 flag=1
+echo branch $branch
 while [ $flag -ne 0 ];
 do
 	rjobs=(`echo "${cjobs[@]}"`)
