@@ -47,10 +47,10 @@ def ioperf(myclusterip,myhost):
   with open('/pacedata/perfmon') as f:
    perfmon = f.readline()
   #if '1' in perfmon:
-  with open('/TopStordata/dskperfmon.txt','a') as f:
-   f.write(str(time())+' dskperf/'+myhost+'/'+thedsk['name']+'\t '+str(thedsk['tps'])+'/'+str(thedsk['throuput'])+'/'+str(thedsk['read'])+'/'+dsk+'\n')
- with open('/TopStordata/cpuperfmon.txt','a') as f:
-   f.write(str(time())+' cpuperf/'+myhost+'\t'+str(tcpu)+'\n')
+ # with open('/TopStordata/dskperfmon.txt','a') as f:
+ #  f.write(str(time())+' dskperf/'+myhost+'/'+thedsk['name']+'\t '+str(thedsk['tps'])+'/'+str(thedsk['throuput'])+'/'+str(thedsk['read'])+'/'+dsk+'\n')
+ #with open('/TopStordata/cpuperfmon.txt','a') as f:
+ #  f.write(str(time())+' cpuperf/'+myhost+'\t'+str(tcpu)+'\n')
 
 if __name__=='__main__':
  ioperf(*sys.argv[1:])
