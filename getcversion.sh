@@ -6,8 +6,8 @@ leader=`echo $@ | awk '{print $2}'`
 myhost=`echo $@ | awk '{print $3}'`
 checksync=`echo $@ | awk '{print $4}'`
 version=`git branch | grep '*' | awk '{print $2}'`
-
 commit=`git show --abbrev-commit | grep commit | head -1 | awk '{print $2}'`
+./etcdput.py $leaderip cversion/$myhost $version-$commit
 echo h$checksync | grep hchecksync
 if [ $? -ne 0 ];
 then
@@ -17,7 +17,6 @@ then
 	then
 		echo asking to sync
 		stamp=`date +%s`
-		./etcdput.py $leaderip cversion/$myhost $version-$commit
 		./etcdput.py $leaderip sync/cversion/_____/request/$leader cversion_$stamp 
 		./etcdput.py $leaderip sync/cversion/_____/request cversion_$stamp 
 	fi
