@@ -449,7 +449,7 @@ fi
  /pace/heartbeatlooper.sh & disown
  /pace/fapilooper.sh & disown
  stamp=`date +%s%N`
-/TopStor/etcddel.py $myclusterip sync/ready --prefix 
+/TopStor/etcddel.py $myclusterip sync/ready $myhost 
 /TopStor/etcdput.py $myclusterip ready/$myhost $mynodeip
 /TopStor/etcdput.py $mynodeip ready/$myhost $mynodeip
 /TopStor/etcdput.py $myclusterip sync/ready/Add_${myhost}_$mynodeip/request ready_$stamp 
