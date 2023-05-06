@@ -58,6 +58,7 @@ then
 			echo yes | cp /TopStor/passwd /etc/
 			echo yes | cp /TopStor/group /etc/
 			echo reset > /root/nodestatus
+			echo no > /root/nodeconfigured
 			systemctl start target
 			targetcli clearconfig confirm=True	
 			targetcli saveconfig 

@@ -39,6 +39,7 @@ isinitn=`cat /root/nodeconfigured`'s'
 echo $isinitn | grep 'yess'
 if [ $? -ne 0 ];
 then
+ echo 222222222222222222222222222222222222222222222222222 run senddiscovery
  /pace/senddiscovery.sh & disown
 fi
 while true;
