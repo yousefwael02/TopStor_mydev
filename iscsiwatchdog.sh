@@ -70,7 +70,7 @@ do
 	then
 		targetn=$targetnewn
 		lsscsi=0
-		/pace/diskchange.sh add change add
+		/pace/diskchange.sh dirty change add
 		#ps -ef | grep diskchange | grep -v grep
 		#if [ $? -ne 0 ];
 		#then
@@ -96,7 +96,7 @@ do
 			echo /pace/diskchange.sh $diskchange
 			/pace/diskchange.sh $diskchange 
 			echo stop stop stop stop >/TopStordata/diskchange
-			/pace/diskchange.sh add add add
+			/pace/diskchange.sh checksync add add
 			echo 33333333333333333333333333333333333333333333stop watchdog diskchange
 		fi
 	fi
