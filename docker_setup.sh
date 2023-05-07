@@ -424,10 +424,14 @@ then
  /pace/etcddel.py $myclusterip vol  --prefix
  /pace/etcddel.py $myclusterip list --prefix
 else
- /TopStor/etcdput.py $myclusterip nextlead/er $myhost
- /TopStor/etcddel.py $myclusterip sync/nextlead/Add_er_ --prefix
- /TopStor/etcdput.py $myclusterip sync/nextlead/Add_er_${myhost}/request nextlead_$stamp
- /TopStor/etcdput.py $myclusterip sync/nextlead/Add_er_${myhost}/request/$leader nextlead_$stamp
+ oldnextlead=`/TopStor/etcdget.py $myclusterip nextlead/er | wc -c`
+ if [ $oldnextlead -ne 2 ];
+ then
+ 	/TopStor/etcdput.py $myclusterip nextlead/er $myhost
+ 	/TopStor/etcddel.py $myclusterip sync/nextlead/Add_er_ --prefix
+ 	/TopStor/etcdput.py $myclusterip sync/nextlead/Add_er_${myhost}/request nextlead_$stamp
+	/TopStor/etcdput.py $myclusterip sync/nextlead/Add_er_${myhost}/request/$leader nextlead_$stamp
+ fi
 fi
  /TopStor/etcddel.py $myclusterip sync/diskref --prefix
  /TopStor/etcdput.py $myclusterip sync/diskref/add_add_add______/request diskref_$stamp
