@@ -425,7 +425,7 @@ then
  /pace/etcddel.py $myclusterip list --prefix
 else
  oldnextlead=`/TopStor/etcdget.py $myclusterip nextlead/er | wc -c`
- if [ $oldnextlead -ne 2 ];
+ if [ $oldnextlead -le 2 ];
  then
  	/TopStor/etcdput.py $myclusterip nextlead/er $myhost
  	/TopStor/etcddel.py $myclusterip sync/nextlead/Add_er_ --prefix
