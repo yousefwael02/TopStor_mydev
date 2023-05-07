@@ -452,6 +452,7 @@ fi
 /TopStor/etcddel.py $myclusterip sync/ready $myhost 
 /TopStor/etcdput.py $myclusterip ready/$myhost $mynodeip
 /TopStor/etcdput.py $mynodeip ready/$myhost $mynodeip
+/pace/etcdsync.py $myclusterip $mynodeip ready ready
 /TopStor/etcdput.py $myclusterip sync/ready/Add_${myhost}_$mynodeip/request ready_$stamp 
 /TopStor/etcdput.py $myclusterip sync/ready/Add_${myhost}_$mynodeip/request/$leader ready_$stamp 
 #/pace/diskref.py $leader $myculsterip $myhost $mynodeip 
