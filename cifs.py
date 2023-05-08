@@ -43,7 +43,7 @@ def create(leader, leaderip, myhost, myhostip, etcdip, pool, name, ipaddr, ipsub
         users=get(etcdip,'usershash','--prefix')
         users=[x for x in users if 'admin' not in x[0] ]
         for user in users:
-            username = user[0].splt('/')[1]
+            username = user[0].split('/')[1]
             cmdline = '/TopStor/decthis.sh '+username+' '+user[1]
             passwd = subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode().split('_result')[1]
             cmdline = 'docker exec '+resname+' /hostetc/smbuserfix.sh x '+username+' '+passwd
