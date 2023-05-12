@@ -107,6 +107,7 @@ then
 	stamp=`date +%s%N`
 	myscript=`basename "$0"`
 	params=`echo $myscript $@ $stamp | sed 's\ \\_\g'`
+	/pace/etcddel.py $leaderip sync/user _${username}_
 	/pace/etcdput.py $leaderip sync/user/$params/request/$myhost user_${username}_$stamp
 	/pace/etcdput.py $leaderip sync/user/$params/request user_${username}_$stamp
 fi
