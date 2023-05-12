@@ -58,11 +58,11 @@ then
   homedir=$homePool
   homebase='-b /'$homedir' -M'  
   echo hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
-  echo /TopStor/VolumeCreateHOME $homePool $username $size $username $HomeAddr $HomeSubnet $userreq $myhost $userreq 
-  /TopStor/VolumeCreateHOME $homePool $username $size $username $HomeAddr $HomeSubnet $userreq $myhost $userreq 
+  echo /TopStor/VolumeCreateHOME $leaderip $homePool $username $size $username $HomeAddr $HomeSubnet active $userreq $myhost $userreq 
+  /TopStor/VolumeCreateHOME $leaderip $homePool $username $size $username $HomeAddr $HomeSubnet active $userreq $myhost $userreq 
   echo hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
-  usermod -d $homdedir/$usrename $username
-  chmod o-rwx /$homedir/$username -R
+  #usermod -d $homdedir/$usrename $username
+  # it is in the VolCreate HOME chmod o-rwx /$homedir/$username -R
  else
   docker exec etcdclient /TopStor/logmsg.py Unlin1023 warning $userreq $username
  fi
