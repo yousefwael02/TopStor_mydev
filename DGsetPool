@@ -217,6 +217,10 @@ else
      zfs import p$nextpool
      ETCDCTL_API=3 /pace/etcdput.py $leaderip pools/p$nextpool $myhost
      stamp=`date +%s`
+     guid=`zpool get guid p$nextpool -H | awk '{print $3}'`
+     ETCDCTL_API=3 /pace/etcdput.py $leaderip ActPools/p$nextpool $guid
+     ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/ActPool/Add_p${nextpool}_$guid/request actpools_$stamp 
+     ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/ActPool/Add_p${nextpool}_$guid/request/$leader actpools_$stamp 
      ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/pools/Add_p${nextpool}_$myhost/request pools_$stamp 
      ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/pools/Add_p${nextpool}_$myhost/request/$leader pools_$stamp 
      ETCDCTL_API=3 /pace/etcdput.py $leaderip activepool/p$nextpool running 
@@ -280,6 +284,10 @@ else
      zfs import p$nextpool
      ETCDCTL_API=3 /pace/etcdput.py $leaderip pools/p$nextpool $myhost
      stamp=`date +%s`
+     guid=`zpool get guid p$nextpool -H | awk '{print $3}'`
+     ETCDCTL_API=3 /pace/etcdput.py $leaderip ActPools/p$nextpool $guid
+     ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/ActPool/Add_p${nextpool}_$guid/request actpools_$stamp 
+     ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/ActPool/Add_p${nextpool}_$guid/request/$leader actpools_$stamp 
      ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/pools/Add_p${nextpool}_$myhost/request pools_$stamp 
      ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/pools/Add_p${nextpool}_$myhost/request/$leader pools_$stamp 
      ETCDCTL_API=3 /pace/etcdput.py $leaderip balancetype/p$nextpool Availability 
@@ -422,6 +430,10 @@ else
      zfs import p$nextpool
      ETCDCTL_API=3 /pace/etcdput.py $leaderip pools/p$nextpool $myhost
      stamp=`date +%s`
+     guid=`zpool get guid p$nextpool -H | awk '{print $3}'`
+     ETCDCTL_API=3 /pace/etcdput.py $leaderip ActPools/p$nextpool $guid
+     ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/ActPool/Add_p${nextpool}_$guid/request actpools_$stamp 
+     ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/ActPool/Add_p${nextpool}_$guid/request/$leader actpools_$stamp 
      ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/pools/Add_p${nextpool}_$myhost/request pools_$stamp 
      ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/pools/Add_p${nextpool}_$myhost/request/$leader pools_$stamp 
      ETCDCTL_API=3 /pace/etcdput.py $leaderip balancetype/p$nextpool Availability 
@@ -496,6 +508,10 @@ else
      zfs set avail:type=volset p$nextpool
      ETCDCTL_API=3 /pace/etcdput.py $leaderip pools/p$nextpool $myhost
      stamp=`date +%s`
+     guid=`zpool get guid p$nextpool -H | awk '{print $3}'`
+     ETCDCTL_API=3 /pace/etcdput.py $leaderip ActPools/p$nextpool $guid
+     ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/ActPool/Add_p${nextpool}_$guid/request actpools_$stamp 
+     ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/ActPool/Add_p${nextpool}_$guid/request/$leader actpools_$stamp 
      ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/pools/Add_p${nextpool}_$myhost/request pools_$stamp 
      ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/pools/Add_p${nextpool}_$myhost/request/$leader pools_$stamp 
      ETCDCTL_API=3 /pace/etcdput.py $leaderip activepool/p$nextpool running 
@@ -531,6 +547,10 @@ else
      zfs set avail:type=Availability p$nextpool
      ETCDCTL_API=3 /pace/etcdput.py $leaderip pools/p$nextpool $myhost
      stamp=`date +%s`
+     guid=`zpool get guid p$nextpool -H | awk '{print $3}'`
+     ETCDCTL_API=3 /pace/etcdput.py $leaderip ActPools/p$nextpool $guid
+     ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/ActPool/Add_p${nextpool}_$guid/request actpools_$stamp 
+     ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/ActPool/Add_p${nextpool}_$guid/request/$leader actpools_$stamp 
      ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/pools/Add_p${nextpool}_$myhost/request pools_$stamp 
      ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/pools/Add_p${nextpool}_$myhost/request/$leader pools_$stamp 
      ETCDCTL_API=3 /pace/etcdput.py $leaderip balancetype/p$nextpool Availability 
