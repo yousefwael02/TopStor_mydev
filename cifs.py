@@ -28,8 +28,11 @@ def create(leader, leaderip, myhost, myhostip, etcdip, pool, name, ipaddr, ipsub
         leftvol = vol[0].split('/')[4]
         mounts += '-v/'+pool+'/'+leftvol+':/'+pool+'/'+leftvol+':rw'
         with open('/TopStordata/tempsmb.'+ipaddr,'a') as fip:
-            with open('/'+pool+'/smb.'+leftvol, 'r') as fvol:
-                fip.write(fvol.read())
+            try:
+                with open('/'+pool+'/smb.'+leftvol, 'r') as fvol:
+                    fip.write(fvol.read())
+            except:
+               continue 
     cmdline = 'cp /TopStordata/tempsmb.'+ipaddr+' /TopStordata/smb.'+ipaddr
     subprocess.run(cmdline.split(),stdout=subprocess.PIPE)  
     if '_' not in vtype:

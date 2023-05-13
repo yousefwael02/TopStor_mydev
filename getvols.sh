@@ -16,7 +16,7 @@ then
 fi
 if [[ $prot == 'home' ]];
 then
- head -n 2 /pdhcp*/smb.* | grep HOME | grep SUMMARY | awk -F'HOME ' '{print $2}' 2>/dev/null
+ head -n 2 /pdhcp*/smb.* | grep HOME | grep SUMMARY |  awk '{print $4}' 2>/dev/null
  exit
 fi
 if [[ $prot == 'iscsi' ]];
