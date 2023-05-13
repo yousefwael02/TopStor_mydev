@@ -217,7 +217,7 @@ then
 	leader=$myhost
 else
 	etcd=$mynodeip
-	leader=`/etcdget.py $myclusterip leader`
+	leader=`/pace/etcdget.py $myclusterip leader`
 fi
 
 echo nameserver 10.11.12.7 >  /root/gitrepo/resolv.conf
