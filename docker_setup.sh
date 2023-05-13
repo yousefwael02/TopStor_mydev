@@ -334,6 +334,7 @@ do
  		/pace/etcddel.py $myclusterip sync/ready/Add --prefix
 	else
  		/pace/etcddel.py $mynodeip ready --prefix
+		/TopStor/activepoolsync.py
 	
 	fi		
 	/pace/etcdput.py $myclusterip sync/$aliast/Add_${myhost}_$myalias/request ${aliast}_$stamp.
