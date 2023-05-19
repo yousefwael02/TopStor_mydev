@@ -51,7 +51,6 @@ def config(leader, leaderip, myhost, *bargs):
   put(leaderip, 'namespace/mgmtip',arglist['cluster'])
   dels(leaderip, 'sync', 'namespace_')
   put(leaderip, 'sync/namespace/Add_'+'namespace::mgmtip_'+arglist['cluster'].replace('/','::')+'/request','namespace_'+stampi)
-  put(leaderip, 'sync/namespace/Add_'+'namespace::mgmtip_'+arglist['cluster'].replace('/','::')+'/request/'+myhost,'namespace_'+stampi)
   logmsg.sendlog('HostManual1su7','info',arglist['user'],oldarg,arglist['cluster'])
   queuethis('Hostconfig_cluster','finish',arglist['user'])
 
