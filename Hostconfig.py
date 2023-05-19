@@ -14,7 +14,6 @@ import logmsg
 from time import time as stamp
 
 def config(leader, leaderip, myhost, *bargs):
- rebootme = 0
  arglist = bargs[0]
  initqueue(leaderip, myhost)
  logmsg.initlog(leaderip, myhost)
@@ -49,10 +48,10 @@ def config(leader, leaderip, myhost, *bargs):
   leader = get(leaderip, 'leader')[0]
   #if myhost == leader:
   # updatenamespace(arglist['cluster'],oldarg)
+  put(leaderip, 'namespace/mgmtip',arglist['cluster'])
   dels(leaderip, 'sync', 'namespace_')
   put(leaderip, 'sync/namespace/Add_'+'namespace::mgmtip_'+arglist['cluster'].replace('/','::')+'/request','namespace_'+stampi)
   put(leaderip, 'sync/namespace/Add_'+'namespace::mgmtip_'+arglist['cluster'].replace('/','::')+'/request/'+myhost,'namespace_'+stampi)
-  put(leaderip, 'namespace/mgmtip',arglist['cluster'])
   logmsg.sendlog('HostManual1su7','info',arglist['user'],oldarg,arglist['cluster'])
   queuethis('Hostconfig_cluster','finish',arglist['user'])
 
@@ -156,9 +155,6 @@ def config(leader, leaderip, myhost, *bargs):
   put(leaderip, 'sync/ipaddr/Add_ActivePartners_'+arglist['name']+'_'+arglist['ipaddr'].replace('/','::')+'/request/'+leader,'ActivePartners_'+arglist['name']+'_'+stampi)
   logmsg.sendlog('HostManual1su6','info',arglist['user'], str(oldipaddr),arglist['ipaddr']+'/'+arglist['ipaddrsubnet'])
 ######################################
-############# need to reboot  ###############
- queuethis('Hostconfig','finish',arglist['user'])
-
  return 1
 
 
