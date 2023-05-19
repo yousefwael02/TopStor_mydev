@@ -22,7 +22,7 @@ echo $oldip | grep $newip
 if [ $? -ne 0 ];
 then
  echo running sleep >>/root/tmpmyip
- ./etcdput.py $leaderip rebootme/$myhost pls
+ ./etcdput.py $leaderip rebootme/$myhost pls_fromIPADDR
 # sleep 5
 # /TopStor/resetdocker.sh
 # reboot

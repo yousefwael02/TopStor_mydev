@@ -24,7 +24,6 @@ echo $leader | grep $myhost
    stamp=`date +%s`
   ./etcdput.py $leaderip sync/enteepe/_____/request enteepe_$stamp
    ./etcdput.py $leaderip sync/enteeepe/_____/request/$leader enteepe_$stamp
-# ./etcdput.py $leaderip rebootme/$myhost pls
  fi
 
 sed -i "s/MASTERSERVER/$ntp/g" /etc/chrony.conf

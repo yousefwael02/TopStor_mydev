@@ -39,7 +39,6 @@ echo $? hereherehere $myip
   stamp=`date +%s`
   ./etcdput.py $leaderip sync/deens/_____/request teezee_$stamp
   ./etcdput.py $leaderip sync/deens/_____/request/$leader teezee_$stamp
-# ./etcdput.py $leaderip rebootme/$myhost pls
 
 fi
 

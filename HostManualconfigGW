@@ -27,7 +27,6 @@ else
    stamp=`date +%s`
   ./etcdput.py $leaderip sync/gateway/_____/request gateway_$stamp
    ./etcdput.py $leaderip sync/gateway/_____/request/$leader gateway_$stamp
-# ./etcdput.py $leaderip rebootme/$myhost pls
  fi
 #
  if [ $oldgatewayn -ge 7 ];

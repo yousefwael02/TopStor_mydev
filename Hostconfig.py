@@ -157,20 +157,6 @@ def config(leader, leaderip, myhost, *bargs):
   logmsg.sendlog('HostManual1su6','info',arglist['user'], str(oldipaddr),arglist['ipaddr']+'/'+arglist['ipaddrsubnet'])
 ######################################
 ############# need to reboot  ###############
- if rebootme > 0:
-  print('sending reboot')
-  sendip = get(leaderip, 'ready/'+arglist['name'])[0]
-  if rebootme == 2:
-   z=['/TopStor/pump.sh','rebootme', 'ipchange', oldipaddr, arglist['ipaddr']+'/'+arglist['ipaddrsubnet']]
-  else:
-   z=['/TopStor/pump.sh','rebootme', 'now']
-  queuethis('Hostconfig_cf','finish',arglist['user'])
-  msg={'req': 'Pumpthis', 'reply':z}
-  for x in range(10):
-   x =+1
-   sendhost(sendip, str(msg),'recvreply',myhost)
-   sleep(10)
-
  queuethis('Hostconfig','finish',arglist['user'])
 
  return 1

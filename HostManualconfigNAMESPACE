@@ -25,7 +25,6 @@ then
  stamp=`date +%s`
  ./etcdput.py $leaderip sync/nmspce/_____/request nmspce_$stamp
   ./etcdput.py $leaderip sync/nmspce/_____/request/$leader nmspce_$stamp
-# ./etcdput.py $leaderip rebootme/$myhost pls
 
 fi
 #/sbin/reboot
