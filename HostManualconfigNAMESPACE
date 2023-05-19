@@ -14,7 +14,6 @@ do
 isinsync=`/TopStor/etcdget.py $leaderip isinsync`
 sleep 1
 done
-nmcli conn mod mycluster ipv4.addresses $newip 
 echo $newip | grep '10.11.11.250'
 if [ $? -ne 0 ];
 then
@@ -29,6 +28,7 @@ then
  echo addingpls >> /root/tmpnamespace
  /TopStor/etcdput.py $hostip namespace/mgmtip $newip
 fi
+echo $newip > /root/newcaddr
 ./etcdput.py $leaderip rebootme/$myhost pls_fromNAME
 #else:
 # stamp=`date +%s`

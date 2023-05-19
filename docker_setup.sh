@@ -112,13 +112,21 @@ if [ $? -ne 0 ];
 then
 	#mynode='10.11.11.244/24'
 	isconf='no'
-	x=$(( ( RANDOM % 40 )  + 3 ))
-	mynode='10.11.11.'$x'/24'
+	ipaddr=`cat /root/newipaddr`
+ 	ipaddrn=`echo 'S'$ipaddr | wc -c`
+	if [ $ipaddrn -ge 5 ];
+	then
+		mynode=$ipaddr
+	else
+		x=$(( ( RANDOM % 40 )  + 3 ))
+		mynode='10.11.11.'$x'/24'
+	fi
 	nmcli conn delete mynode
 	nmcli conn add con-name mynode type ethernet ifname $mynodedev ip4 $mynode
 	nmcli conn delete clusterstub
 	nmcli conn add con-name clusterstub type ethernet ifname $myclusterdev ip4 169.168.12.12 
 	#nmcli conn up clusterstub 
+
 
 	ping -w 3 10.11.11.250
 	if [ $? -ne 0 ];
@@ -137,8 +145,25 @@ then
 	nmcli conn add con-name mycluster type ethernet ifname $myclusterdev ip4 $mycluster
 else
 	isconf='yes'
-	mynode=`nmcli conn show mynode | grep ipv4.addresses | awk '{print $2}'`
-	mycluster=`nmcli conn show mycluster | grep ipv4.addresses | awk '{print $2}'`
+	ipaddr=`cat /root/newipaddr`
+ 	ipaddrn=`echo 'S'$ipaddr | wc -c`
+	if [ $ipaddrn -ge 5 ];
+	then
+		mynode=$ipaddr
+		nmcli conn mod mynode ipv4.addresses $ipaddr
+	else
+		mynode=`nmcli conn show mynode | grep ipv4.addresses | awk '{print $2}'`
+	fi
+
+	caddr=`cat /root/newcaddr`
+ 	caddrn=`echo 'S'$caddr | wc -c`
+	if [ $caddrn -ge 5 ];
+	then
+		mycluster=$caddr
+		nmcli conn mod mycluster ipv4.addresses $caddr
+	else
+		mycluster=`nmcli conn show mycluster | grep ipv4.addresses | awk '{print $2}'`
+	fi
 	myclusterip=`echo $mycluster | awk -F'/' '{print $1}'`
 	ping -w 3 $myclusterip 
 	if [ $? -ne 0 ];
@@ -207,7 +232,8 @@ then
 fi
 echo starting docker
 systemctl start docker
-
+rm -rf /root/newipaddr
+rm -rf /root/newcaddr
 echo starting intdns
 docker run --rm --name intdns --hostname intdns --net bridge0 -e DNS_DOMAIN=qs.dom -e DNS_IP=10.11.12.7 -e LOG_QUERIES=true -itd --ip 10.11.12.7 -v /etc/localtime:/etc/localtime:ro -v /root/gitrepo/dnshosts:/etc/hosts moataznegm/quickstor:dns
 leaderip=$myclusterip
