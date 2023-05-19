@@ -58,7 +58,7 @@ then
 			echo yes | cp /TopStor/passwd /etc/
 			echo yes | cp /TopStor/group /etc/
 			echo reset > /root/nodestatus
-			echo no > /root/nodeconfigured
+			echo no_fromreset > /root/nodeconfigured
 			systemctl start target
 			targetcli clearconfig confirm=True	
 			targetcli saveconfig 
@@ -106,8 +106,8 @@ nmcli conn up clusterstub
 nmcli conn up mynode
 nmcli conn delete cmynode
 nmcli conn delete cmycluster
-isinitn=`cat /root/nodeconfigured`'s'
-echo $isinitn | grep 'yess'
+isinitn='S'`cat /root/nodeconfigured`
+echo $isinitn | grep 'Syes'
 if [ $? -ne 0 ];
 then
 	#mynode='10.11.11.244/24'

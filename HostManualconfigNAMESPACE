@@ -12,9 +12,9 @@ nmcli conn mod mycluster ipv4.addresses $newip
 echo $newip | grep '10.11.11.250'
 if [ $? -ne 0 ];
 then
-	echo yes > /root/nodeconfigured
+	echo yes_fromNAME > /root/nodeconfigured
 else
-	echo no > /root/nodeconfigured
+	echo no_fromNAME > /root/nodeconfigured
 fi
 echo checking $leader $myhost >> /root/tmpnamespace
 echo $leader | grep $myhost
