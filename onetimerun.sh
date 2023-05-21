@@ -6,7 +6,7 @@ cd top2
 git init
 git checkout -b QSD3.07
 git remote add localgit http://10.11.11.252/git/TopStordev.git
-git remote add remotegit http://github.com/MoatazNegm/git/TopStordev.git
+git remote add remotegit http://github.com/MoatazNegm/TopStordev.git
 git pull remotegit QSD3.07
 echo '###################################################'
 git show | grep commit
@@ -18,7 +18,7 @@ cd pac2
 git init
 git checkout -b QSD3.07
 git remote add localgit http://10.11.11.252/git/HC.git
-git remote add remotegit http://github.com/MoatazNegm/git/HC.git
+git remote add remotegit http://github.com/MoatazNegm/HC.git
 git pull remotegit QSD3.07
 echo '###################################################'
 git show | grep commit
@@ -30,7 +30,7 @@ cd web2
 git init
 git checkout -b QSD3.07
 git remote add localgit http://10.11.11.252/git/TopStorweb.git
-git remote add remotegit http://github.com/MoatazNegm/git/TopStorWeb.git
+git remote add remotegit http://github.com/MoatazNegm/TopStorWeb.git
 git pull remotegit QSD3.07
 echo '###################################################'
 git show | grep commit
