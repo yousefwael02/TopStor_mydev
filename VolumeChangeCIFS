@@ -96,12 +96,12 @@ then
  sed -i "s/IPSUBNET/$ipsubnet/g" /TopStordata/smb.${name}
  sed -i "s/ACTIVE/$active/g" /TopStordata/smb.${name}
  yes | cp /TopStordata/smb.$name /$DG/
- chmod 2770 /$DG/$name
- setfacl -b -R /$DG/$name
- echo $writev | grep -w nogroup
+ echo $writev | egrep -w 'nogroup|DOMAIN'
  if [ $? -ne 0 ];
  then
-  for grp in $writev ;do  setfacl -R -m g:$grp:rwx /$DG/$name; done
+  setfacl -b -R /$DG/$name
+  writevtemp=`echo $writev | sed 's/\,/ /g'`
+  for grp in $writevtemp ;do  setfacl -R -m g:$grp:rwx /$DG/$name; done
  fi
  echo ETCDCTL_API=3 /pace/etcdput.py $leaderip volumes/CIFS/$myhost/$DG/$name $DG/$name/no/yes/$writev/administrator/yes/$ipaddr/${ipsubnet}$extraparms/$active
  ETCDCTL_API=3 /pace/etcdput.py $leaderip volumes/CIFS/$myhost/$DG/$name $DG/$name/no/yes/$writev/administrator/yes/$ipaddr/${ipsubnet}$extraparms/$active

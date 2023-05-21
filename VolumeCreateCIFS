@@ -107,7 +107,8 @@ then
  echo $writev | grep -w nogroup
  if [ $? -ne 0 ];
  then
-  for grp in $writev ;do  setfacl -R -m g:$grp:rwx /$DG/$name; done
+  writevtemp=`echo $writev | sed 's/\,/ /g'`
+  for grp in $writevtemp ;do  setfacl -R -m g:$grp:rwx /$DG/$name; done
  fi
 
  /TopStor/cifs.py $leader $leaderip $myhost $myhostip $etcd $DG $name $ipaddr $ipsubnet CIFS
