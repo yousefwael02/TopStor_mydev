@@ -3,23 +3,16 @@ import subprocess,sys
 
 
 def delcifs(*args):
- vol = args[0]
- ipaddr = args[1]
- cmdline = 'docker ps -f volume='+vol
- print(cmdline)
- dockers = subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').split('\n')
- dockers = [ x for x in dockers if ipaddr not in x and 'CONTAINER' not in x and len(x) > 10]
- print('dockers',dockers)
- print('###############3')
- for docker in dockers:
-   res = docker.split()[-1]
-   cmdline = 'docker rm -f '+res
-   result = subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8')
-   theip = res.split('-')[1]
-   cmdline='nmcli conn mod cmynode -ipv4.addresses '+theip
-   result = subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8')
-   cmdline='nmcli conn up cmynode'
-   result = subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8')
+ oldipaddr = args[0]
+ oldsubnet = args[1]
+ vtype = args[2]
+ res = vtype+'-'+oldipaddr 
+ cmdline = 'docker rm -f '+res
+ result = subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8')
+ cmdline='nmcli conn mod cmynode -ipv4.addresses '+oldipaddr+'/'+oldsubnet
+ result = subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8')
+ cmdline='nmcli conn up cmynode'
+ result = subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8')
    
    
 if __name__=='__main__':
