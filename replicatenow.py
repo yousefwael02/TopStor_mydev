@@ -113,7 +113,14 @@ def replistream(receiver, nodeip, snapshot, nodeowner, poolvol, pool, volume, cs
   with open('/root/destroynow','w') as f:
     f.write(cmd+'\n')
   checkpartner(receiver, nodeip, cmd.split(), 'old')
+ 
+ cmd = '/usr/sbin/zfs list -t snapshot -o name'
+ _ , snaps = checkpartner(receiver, nodeip, cmd.split(), 'old')
  print('end checking csnaps')
+ if snapshot in str(snaps):
+    return 'success' 
+ else:
+    return 'fail'
  return stream
 
 def repliparam(snapshot, receiver):
