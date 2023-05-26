@@ -40,7 +40,7 @@ then
  docker exec etcdclient /TopStor/logmsg.py Replispacest01 info $userreq $vol $shortreceiver  
  echo /logmsg.py Replispacest01 info $userreq $vol $shortreceiver  
 fi
-res=`./Snapshotnow $leaderip $myhost $@ | awk -F'_newsnap' '{print $2}'`
+res=`/TopStor/Snapshotnow $leaderip $myhost $@ | awk -F'_newsnap' '{print $2}'`
 echo $res | grep Erro
 if [ $? -eq 0 ];
 then
@@ -62,7 +62,7 @@ then
  echo $receiver, $waiting
  while [ $waiting -eq 1 ];
  do 
-  running=`./etcdget.py $leaderip running $receiver`
+  running=`/TopStor/etcdget.py $leaderip running $receiver`
   echo $running | grep $receiver 
   if [ $? -eq 0 ];
   then
@@ -71,7 +71,7 @@ then
    if [ $queue -ge 10 ];
    then
     stamp=`date +%s`
-    ./etcddel.py $leaderip running $receiver
+    /TopStor/etcddel.py $leaderip running $receiver
     #./etcdput.py $leaderip running/stub/$receiver  no
     #./etcdput.py $leaderip sync/running/____/request running_$stamp
     #./etcdput.py $leaderip sync/running/____/request/$leader running_$stamp
@@ -89,7 +89,7 @@ then
   #./etcdput.py $leaderip running/$myhost/$receiver $receiver 
   #./etcdput.py $leaderip sync/running/____/request running_$stamp
   #./etcdput.py $leaderip sync/running/____/request/$leader running_$stamp
-  echo ./replicatenow.py $leaderip $etcd $snapshot $receiver
+  echo /TopStor/replicatenow.py $leaderip $etcd $snapshot $receiver
   result=`/TopStor/replicatenow.py $leaderip $etcd $snapshot $receiver 2>/root/replicatenow`
   echo result=$result 
   result=`echo $result | grep 'result_' | awk -F'result_' '{print $2}'`

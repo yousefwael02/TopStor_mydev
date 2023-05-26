@@ -93,11 +93,11 @@ def replistream(receiver, nodeip, snapshot, nodeowner, poolvol, pool, volume, cs
   return
  elif 'newvol/@new' in response[1]:
   #print('./sendzfs.sh new '+ myvol+'@'+snapshot +' '+ poolvol +' '+ nodeloc.replace(' ','%%'))
-  cmd = './sendzfs.sh new '+ myvol+'@'+snapshot +' '+ poolvol +' '+ nodeloc.replace(' ','%%')
+  cmd = '/TopStor/sendzfs.sh new '+ myvol+'@'+snapshot +' '+ poolvol +' '+ nodeloc.replace(' ','%%')
  else:
   #cmd = './sendzfs.sh old '+myvol+'@'+lastsnap+' '+myvol+'@'+snapshot+' '+poolvol+' '+nodeloc
-  cmd = './sendzfs.sh old '+myvol+'@'+oldsnap+' '+myvol+'@'+snapshot+' '+response[2]+' '+nodeloc.replace(' ','%%')
-  print('./sendzfs.sh old '+myvol+'@'+oldsnap+' '+myvol+'@'+snapshot+' '+response[2]+' '+nodeloc.replace(' ','%%'))
+  cmd = '/TopStor/sendzfs.sh old '+myvol+'@'+oldsnap+' '+myvol+'@'+snapshot+' '+response[2]+' '+nodeloc.replace(' ','%%')
+  print('/TopStor/sendzfs.sh old '+myvol+'@'+oldsnap+' '+myvol+'@'+snapshot+' '+response[2]+' '+nodeloc.replace(' ','%%'))
  put(leaderip,'running/'+receiver, 'running')
  stream = subprocess.run(cmd.split(' '),stdout=subprocess.PIPE).stdout.decode()
  dels(leaderip,'running/'+receiver)
