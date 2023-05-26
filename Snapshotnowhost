@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/usr/bin/bash
+source /root/.bash_profile
 export ETCDCTL_API=3
 cd /TopStor
 pDG=`echo $@ | awk '{print $1}'`;
@@ -60,6 +61,7 @@ then
  	waiting=1
  fi
  echo $receiver, $waiting
+ waiting=0
  while [ $waiting -eq 1 ];
  do 
   running=`/TopStor/etcdget.py $leaderip running $receiver`
@@ -89,9 +91,13 @@ then
   #./etcdput.py $leaderip running/$myhost/$receiver $receiver 
   #./etcdput.py $leaderip sync/running/____/request running_$stamp
   #./etcdput.py $leaderip sync/running/____/request/$leader running_$stamp
-  echo /TopStor/replicatenow.py $leaderip $etcd $snapshot $receiver
-  result=`/TopStor/replicatenow.py $leaderip $etcd $snapshot $receiver 2>/root/replicatenow`
+  echo /TopStor/replicatenow.py $leaderip $etcd $snapshot $receiver >/root/snapshotpls
+  #result=`/TopStor/replicatenow.py $leaderip $etcd $snapshot $receiver 2>/root/replicatenow`
+  /TopStor/replicatenow.py $leaderip $etcd $snapshot $receiver >/TopStordata/remotereplicatenow 2>/root/replicatenow
+  result=`cat /TopStordata/remotereplicatenow`
+  echo result=$result > /root/snaph 
   echo result=$result 
+  
   result=`echo $result | grep 'result_' | awk -F'result_' '{print $2}'`
   echo .................................................................
   echo result=$result

@@ -7,8 +7,6 @@ from etcddel import etcddel as dels
 from pumpkeys import pumpkeys, initpumpkeys
 from time import sleep
 
-leaderip = '0'
-etcdip = '0'
 
 allinfo = {}
 phrase = ''
@@ -122,14 +120,16 @@ def replistream(receiver, nodeip, snapshot, nodeowner, poolvol, pool, volume, cs
  _ , snaps = checkpartner(receiver, nodeip, cmd.split(), 'old')
  print('end checking csnaps')
  if snapshot in str(snaps):
+    print('success')
     return 'success' 
  else:
+    print('fail')
     return 'fail'
  return stream
 
 def repliparam(snapshot, receiver):
  global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip
- alldsks = get(etcdip, 'host','current')
+ alldsks = get(leaderip, 'host','current')
  allinfo = getall(leaderip, alldsks)
  volume = snapshot.split('/')[1].split('@')[0]
  pool = snapshot.split('/')[0]
@@ -138,10 +138,10 @@ def repliparam(snapshot, receiver):
  snapused = '0' 
  nodeip, selection = replitargetget(receiver, volume, volused, snapshot)
  if selection == 'closed':
-  print('no node is open for replication in the '+receiver)
+  print('(fail) no node is open for replication in the '+receiver)
   return 'closed'
  if 'No_vol_space' in str(selection):
-  print('No space in the receiver: '+receiver)
+  print('(fail) No space in the receiver: '+receiver)
   return 'No_Sppue'
  print('selection',selection)
  nodeowner = selection.split(':')[0]
@@ -152,8 +152,10 @@ def repliparam(snapshot, receiver):
   csnaps = 'noold'
  result = replistream(receiver, nodeip, snapshot, nodeowner, poolvol, pool, volume, csnaps)
  if 'fail' in result:
+  print('fail')
   cmd = '/usr/sbin/zfs destroy -r '+' '+pool+'/'+volume+'@'+snapshot 
  else:
+  print('success ',result)
   cmd = nodeloc+'  /TopStor/setsnapsender.py '+snapshot+' '+leaderip
   subprocess.run(cmd.split(' '),stdout=subprocess.PIPE).stdout.decode()
   cmd = '/usr/sbin/zfs set partner:receiver='+receiver.split('_')[0]+' '+pool+'/'+volume+'@'+snapshot
@@ -167,4 +169,4 @@ if __name__=='__main__':
  leaderip =  sys.argv[1]
  etcdip =  sys.argv[2]
  initpumpkeys('init')
- result = repliparam(*sys.argv[3:])
+ repliparam(*sys.argv[3:])
