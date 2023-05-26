@@ -17,8 +17,11 @@ if [ $? -eq 0 ];
 then
  echo it is okok >> /root/receivekeys
  /TopStor/etcdput.py $leaderip nodesender/${clusterip}/$partnerip/$myhostip $partner
- if myhost != leader:
+ echo $myhost | $leader
+ if [ $? -ne 0 ];
+ then
  	/TopStor/etcdput.py $myhostip nodesender/${clusterip}/$partnerip $partner   2>/dev/null
+ fi
  authkeys=`cat /root/.ssh/authorized_keys | grep -v $partner`
  echo $authkeys > /root/.ssh/authorized_keys
  echo $keys | sed 's/\_spc\_/ /g' >> /root/.ssh/authorized_keys
@@ -26,6 +29,9 @@ then
  echo -e "$sshd" > /etc/ssh/sshd_config
  echo -e "Port $port \r"  >> /etc/ssh/sshd_config
  echo -e "Port 22 \r" >> /etc/ssh/sshd_config
+ firewall-cmd --permanent --add-port=$port/udp
+ firewall-cmd --permanent --add-port=$port/tcp
+ firewall-cmd --reload
  systemctl restart sshd
  chmod 004 /root/.ssh/authorized_keys
 fi
