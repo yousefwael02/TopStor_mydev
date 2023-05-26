@@ -55,7 +55,7 @@ do
   then
    echo waiting the current replications to finish
    queue=`ps -ef | grep Snapshotnow | wc -l`
-   if [ $queue -ge 10 ];
+   if [ $queue -le 10 ];
    then
     /TopStor/etcdput.py $leaderip running/$receiver no
     exit
@@ -72,7 +72,7 @@ then
  /TopStor/etcdput.py $leaderip running/$receiver $receiver
  /TopStor/etcdput.py $leaderip sync/running/____/request running_$stamp
  /TopStor/etcdput.py $leaderip sync/running/____/request/$leader running_$stamp
- echo ./replicatenow.py $snapshot $receiver
+ echo ./replicatenow.py $leaderip $etcd $snapshot $receiver
  result=`./replicatenow.py $leaderip $etcd $snapshot $receiver`
  result=`echo $result | grep 'result_' | awk -F'result_' '{print $2}'`
  echo .................................................................

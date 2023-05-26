@@ -2,7 +2,8 @@
 import sys, subprocess
 from allphysicalinfo import getall 
 from etcdgetpy import etcdget as get
-from pumpkeys import pumpkeys
+from pumpkeys import pumpkeys, initpumpkeys
+from time import sleep
 
 leaderip = '0'
 etcdip = '0'
@@ -13,22 +14,28 @@ myclusterip = ''
 pport = ''
 nodeloc = ''
 replitype = 'Receiver'
-
+isitopen = 'closed'
 def checkpartner(receiver, nodeip, cmd, isnew):
- global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip
- result=subprocess.run(cmd.split(' '),stdout=subprocess.PIPE)
- response = result.stdout.decode()
- print(result.returncode)
- isopen = 'closed' if result.returncode else 'open'
- if result.returncode and isnew == 'old':
-  pumpkeys(nodeip, replitype, pport, phrase)
-  count = 0
-  while count < 10:
-   isopen, response = checkpartner(receiver, nodeip,  cmd, 'new')
-   count += 1
-   if isopen == 'open':
-    count = 11
- return isopen, response 
+ global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip, isitopen
+ if isitopen == 'closed':
+    tempcmd = nodeloc+' ls'
+    count = 0
+    while count < 10:
+        result=subprocess.run(tempcmd.split(),stdout=subprocess.PIPE)
+        if result.returncode == 0: 
+            isitopen = 'open'
+            break
+        if count == 0:
+            print('start pump')
+            pumpkeys(nodeip, replitype, pport, phrase)
+            print('finish pump')
+        count += 1
+        sleep(1)
+ if isitopen == 'open':
+    print(" ".join(cmd))
+    result=subprocess.run(cmd,stdout=subprocess.PIPE)
+    exit()
+ return isitopen , result.stdout.decode()
 
 def replitargetget(receiver, volume, volused, snapshot):
  global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip
@@ -39,13 +46,18 @@ def replitargetget(receiver, volume, volused, snapshot):
  print(replitype, pport, phrase, leaderip )
  nodesinfo = get(etcdip, 'Partnernode/'+receiver,'--prefix')
  print('hi',nodesinfo)
+ isopen = 'closed'
  nodesinfo.append(('hi/hi/'+partnerinfo[0],'hi'))
  for node in nodesinfo:
   nodeip = node[0].split('/')[2]
   nodeloc = 'ssh -oBatchmode=yes -i /TopStordata/'+nodeip+'_keys/'+nodeip+' -p '+pport+' -oStrictHostKeyChecking=no '+nodeip 
+  print('################################################333')
   print(nodeloc)
+  print('################################################333')
   repliselection = nodeloc+' /TopStor/repliSelection.py '+volume+' '+volused+' '+snapshot
-  isopen, response = checkpartner(receiver, nodeip, repliselection, 'old')
+  print('start checkpartner')
+  isopen, response = checkpartner(receiver, nodeip, repliselection.split(), 'old')
+  print('finish checkpartner')
   print('>>>>>>>>>>>>>>>>>>>>',isopen)
   if 'open' in isopen:
    break
@@ -70,7 +82,7 @@ def replistream(receiver, nodeip, snapshot, nodeowner, poolvol, pool, volume, cs
  cmd = '/usr/sbin/zfs get quota '+myvol+' -H'
  quota=subprocess.run(cmd.split(' '),stdout=subprocess.PIPE).stdout.decode().split('\t')[2]
  cmd = nodeloc + ' /TopStor/targetcreatevol.sh '+poolvol+' '+volip+' '+volsubnet+' '+quota+' '+voltype+' '+volgrps+' '+oldsnap
- isopen, response = checkpartner(receiver, nodeip, cmd, 'old')
+ isopen, response = checkpartner(receiver, nodeip, cmd.split(), 'old')
  response = response.split('result_')
  if oldsnap == 'noold':
   response[1] = 'newvol/@new'
@@ -100,7 +112,7 @@ def replistream(receiver, nodeip, snapshot, nodeowner, poolvol, pool, volume, cs
   cmd = nodeloc + ' /TopStor/zfsdestroy.sh '+destroy[:-1]
   with open('/root/destroynow','w') as f:
     f.write(cmd+'\n')
-  checkpartner(receiver, nodeip, cmd, 'old')
+  checkpartner(receiver, nodeip, cmd.split(), 'old')
  print('end checking csnaps')
  return stream
 
@@ -113,7 +125,6 @@ def repliparam(snapshot, receiver):
  snapshot = snapshot.split('@')[1].replace(' ','')
  volused = str(allinfo['volumes'][volume]['referenced'])
  snapused = '0' 
- 
  nodeip, selection = replitargetget(receiver, volume, volused, snapshot)
  if selection == 'closed':
   print('no node is open for replication in the '+receiver)
@@ -142,4 +153,5 @@ def repliparam(snapshot, receiver):
 if __name__=='__main__':
  leaderip =  sys.argv[1]
  etcdip =  sys.argv[2]
+ initpumpkeys('init')
  result = repliparam(*sys.argv[3:])
