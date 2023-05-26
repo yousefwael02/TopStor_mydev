@@ -16,7 +16,7 @@ myhostip=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternodeip `
 if [ $? -eq 0 ];
 then
  echo it is okok >> /root/receivekeys
- /TopStor/etcdput.py $leaderip nodesender/${clusterip}/$partnerip/$myip $partner
+ /TopStor/etcdput.py $leaderip nodesender/${clusterip}/$partnerip/$myhostip $partner
  if myhost != leader:
  	/TopStor/etcdput.py $myhostip nodesender/${clusterip}/$partnerip $partner   2>/dev/null
  authkeys=`cat /root/.ssh/authorized_keys | grep -v $partner`
