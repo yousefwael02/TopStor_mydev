@@ -150,7 +150,7 @@ def repliparam(snapshot, receiver):
  if 'fail' in result:
   cmd = '/usr/sbin/zfs destroy -r '+' '+pool+'/'+volume+'@'+snapshot 
  else:
-  cmd = nodeloc+'  /TopStor/setsnapsender.sh '+snapshot+' '+leaderip
+  cmd = nodeloc+'  /TopStor/setsnapsender.py'+snapshot+' '+leaderip
   subprocess.run(cmd.split(' '),stdout=subprocess.PIPE).stdout.decode()
   cmd = '/usr/sbin/zfs set partner:receiver='+receiver.split('_')[0]+' '+pool+'/'+volume+'@'+snapshot
  subprocess.run(cmd.split(' '),stdout=subprocess.PIPE).stdout.decode()
