@@ -68,7 +68,7 @@ def selectDG(volname , volsize):
   counter -= 1
   sleep(10)
   alldsks = get('host','current')
-  allinfo = getall(ileaderip alldsks)
+  allinfo = getall(leaderip, alldsks)
   newpool = allinfo['disks'][selecteddisks[0]]['pool']
   if 'ree' not in newpool:
    createdpool = newpool
