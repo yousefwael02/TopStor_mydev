@@ -11,10 +11,12 @@ count=0
 strict='-o StrictHostKeyChecking=no' 
 nodeloc='ssh -oBatchmode=yes -i /TopStordata/'${partnerip}'_keys/'${partnerip}' -p '$port' '$strict' '${partnerip}
 result='closed'
-leaderip=` ./etcdgetlocal.py leaderip `
-myhost=` ./etcdgetlocal.py clusternode `
-myip=` ./etcdgetlocal.py clusternodeip `
-/TopStor/etcdgetlocal.py Partnernode/${partner}_$replitype $partnerip | grep $myip
+
+leader=`docker exec etcdclient /TopStor/etcdgetlocal.py leader`
+leaderip=`docker exec etcdclient /TopStor/etcdgetlocal.py leaderip`
+myhost=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternode`
+myhostip=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternodeip`
+/TopStor/etcdget.py $leaderip Partnernode/${partner}_$replitype $partnerip | grep $myhostip
 if [ $? -ne 0 ];
 then
  isnew='new'
@@ -54,7 +56,7 @@ do
   if [ $? -eq 0 ];
   then
    noden=`$nodeloc /usr/bin/hostname` 
-   nodei=`$nodeloc /TopStor/etcdgetlocal.py ready/$noden` 
+   nodei=`$nodeloc /TopStor/etcdget.py $leaderip ready/$noden` 
 #   /TopStor/pumpkeys.py $nodei $replitype $port $phrase
    echo nodei=$nodei
    sleep 2
@@ -66,12 +68,11 @@ do
     echo -e "$known" > /root/.ssh/known_hosts
     ssh -oBatchmode=yes -i /TopStordata/${nodei}_keys/${nodei} -p $port $strict ${nodei} ls  >/dev/null 2>/dev/null
    fi
-   /TopStor/etcdput.py $leaderip Partnernode/${partner}_$replitype/$nodei/$myip $noden 
-   leader=`./etcdgetlocal.py leader --prefix`
-   echo $leader | grep $myip
+   /TopStor/etcdput.py $leaderip Partnernode/${partner}_$replitype/$nodei/$myhostip $noden 
+   echo $leader | grep $myhotip
    if [ $? -ne 0 ];
    then
-    /TopStor/etcdputlocal.py $Partnernode/${partner}_$replitype/$nodei/$myip $noden 
+    /TopStor/etcdput.py $myhostip $Partnernode/${partner}_$replitype/$nodei/$myhostip $noden 
    fi
   fi
   count=11

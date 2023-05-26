@@ -8,13 +8,17 @@ port=`echo $@ | awk '{print $5}'`
 ppass=`echo $@ | awk '{print $6}'`
 keys=`echo $@ | awk '{print $7}'`
 
-leaderip=` ./etcdgetlocal.py leaderip `
-./etcdgetlocal.py Partner $clusterip | grep $ppass | grep $port 
+leader=`docker exec etcdclient /TopStor/etcdgetlocal.py leader `
+leaderip=`docker exec etcdclient /TopStor/etcdgetlocal.py leaderip `
+myhost=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternode `
+myhostip=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternodeip `
+/TopStor/etcdget.py $leaderip Partner $clusterip | grep $ppass | grep $port 
 if [ $? -eq 0 ];
 then
  echo it is okok >> /root/receivekeys
- ./etcdput.py $leaderip nodesender/${clusterip}/$partnerip/$myip $partner
- ./etcdputlocal.py nodesender/${clusterip}/$partnerip $partner   2>/dev/null
+ /TopStor/etcdput.py $leaderip nodesender/${clusterip}/$partnerip/$myip $partner
+ if myhost != leader:
+ 	/TopStor/etcdput.py $myhostip nodesender/${clusterip}/$partnerip $partner   2>/dev/null
  authkeys=`cat /root/.ssh/authorized_keys | grep -v $partner`
  echo $authkeys > /root/.ssh/authorized_keys
  echo $keys | sed 's/\_spc\_/ /g' >> /root/.ssh/authorized_keys
