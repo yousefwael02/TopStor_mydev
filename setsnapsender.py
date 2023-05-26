@@ -2,7 +2,6 @@
 import sys, subprocess
 from etcdget import etcdget as get
 
-leaderip = '0'
 def setsnapshotsender(snapshot,cip):
     cmd = 'zfs list -t snapshot'    
     result = subprocess.run(cmd.split(),stdout=subprocess.PIPE).stdout.decode().split()
@@ -18,6 +17,8 @@ def setsnapshotsender(snapshot,cip):
     
 
 if __name__=='__main__':
+    with open('/root/setsnapsender','w') as f:
+        f.write(' '.join(sys.argv[1:]+'\n')
     snapshot =  sys.argv[1]
     senderclusterip =  sys.argv[2]
     setsnapshotsender(snapshot, senderclusterip)
