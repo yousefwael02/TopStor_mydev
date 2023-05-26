@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import sys, subprocess
 from allphysicalinfo import getall 
+from etcdget import etcdget as get
 from getallraids import newraids, selectdisks, initgetraids
 from levelthis import levelthis
 from sendhost import sendhost
