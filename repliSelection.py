@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import sys
+import sys, subprocess
 from allphysicalinfo import getall 
 from getallraids import newraids, selectdisks, initgetraids
 from levelthis import levelthis
