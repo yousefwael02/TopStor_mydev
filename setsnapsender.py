@@ -6,6 +6,7 @@ leaderip = '0'
 def setsnapshotsender(snapshot,cip):
     cmd = 'zfs list -t snapshot'    
     result = subprocess.run(cmd.split(),stdout=subprocess.PIPE).stdout.decode() 
+    print(result)
     fullname = [ x.split('\t')[0] for x in result if snapshot in x ][0]
     print('fullname',fullname)
     cmdline='docker exec etcdclient /TopStor/etcdgetlocal.py leaderip'
