@@ -9,7 +9,7 @@ def setsnapshotsender(snapshot,cip):
     print('fullname',fullname)
     cmdline='docker exec etcdclient /TopStor/etcdgetlocal.py leaderip'
     leaderip=subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','').replace(' ','')
-    sender = get(leaderip,'Partner', cip)[0][0].split('/')[1]
+    sender = get(leaderip,'Partner', cip)[0][0].split('/')[1].split('_')[0]
     print('sender', sender)
     
 
