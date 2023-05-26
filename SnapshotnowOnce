@@ -2,13 +2,14 @@
 echo $@ > /root/snapnowparam
 cd /TopStor
 leaderip=`echo $@ | awk '{print $1}'`;
-pool=`echo $@ | awk '{print $2}'`;
-vol=`echo $@ | awk '{print $3}'`;
-name=`echo $@ | awk '{print $4}'` ;
+name=`echo $@ | awk '{print $2}'` ;
+pool=`echo $@ | awk '{print $3}'`;
+vol=`echo $@ | awk '{print $4}'`;
 receiver=`echo $@ | awk '{print $5}'` ;
 userreq=`echo $@ | awk '{print $6}'` ;
 stamp=`date +%s`;
 snapshot=$pool'/'$vol'@'${name}'.'$stamp
+echo new snpashot-$snapshot
 shortreceiver=`echo $receiver | awk -F'_' '{print $1}'`
 	myhost=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternode`
 	myhostip=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternodeip`
@@ -26,7 +27,7 @@ echo $receiver | grep NoReceiver
 if [ $? -ne 0 ];
 then 
  docker exec etcdclient /TopStor/logmsg.py Replispacest01 info $userreq $vol $shortreceiver  
- echo /logmsg.py Replispacest01 info $userreq $vol $shortreceiver  
+ echo /TopStor/logmsg.py Replispacest01 info $userreq $vol $shortreceiver  
 else
  docker exec etcdclient /TopStor/logmsg.py Snap1026 info $userreq $name 
 fi

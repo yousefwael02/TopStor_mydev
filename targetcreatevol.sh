@@ -30,12 +30,13 @@ then
  volinfo=`/TopStor/etcdget.py $leaderip vol $newvol`
  zfs unmount -f $pool/${newvol}
  #latestsnap=`/TopStor/getlatestsnap.py $newvol | awk -F'result_' '{print $2}'`
- echo zfs rollback $pool/$newvol@$oldsnap
  echo 'noold' | grep $oldsnap
  if [ $? -eq 0 ];
  then
+  echo zfs list -t snapshot -o name \| grep ^${pool}/${newvol}@  \| tac \| xargs -n 1 zfs destroy -r 
   zfs list -t snapshot -o name | grep ^${pool}/${newvol}@  | tac | xargs -n 1 zfs destroy -r 
  else
+  echo zfs rollback $pool/$newvol@$oldsnap
   zfs rollback -r $pool/$newvol@$oldsnap
  fi
  oldnew='old'
