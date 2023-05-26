@@ -2,6 +2,8 @@
 import sys, subprocess
 from allphysicalinfo import getall 
 from etcdgetpy import etcdget as get
+from etcdput import etcdput as put 
+from etcddel import etcddel as dels 
 from pumpkeys import pumpkeys, initpumpkeys
 from time import sleep
 
@@ -96,7 +98,9 @@ def replistream(receiver, nodeip, snapshot, nodeowner, poolvol, pool, volume, cs
   #cmd = './sendzfs.sh old '+myvol+'@'+lastsnap+' '+myvol+'@'+snapshot+' '+poolvol+' '+nodeloc
   cmd = './sendzfs.sh old '+myvol+'@'+oldsnap+' '+myvol+'@'+snapshot+' '+response[2]+' '+nodeloc.replace(' ','%%')
   print('./sendzfs.sh old '+myvol+'@'+oldsnap+' '+myvol+'@'+snapshot+' '+response[2]+' '+nodeloc.replace(' ','%%'))
+ put(leaderip,'running/'+receiver, 'running')
  stream = subprocess.run(cmd.split(' '),stdout=subprocess.PIPE).stdout.decode()
+ dels(leaderip,'running/'+receiver)
  print('streaming: ',stream)
  print('start checking csnaps')
  csnaps = csnaps.split(',')
