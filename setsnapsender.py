@@ -18,7 +18,7 @@ def setsnapshotsender(snapshot,cip):
 
 if __name__=='__main__':
     with open('/root/setsnapsender','w') as f:
-        f.write(' '.join(sys.argv[1:]+'\n')
+        f.write(' '.join(sys.argv[1:])+'\n')
     snapshot =  sys.argv[1]
     senderclusterip =  sys.argv[2]
     setsnapshotsender(snapshot, senderclusterip)
