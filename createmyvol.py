@@ -5,19 +5,19 @@ from etcdgetlocalpy import etcdget as get
 def createvol(*args):
  datastr = ''
  owner = args[0] 
- ownerip = get('ready/'+args[0])[0]
- pool = args[1]
- name = args[2]
- ipaddress = args[3]
- Subnet = args[4]
- size = args[5]
+ ownerip = args[1]
+ pool = args[2]
+ name = args[3]
+ ipaddress = args[4]
+ Subnet = args[5]
+ size = args[6]
  user = 'system'
- typep = args[6]
+ typep = args[7]
  if 'ISCSI' in typep:
   chapuser = 'MoatazNegm'
   chappas = 'MezoAdmin'
-  portalport = args[7]
-  initiators = args[8]
+  portalport = args[8]
+  initiators = args[9]
   datastr = pool+' '+name+' '+size+' '+ipaddress+' '+Subnet+' disabled '+portalport+' '+initiators+' '+chapuse+' '+chappas+' '+user+' '+owner+' '+user
  elif 'CIFSdom' in typep:
   domname = args[7]

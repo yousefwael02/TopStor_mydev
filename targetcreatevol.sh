@@ -14,7 +14,6 @@ myhost=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternode`
 myhostip=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternodeip`
 leader=`docker exec etcdclient /TopStor/etcdgetlocal.py leader`
 leaderip=`docker exec etcdclient /TopStor/etcdgetlocal.py leaderip`
-owner=$myhost
 echo $leader | grep $myhost
 if [ $? -ne 0 ];
 then
@@ -40,8 +39,8 @@ then
  fi
  oldnew='old'
 else 
- echo ./createmyvol.py $owner $pool $name $ipaddress $Subnet $size $typep $groups > /root/targetcreatevol
- ./createmyvol.py $owner $pool $name $ipaddress $Subnet $size $typep $groups
+ echo ./createmyvol.py $myhost $myhostip $pool $name $ipaddress $Subnet $size $typep $groups > /root/targetcreatevol
+ ./createmyvol.py $myhost $myhostip $pool $name $ipaddress $Subnet $size $typep $groups
  oldnew='new'
  latestsnap=''
  zfs destroy -f $pool/${newvol}
