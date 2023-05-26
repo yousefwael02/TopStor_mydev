@@ -1,8 +1,6 @@
 #!/usr/bin/python3
 import sys, subprocess
 from sendhost import sendhost
-with open('/root/tmptmp','w') as f:
- f.write(str(clusterip))
 def pumpkeys(*bargs):
  global leader, leaderip, clusterip, myhost, myhostip
  print(str(bargs))
@@ -12,7 +10,7 @@ def pumpkeys(*bargs):
  phrase = bargs[3]
  cmdline = '/TopStor/preparekeys.sh '+partnerip
  result = subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').split('\n')[0].replace(' ','_spc_')
- z=['/TopStor/receivekeys.sh',myhost,myip,clusterip, replitype, repliport, phrase, result]
+ z=['/TopStor/receivekeys.sh',myhost,myip,leaderip, replitype, repliport, phrase, result]
  msg={'req': 'Exchange', 'reply':z}
  print(msg)
  sendhost(partnerip, str(msg),'recvreply',myhost)
