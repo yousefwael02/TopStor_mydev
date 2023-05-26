@@ -83,9 +83,9 @@ then
  if [ $? -eq 0 ];
  then
   #./logmsg.py Replispacefa01 error $userreq $shortreceiver $vol
-  ./logmsg.py Streamfa01 error $userreq $vol $shortreceiver
+  docker exec etcdclient /TopStor/logmsg.py Streamfa01 error $userreq $vol $shortreceiver
  else
-   ./logmsg.py Replispacesu01 info $userreq $shortreceiver $vol
+  docker exec etcdclient /TopStor/logmsg.py Replispacesu01 info $userreq $shortreceiver $vol
  fi 
  /TopStor/etcdput.py $leaderip running/$receiver finish 
  /TopStor/etcdput.py $leaderip sync/running/____/request running_$stamp
