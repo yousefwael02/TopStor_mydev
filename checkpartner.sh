@@ -55,10 +55,14 @@ do
   echo $isnew | grep 'new' >/dev/null
   if [ $? -eq 0 ];
   then
-   noden=`$nodeloc /usr/bin/hostname` 
-   nodei=`$nodeloc /TopStor/etcdget.py $leaderip ready/$noden` 
+   #noden=`$nodeloc "docker exec etcdclient /TopStor/etcdgetlocal.py clusternode"` 
+   #nodei=`$nodeloc "docker exec etcdclient /TopStor/etcdgetlocal.py clusternodeip"` 
+   nodeinfo=`$nodeloc /TopStor/nodeinfo.sh`
+   noden=` echo $nodeinfo | awk -F'_' '{print $3}'`
+   nodei=` echo $nodeinfo | awk -F'_' '{print $4}'`
+   echo $nodeloc docker exec etcdclient /TopStor/etcdgetlocal.py clusternodeip
 #   /TopStor/pumpkeys.py $nodei $replitype $port $phrase
-   echo nodei=$nodei
+   echo noden=$noden, nodei=$nodei , partnerip=$partnerip
    sleep 2
    echo $nodei | grep $partnerip
    if [ $? -ne 0 ];
