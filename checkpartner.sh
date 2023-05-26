@@ -73,7 +73,7 @@ do
     ssh -oBatchmode=yes -i /TopStordata/${nodei}_keys/${nodei} -p $port $strict ${nodei} ls  >/dev/null 2>/dev/null
    fi
    /TopStor/etcdput.py $leaderip Partnernode/${partner}_$replitype/$nodei/$myhostip $noden 
-   echo $leader | grep $myhotip
+   echo $leader | grep $myhost
    if [ $? -ne 0 ];
    then
     /TopStor/etcdput.py $myhostip $Partnernode/${partner}_$replitype/$nodei/$myhostip $noden 
