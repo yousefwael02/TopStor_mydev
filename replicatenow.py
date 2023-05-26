@@ -83,6 +83,8 @@ def replistream(receiver, nodeip, snapshot, nodeowner, poolvol, pool, volume, cs
  cmd = nodeloc + ' /TopStor/targetcreatevol.sh '+poolvol+' '+volip+' '+volsubnet+' '+quota+' '+voltype+' '+volgrps+' '+oldsnap
  isopen, response = checkpartner(receiver, nodeip, cmd.split(), 'old')
  response = response.split('result_')
+ print(response)
+ exit()
  if oldsnap == 'noold':
   response[1] = 'newvol/@new'
  if 'problem/@problem' in response[1]:

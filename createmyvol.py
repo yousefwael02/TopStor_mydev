@@ -30,7 +30,7 @@ def createvol(*args):
   datastr = pool+' '+name+' '+size+' '+ipaddress+' '+Subnet+' '+user+' '+owner+' '+user+' '+domname+' '+domsrv+' '+ domip+' '+domadmin+' '+dompass 
  else:
   groups = args[7]
-  datastr = pool+' '+name+' '+size+' '+groups+' '+ipaddress+' '+Subnet+' disabled '+user+' '+owner+' '+user
+  datastr = leaderip+' '+pool+' '+name+' '+size+' '+groups+' '+ipaddress+' '+Subnet+' disabled '+user+' '+owner+' '+user
  print('#############################')
  print('/TopStor/VolumeCreate'+typep,datastr)
  print('###########################')
