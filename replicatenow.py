@@ -80,7 +80,8 @@ def replistream(receiver, nodeip, snapshot, nodeowner, poolvol, pool, volume, cs
  voltype = volumeline[0].split('/')[1]
  cmd = '/usr/sbin/zfs get quota '+myvol+' -H'
  quota=subprocess.run(cmd.split(' '),stdout=subprocess.PIPE).stdout.decode().split('\t')[2]
- cmd = nodeloc + ' /TopStor/targetcreatevol.sh '+poolvol+' '+volip+' '+volsubnet+' '+quota+' '+voltype+' '+volgrps+' '+oldsnap
+ extras = ''
+ cmd = nodeloc + ' /TopStor/targetcreatevol.sh '+poolvol+' '+volip+' '+volsubnet+' '+quota+' '+voltype+' '+volgrps+' '+oldsnap+' '+extras
  isopen, response = checkpartner(receiver, nodeip, cmd.split(), 'old')
  response = response.split('result_')
  print(response)

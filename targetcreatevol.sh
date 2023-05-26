@@ -10,6 +10,7 @@ size=`echo $@ | awk '{print $4}'`
 typep=`echo $@ | awk '{print $5}'`
 groups=`echo $@ | awk '{print $6}'`
 oldsnap=`echo $@ | awk '{print $7}'`
+extras=`echo $@ | awk '{print $8}'`
 myhost=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternode`
 myhostip=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternodeip`
 leader=`docker exec etcdclient /TopStor/etcdgetlocal.py leader`
@@ -40,7 +41,7 @@ then
  oldnew='old'
 else 
  echo ./createmyvol.py $myhost $myhostip $pool $name $ipaddress $Subnet $size $typep $groups > /root/targetcreatevol
- ./createmyvol.py $myhost $myhostip $pool $name $ipaddress $Subnet $size $typep $groups
+ ./createmyvol.py $leaderip $myhost $myhostip $pool $name $ipaddress $Subnet $size $typep $groups $extras
  oldnew='new'
  latestsnap=''
  zfs destroy -f $pool/${newvol}
