@@ -34,7 +34,6 @@ def checkpartner(receiver, nodeip, cmd, isnew):
  if isitopen == 'open':
     print(" ".join(cmd))
     result=subprocess.run(cmd,stdout=subprocess.PIPE)
-    exit()
  return isitopen , result.stdout.decode()
 
 def replitargetget(receiver, volume, volused, snapshot):
