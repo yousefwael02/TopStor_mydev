@@ -40,3 +40,8 @@ mv /pac2 /pace
 mv /web2 /topstorweb
 cd /TopStor
 ./systempull.sh QSD3.11
+cd /
+cd /TopStor
+git show | grep commit
+
+echo finished
