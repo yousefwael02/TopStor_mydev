@@ -107,12 +107,15 @@ then
   then
    #./logmsg.py Replispacefa01 error $userreq $shortreceiver $vol
    docker exec etcdclient /TopStor/logmsg.py Streamfa01 error $userreq $vol $shortreceiver
+   exit
   else
     docker exec etcdclient /TopStor/logmsg.py Replispacesu01 info $userreq $vol $shortreceiver
   fi 
+  docker exec etcdclient /TopStor/logqueue.py `basename "$0"` stop system 
  fi
  #./etcdput.py $leaderip running/$myhost/$receiver finished 
  #./etcdput.py $leaderip sync/running/____/request running_$stamp
  #./etcdput.py $leaderip sync/running/____/request/$leader running_$stamp
 fi
+echo successfulwork
 docker exec etcdclient /TopStor/logqueue.py `basename "$0"` stop system 
