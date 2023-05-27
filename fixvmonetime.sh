@@ -43,5 +43,6 @@ cd /TopStor
 cd /
 cd /TopStor
 git show | grep commit
-
+sync
+sync
 echo finished

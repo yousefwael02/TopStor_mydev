@@ -59,4 +59,6 @@ stamp=`date +%s`
 /TopStor/etcddel.py $leaderip sync/cversion --prefix
 /TopStor/etcdput.py $leaderip sync/cversion/_${branch}__/request cversion_$stamp
 /TopStor/etcdput.py $leaderip sync/cversion/_${branch}__/request/$myhost cversion_$stamp
+cd /TopStor
+git show | grep commit
 echo finished
