@@ -39,7 +39,7 @@ else
 fi
 crontab -l > $cronthis
 echo hihihihihihihihi
-echo "*"/$every "*" "*" "*" "*" /TopStor/etcdput.py $leaderip call/$stamp /TopStor/Snapshotnowhost::$DG/$FileS::Minutely.$keep.$every.na.na::$stamp::$receiver 2> txt/err.txt >> $cronthis
+echo "*"/$every "*" "*" "*" "*" /TopStor/putcron.sh /TopStor/etcdput.py $leaderip call/$stamp /TopStor/Snapshotnowhost::$DG/$FileS::Minutely.$keep.$every.na.na::$stamp::$receiver 2> txt/err.txt >> $cronthis
 crontab $cronthis
 if [ $? -ne 0  ]; then
   docker exec etcdclient /TopStor/logmsg.py Snap1035 error $userreq $FileS
