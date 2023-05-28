@@ -19,7 +19,7 @@ def createvol(*args):
   extras = args[9].split('ee_ee')
   portalport =  extras[0]
   initiators = args[1]
-  datastr = pool+' '+name+' '+size+' '+ipaddress+' '+Subnet+' disabled '+portalport+' '+initiators+' '+chapuse+' '+chappas+' '+user+' '+owner+' '+user
+  datastr = pool+' '+name+' '+size+' '+ipaddress+' '+Subnet+' disabled '+portalport+' '+initiators+' '+chapuser+' '+chappas+' '+user+' '+owner+' '+user
  elif 'CIFSdom' in typep:
   extras = args[9].split('ee_ee')
   domname = extras[0]
