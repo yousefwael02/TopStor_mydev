@@ -78,7 +78,10 @@ def replistream(receiver, nodeip, snapshot, nodeowner, poolvol, pool, volume, cs
  volsubnet = volumeinfo[8]
  volgrps = volumeinfo[4]
  voltype = volumeline[0].split('/')[1]
- cmd = '/usr/sbin/zfs get quota '+myvol+' -H'
+ if vtype not in 'ISCSI':
+    cmd = '/usr/sbin/zfs get quota '+myvol+' -H'
+ else:
+    cmd = '/usr/sbin/zfs get volsize '+myvol+' -H'
  quota=subprocess.run(cmd.split(' '),stdout=subprocess.PIPE).stdout.decode().split('\t')[2]
  extras = ''
  cmd = nodeloc + ' /TopStor/targetcreatevol.sh '+poolvol+' '+volip+' '+volsubnet+' '+quota+' '+voltype+' '+volgrps+' '+oldsnap+' '+extras
