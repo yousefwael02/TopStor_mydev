@@ -45,8 +45,8 @@ if [ $? -ne 0  ]; then
   docker exec etcdclient /TopStor/logmsg.py Snap1035 error $userreq $FileS
 else 
   docker exec etcdclient /TopStor/logmsg.py Snap1036 info $userreq $Minutely.$keep.$every.na.na.$stamp $DG/$FileS
-  echo /pace/etcdput.py $etcd Snapperiod/Minutely/$DG/$FileS/$stamp/$receiver  */$every%*%*%*%*%/TopStor/Snapshotnowhost%$DG/$FileS%Minutely.$keep.$every.na.na%$stamp/$receiver
-  /pace/etcdput.py $leaderip Snapperiod/Minutely/$DG/$FileS/$stamp/$receiver  */$every%*%*%*%*%/TopStor/Snapshotnowhost%$DG/$FileS%Minutely.$keep.$every.na.na%$stamp/$receiver
+  echo /pace/etcdput.py $etcd Snapperiod/Minutely/$DG/$FileS/$stamp/$receiver  */$every%*%*%*%*%/TopStor/Snapshotnowhost%$DG/$FileS%Minutely.$keep.$every.na.na%$stamp%$receiver
+  /pace/etcdput.py $leaderip Snapperiod/Minutely/$DG/$FileS/$stamp/$receiver  */$every%*%*%*%*%/TopStor/Snapshotnowhost%$DG/$FileS%Minutely.$keep.$every.na.na%$stamp%$receiver
    /pace/etcdput.py $leaderip sync/Snapperiod/____/request/$leader Snapperiod_$stamp
    /pace/etcdput.py $leaderip sync/Snapperiod/____/request Snapperiod_$stamp
 fi;
