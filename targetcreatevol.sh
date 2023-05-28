@@ -28,13 +28,18 @@ echo $newvol | grep $name
 if [ $? -eq 0 ];
 then
  volinfo=`/TopStor/etcdget.py $leaderip vol $newvol`
- zfs unmount -f $pool/${newvol}
+ echo 
+ echo $typep | grep 'ISCSI'
+ if [ $? -ne 0 ];
+ then
+ 	zfs unmount -f $pool/${newvol}
+ fi
  #latestsnap=`/TopStor/getlatestsnap.py $newvol | awk -F'result_' '{print $2}'`
  echo 'noold' | grep $oldsnap
  if [ $? -eq 0 ];
  then
   echo zfs list -t snapshot -o name \| grep ^${pool}/${newvol}@  \| tac \| xargs -n 1 zfs destroy -r 
-  zfs list -t snapshot -o name | grep ^${pool}/${newvol}@  | tac | xargs -n 1 zfs destroy -r 
+  zfs list -t snapshot -o name | grep ^${pool}/${newvol}@  | tac | xargs -n 1 zfs destroy -r  2>/dev/null
  else
   echo zfs rollback $pool/$newvol@$oldsnap
   zfs rollback -r $pool/$newvol@$oldsnap
