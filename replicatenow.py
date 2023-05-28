@@ -78,7 +78,7 @@ def replistream(receiver, nodeip, snapshot, nodeowner, poolvol, pool, volume, cs
  volsubnet = volumeinfo[8]
  volgrps = volumeinfo[4]
  voltype = volumeline[0].split('/')[1]
- if vtype not in 'ISCSI':
+ if voltype not in 'ISCSI':
     cmd = '/usr/sbin/zfs get quota '+myvol+' -H'
  else:
     cmd = '/usr/sbin/zfs get volsize '+myvol+' -H'
