@@ -41,7 +41,7 @@ then
  fi
  oldnew='old'
 else 
- echo ./createmyvol.py $myhost $myhostip $pool $name $ipaddress $Subnet $size $typep $groups 
+ echo ./createmyvol.py $leaderip $myhost $myhostip $pool $name $ipaddress $Subnet $size $typep $groups $extras
  ./createmyvol.py $leaderip $myhost $myhostip $pool $name $ipaddress $Subnet $size $typep $groups $extras
  oldnew='new'
  latestsnap=''
