@@ -52,11 +52,13 @@ echo iamhere >> /root/tmp2
 if [[ $raid == "import" ]];
 then
  echo to import only $disk1
+ /pace/diskchange.sh dgsetpool dgsetpool dgsetpool
  nextpool=$disk1 
  zpool import | grep $nextpool
  if [ $? -eq 0 ];
  then
   docker exec etcdclient /TopStor/logmsg.py DGst22 info $userreq ${nextpool} 
+  /pace/diskchange.sh dgsetpool dgsetpool dgsetpool
   zpool import $nextpool 
   sleep 1
   /sbin/zpool status | grep $nextpool >> /root/tmp2
@@ -100,6 +102,7 @@ else
   i=3
   disk1=" ";
   diskns="";
+  /pace/diskchange.sh dgsetpool dgsetpool dgsetpool
   while [ $i -lt $((diskargs)) ]; do
    i=$((i+1));
    disk=`echo ${params[$i]} | awk -F':' '{print $1}'`
@@ -130,6 +133,7 @@ else
   #disk2=`ls /dev/disk/by-id/ | grep -v part | grep $disk2`
   diskn2=` echo $@ | awk '{print $8}'`;
   docker exec etcdclient /TopStor/logmsg.py DGst7 info $userreq $diskn2 $grpn
+  /pace/diskchange.sh dgsetpool dgsetpool dgsetpool
   /sbin/zpool labelclear /dev/disk/by-id/${disk2};
   echo /sbin/zpool attach -f ${nextpool} ${disk1} ${disk2} > /root/tmp
   /sbin/zpool attach -f ${nextpool} ${disk1} ${disk2}
@@ -145,6 +149,7 @@ else
  fi
  if [[ $raid == "delspecial" ]]; then
    docker exec etcdclient /TopStor/logmsg.py DGst9 info $userreq $diskn1 
+  /pace/diskchange.sh dgsetpool dgsetpool dgsetpool
   /sbin/zpool remove  ${nextpool} ${disk1} 
   if [ $? -eq 0 ]; then
      ETCDCTL_API=3 /pace/etcdput.py $leaderip 'pools/'$nextpool $myhost
@@ -158,6 +163,7 @@ else
  fi 
  if [[ $raid == "addcache" ]]; then
    docker exec etcdclient /TopStor/logmsg.py DGst10 info $userreq $diskn1 
+  /pace/diskchange.sh dgsetpool dgsetpool dgsetpool
   /sbin/zpool labelclear /dev/disk/by-id/${disk1};
   echo /sbin/zpool add -f ${nextpool} cache ${disk1} 
   /sbin/zpool add -f ${nextpool} cache ${disk1} 
@@ -173,6 +179,7 @@ else
  fi 
  if [[ $raid == "addlog" ]]; then
    docker exec etcdclient /TopStor/logmsg.py DGst11 info $userreq $diskn1 
+  /pace/diskchange.sh dgsetpool dgsetpool dgsetpool
   /sbin/zpool labelclear /dev/disk/by-id/${disk1};
   /sbin/zpool add -f ${nextpool} log ${disk1}
   if [ $? -eq 0 ]; then
@@ -188,6 +195,7 @@ else
  if [[ $raid == "addspare" ]]; then
   #diskn=`grep -nr $disk1 $iscsimapping | awk -F':' '{print $1}'`
    docker exec etcdclient /TopStor/logmsg.py DGst8 info $userreq $diskn1 
+  /pace/diskchange.sh dgsetpool dgsetpool dgsetpool
   /sbin/zpool labelclear /dev/disk/by-id/${disk1};
   echo /sbin/zpool add -f ${nextpool} spare ${disk1}
 
@@ -205,6 +213,7 @@ else
  if [[ $raid == "Single" ]]; then
    nextpool='dhcp'${RANDOM}$RANDOM;
    docker exec etcdclient /TopStor/logmsg.py DG1st6 info $userreq ${nextpool} $diskn1
+  /pace/diskchange.sh dgsetpool dgsetpool dgsetpool
   /sbin/zpool labelclear /dev/disk/by-id/${disk1};
   /sbin/zpool create -o cachefile=/TopStordata/p${nextpool} -o ashift=12 -o autoexpand=on -o autoreplace=on -f p${nextpool} ${disk1}
   if [ $? -ne 0 ]; then
@@ -237,6 +246,7 @@ else
   i=3
   disk1=" ";
   diskns="";
+  /pace/diskchange.sh dgsetpool dgsetpool dgsetpool
   while [ $i -lt $((diskargs-3)) ]; do
    i=$((i+1));
    disk=`echo ${params[$i]} | awk -F':' '{print $1}'`
@@ -264,6 +274,7 @@ else
   i=3
   disk1=" "
   diskns=""
+  /pace/diskchange.sh dgsetpool dgsetpool dgsetpool
   while [ $i -lt $((diskargs-3)) ]; do
    i=$((i+1));
    disk=`echo ${params[$i]} | awk -F':' '{print $1}'`
@@ -309,6 +320,7 @@ else
   i=3
   disk1=" "
   diskns=""
+  /pace/diskchange.sh dgsetpool dgsetpool dgsetpool
   while [ $i -lt $((diskargs-3)) ]; do
    i=$((i+1));
    disk=`echo ${params[$i]} | awk -F':' '{print $1}'`
@@ -335,6 +347,7 @@ else
   i=3
   disk1=" "
   diskns="";
+  /pace/diskchange.sh dgsetpool dgsetpool dgsetpool
   while [ $i -lt $((diskargs-3)) ]; do
    i=$((i+1));
    disk=`echo ${params[$i]} | awk -F':' '{print $1}'`
@@ -376,6 +389,7 @@ else
   i=3
   disk1=" "
   diskns=""
+  /pace/diskchange.sh dgsetpool dgsetpool dgsetpool
   while [ $i -lt $((diskargs)) ]; do
    i=$((i+1));
    disk=`echo ${params[$i]} | awk -F':' '{print $1}'`
@@ -404,6 +418,7 @@ else
   disk1=" "
   diskns=""
   nextpool='dhcp'${RANDOM}$RANDOM;
+  /pace/diskchange.sh dgsetpool dgsetpool dgsetpool
   while [ $i -lt $((diskargs)) ]; do
    echo inwhile, i, $diskn >>/root/tmp2
    i=$((i+1));
@@ -459,6 +474,7 @@ else
   disk1=" "
   flag=1
   diskns=""
+  /pace/diskchange.sh dgsetpool dgsetpool dgsetpool
   while [ $i -lt $((diskargs-1)) ]; do
    i=$((i+1));
    disk=`echo ${params[$i]} | awk -F':' '{print $1}'`
@@ -490,6 +506,7 @@ else
   i=3
   disk1=" "
   diskns=""
+  /pace/diskchange.sh dgsetpool dgsetpool dgsetpool
   while [ $i -lt $((diskargs-3)) ]; do
    i=$((i+1));
    disk=`echo ${params[$i]} | awk -F':' '{print $1}'`
@@ -530,6 +547,7 @@ else
   i=3
   disk1=" "
   diskns=""
+  /pace/diskchange.sh dgsetpool dgsetpool dgsetpool
   while [ $i -lt $((diskargs-3)) ]; do
    i=$((i+1));
    disk=`echo ${params[$i]} | awk -F':' '{print $1}'`
