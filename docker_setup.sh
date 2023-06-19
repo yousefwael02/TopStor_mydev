@@ -3,9 +3,17 @@ mynodef='/topstorwebetc/mynode'
 myhost=`hostname`
 firewall-cmd --permanent --add-port=5672/tcp
 firewall-cmd --permanent --add-port=5672/udp
+firewall-cmd --permanent --add-port=137/tcp
+firewall-cmd --permanent --add-port=137/udp
+firewall-cmd --permanent --add-port=138/tcp
+firewall-cmd --permanent --add-port=138/udp
+firewall-cmd --permanent --add-port=139/tcp
+firewall-cmd --permanent --add-port=139/udp
+firewall-cmd --permanent --add-port=445/tcp
+firewall-cmd --permanent --add-port=445/udp
 firewall-cmd --reload
 
-
+exit
 mypid='/TopStordata/diskchange'
 echo stop stop stop stop > $mypid
 cp /TopStor/101-qstor.rules /usr/lib/udev/rules.d/
