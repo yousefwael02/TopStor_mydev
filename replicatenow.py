@@ -84,7 +84,7 @@ def replistream(receiver, nodeip, snapshot, nodeowner, poolvol, pool, volume, cs
     cmd = '/usr/sbin/zfs get volsize '+myvol+' -H'
  quota=subprocess.run(cmd.split(' '),stdout=subprocess.PIPE).stdout.decode().split('\t')[2]
  extras = ''
- cmd = nodeloc + ' /TopStor/targetcreatevol.sh '+poolvol+' '+volip+' '+volsubnet+' '+quota+' '+voltype+' '+volgrps+' '+oldsnap+' '+extras
+ cmd = nodeloc + ' /TopStor/targetcreatevol.sh '+poolvol+' '+volip+' '+volsubnet+' '+quota+' '+voltype+' '+' '+oldsnap+' '+volgrps+' '+extras
  isopen, response = checkpartner(receiver, nodeip, cmd.split(), 'old')
  response = response.split('result_')
  print('the response of create:',response)
