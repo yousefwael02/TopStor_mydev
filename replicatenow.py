@@ -94,7 +94,7 @@ def replistream(receiver, nodeip, snapshot, nodeowner, poolvol, pool, volume, cs
   print(' a problem creating/using the volume in the remote cluster')
   return
  elif 'newvol/@new' in response[1]:
-  #print('./sendzfs.sh new '+ myvol+'@'+snapshot +' '+ poolvol +' '+ nodeloc.replace(' ','%%'))
+  print('/TopStor/sendzfs.sh new '+ myvol+'@'+snapshot +' '+ poolvol +' '+ nodeloc.replace(' ','%%'))
   cmd = '/TopStor/sendzfs.sh new '+ myvol+'@'+snapshot +' '+ poolvol +' '+ nodeloc.replace(' ','%%')
  else:
   #cmd = './sendzfs.sh old '+myvol+'@'+lastsnap+' '+myvol+'@'+snapshot+' '+poolvol+' '+nodeloc
@@ -173,4 +173,6 @@ if __name__=='__main__':
  leaderip =  sys.argv[1]
  etcdip =  sys.argv[2]
  initpumpkeys('init')
+ with open('/root/replicatenowpy','w') as f:
+    f.write(' '.join(sys.argv[1:]))
  repliparam(*sys.argv[3:])
