@@ -49,10 +49,12 @@ else
  echo $typep | grep ISCSI
  if [ $? -eq 0 ];
  then
+  echo ./createmyvol.py $leaderip $myhost $myhostip $pool $name $ipaddress $Subnet $size $typep $groups $extras
+  ./createmyvol.py $leaderip $myhost $myhostip $pool $name $ipaddress $Subnet $size $typep $groups $extras
+ else
+  echo ./createmyvol.py $leaderip $myhost $myhostip $pool $name $ipaddress $Subnet $size $typep $groups $extras
   ./createmyvol.py $leaderip $myhost $myhostip $pool $name $ipaddress $Subnet $size $typep $groups $extras
  fi
- echo ./createmyvol.py $leaderip $myhost $myhostip $pool $name $ipaddress $Subnet $size $typep $groups $extras
- ./createmyvol.py $leaderip $myhost $myhostip $pool $name $ipaddress $Subnet $size $typep $groups $extras
  oldnew='new'
  latestsnap=''
  zfs destroy -f $pool/${newvol}
