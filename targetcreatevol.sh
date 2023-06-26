@@ -24,7 +24,7 @@ else
 fi
 
 newvol=`/TopStor/etcdget.py $leaderip vol $name | grep $pool | awk -F'/' '{print $6}'`
-echo $newvol | grep $name 
+echo 'newvol'$newvol | grep $name 
 if [ $? -eq 0 ];
 then
  volinfo=`/TopStor/etcdget.py $leaderip vol $newvol`
@@ -49,18 +49,19 @@ else
  echo $typep | grep ISCSI
  if [ $? -eq 0 ];
  then
-  echo ./createmyvol.py $leaderip $myhost $myhostip $pool $name $ipaddress $Subnet $size $typep $groups $extras
-  ./createmyvol.py $leaderip $myhost $myhostip $pool $name $ipaddress $Subnet $size $typep $groups $extras
+  echo ./createmyvol.py $leaderip $myhost $myhostip $pool $name $ipaddress $Subnet $size $typep $groups ${extras}
+  ./createmyvol.py $leaderip $myhost $myhostip $pool $name $ipaddress $Subnet $size $typep $groups ${extras}
+  exit
  else
   echo ./createmyvol.py $leaderip $myhost $myhostip $pool $name $ipaddress $Subnet $size $typep $groups $extras
   ./createmyvol.py $leaderip $myhost $myhostip $pool $name $ipaddress $Subnet $size $typep $groups $extras
  fi
- oldnew='new'
- latestsnap=''
- zfs destroy -f $pool/${newvol}
+ #oldnew='new'
+ #latestsnap=''
+ #zfs destroy -f $pool/${newvol}
 fi
 newvol=`/TopStor/etcdget.py $leaderip vol $name | grep $pool | awk -F'/' '{print $6}'`
-echo $newvol | grep $name 
+echo 'newvol'$newvol | grep $name 
 if [ $? -eq 0 ];
 then
  volinfo=`/TopStor/etcdget.py $leaderip vol $newvol`

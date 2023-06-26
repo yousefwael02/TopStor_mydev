@@ -16,9 +16,8 @@ def createvol(*args):
  if 'ISCSI' in typep:
   chapuser = 'MoatazNegm'
   chappas = 'MezoAdmin'
-  extras = args[9].split('ee_ee')
-  portalport =  extras[0]
-  initiators = args[1]
+  portalport = args[9]
+  initiators = args[10]
   datastr = leaderip+' '+pool+' '+name+' '+size+' '+ipaddress+' '+Subnet+' '+portalport+' '+initiators+' '+chapuser+' '+chappas+' disabled '+user+' '+owner+' '+user
  elif 'CIFSdom' in typep:
   extras = args[9].split('ee_ee')
