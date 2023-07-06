@@ -32,7 +32,7 @@ def checkpartner(receiver, nodeip, cmd, isnew):
         count += 1
         sleep(1)
  if isitopen == 'open':
-    print(" ".join(cmd))
+    print('running'," ".join(cmd))
     result=subprocess.run(cmd,stdout=subprocess.PIPE)
  return isitopen , result.stdout.decode()
 
@@ -91,6 +91,8 @@ def replistream(receiver, nodeip, snapshot, nodeowner, poolvol, pool, volume, cs
  isopen, response = checkpartner(receiver, nodeip, cmd.split(), 'old')
  response = response.split('result_')
  print('the response of create:',response)
+ print(cmd)
+ exit()
  if oldsnap == 'noold':
   response[1] = 'newvol/@new'
  if 'problem/@problem' in response[1]:

@@ -92,6 +92,7 @@ then
   #./etcdput.py $leaderip sync/running/____/request running_$stamp
   #./etcdput.py $leaderip sync/running/____/request/$leader running_$stamp
   echo /TopStor/replicatenow.py $leaderip $etcd $snapshot $receiver >/root/snapshotpls
+  echo /TopStor/replicatenow.py $leaderip $etcd $snapshot $receiver 
   #result=`/TopStor/replicatenow.py $leaderip $etcd $snapshot $receiver 2>/root/replicatenow`
   /TopStor/replicatenow.py $leaderip $etcd $snapshot $receiver >/TopStordata/remotereplicatenow 2>/root/replicatenow
   result=`cat /TopStordata/remotereplicatenow`

@@ -24,7 +24,7 @@ else
 fi
 
 newvol=`/TopStor/etcdget.py $leaderip vol $name | grep $pool | awk -F'/' '{print $6}'`
-echo 'newvol'$newvol | grep $name 
+echo 'newvol'$newvol | grep -w $name 
 if [ $? -eq 0 ];
 then
  volinfo=`/TopStor/etcdget.py $leaderip vol $newvol`
@@ -35,7 +35,7 @@ then
  	zfs unmount -f $pool/${newvol}
  fi
  #latestsnap=`/TopStor/getlatestsnap.py $newvol | awk -F'result_' '{print $2}'`
- echo 'noold' | grep $oldsnap
+ echo 'noold' | grep -w $oldsnap
  if [ $? -eq 0 ];
  then
   echo zfs list -t snapshot -o name \| grep ^${pool}/${newvol}@  \| tac \| xargs -n 1 zfs destroy -r 
@@ -61,7 +61,7 @@ else
  #zfs destroy -f $pool/${newvol}
 fi
 newvol=`/TopStor/etcdget.py $leaderip vol $name | grep $pool | awk -F'/' '{print $6}'`
-echo 'newvol'$newvol | grep $name 
+echo 'newvol'$newvol | grep -w $name 
 if [ $? -eq 0 ];
 then
  volinfo=`/TopStor/etcdget.py $leaderip vol $newvol`
@@ -74,7 +74,7 @@ then
  stamp=`date +%s`
  ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/volumes/${pool}_$newvol/request volumes_$stamp
  ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/volumes/${pool}_$newvol/request/$leader volumes_$stamp
- docker rm -f `docker ps | grep $ipaddress | awk '{print $1}'` 2>/dev/null
+ docker rm -f `docker ps | grep -w $ipaddress | awk '{print $1}'` 2>/dev/null
  echo result_${oldnew}vol/@${oldnew}result_$pool/${newvol}result_${latestsnap}result_
 else
  echo result_problem/@newresult_
