@@ -24,7 +24,7 @@ else
 fi
 
 newvol=`/TopStor/etcdget.py $leaderip vol $name | grep $pool | awk -F'/' '{print $6}'`
-echo 'newvol'$newvol | grep -w $name 
+echo 'newvol'$newvol | grep $name 
 if [ $? -eq 0 ];
 then
  volinfo=`/TopStor/etcdget.py $leaderip vol $newvol`
@@ -35,7 +35,7 @@ then
  	zfs unmount -f $pool/${newvol}
  fi
  #latestsnap=`/TopStor/getlatestsnap.py $newvol | awk -F'result_' '{print $2}'`
- echo 'noold' | grep -w $oldsnap
+ echo 'noold' | grep $oldsnap
  if [ $? -eq 0 ];
  then
   echo zfs list -t snapshot -o name \| grep ^${pool}/${newvol}@  \| tac \| xargs -n 1 zfs destroy -r 
@@ -61,7 +61,7 @@ else
  #zfs destroy -f $pool/${newvol}
 fi
 newvol=`/TopStor/etcdget.py $leaderip vol $name | grep $pool | awk -F'/' '{print $6}'`
-echo 'newvol'$newvol | grep -w $name 
+echo 'newvol'$newvol | grep  $name 
 if [ $? -eq 0 ];
 then
  volinfo=`/TopStor/etcdget.py $leaderip vol $newvol`
