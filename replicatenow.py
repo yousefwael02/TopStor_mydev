@@ -88,8 +88,8 @@ def replistream(receiver, nodeip, snapshot, nodeowner, poolvol, pool, volume, cs
     extras = volumeinfo[5]
  quota=subprocess.run(cmd.split(' '),stdout=subprocess.PIPE).stdout.decode().split('\t')[2]
  cmd = nodeloc + ' /TopStor/targetcreatevol.sh '+poolvol+' '+volip+' '+volsubnet+' '+quota+' '+voltype+' '+' '+oldsnap+' '+volgrps+' '+extras
- isopen, response = checkpartner(receiver, nodeip, cmd.split(), 'old')
- response = response.split('result_')
+ isopen, result = checkpartner(receiver, nodeip, cmd.split(), 'old')
+ response = result.split('result_')
  print('the response of create:',response)
  if oldsnap == 'noold':
   response[1] = 'newvol/@new'
@@ -97,12 +97,14 @@ def replistream(receiver, nodeip, snapshot, nodeowner, poolvol, pool, volume, cs
   print(' a problem creating/using the volume in the remote cluster')
   return
  elif 'newvol/@new' in response[1]:
-  print('/TopStor/sendzfs.sh new '+ myvol+'@'+snapshot +' '+ poolvol +' '+ nodeloc.replace(' ','%%'))
-  cmd = '/TopStor/sendzfs.sh new '+ myvol+'@'+snapshot +' '+ poolvol +' '+ nodeloc.replace(' ','%%')
+  remvol = result.split('volume_')[1]
+  print('/TopStor/sendzfs.sh new '+ myvol+'@'+snapshot +' '+ remvol +' '+ nodeloc.replace(' ','%%'))
+  cmd = '/TopStor/sendzfs.sh new '+ myvol+'@'+snapshot +' '+ remvol +' '+ nodeloc.replace(' ','%%')
  else:
   #cmd = './sendzfs.sh old '+myvol+'@'+lastsnap+' '+myvol+'@'+snapshot+' '+poolvol+' '+nodeloc
-  cmd = '/TopStor/sendzfs.sh old '+myvol+'@'+oldsnap+' '+myvol+'@'+snapshot+' '+response[2]+' '+nodeloc.replace(' ','%%')
-  print('/TopStor/sendzfs.sh old '+myvol+'@'+oldsnap+' '+myvol+'@'+snapshot+' '+response[2]+' '+nodeloc.replace(' ','%%'))
+  remvol = result.split('volume_')[1]
+  cmd = '/TopStor/sendzfs.sh old '+myvol+'@'+oldsnap+' '+myvol+'@'+snapshot+' '+remvol +' '+nodeloc.replace(' ','%%')
+  print('/TopStor/sendzfs.sh old '+myvol+'@'+oldsnap+' '+myvol+'@'+snapshot+' '+remvol +' '+nodeloc.replace(' ','%%'))
  put(leaderip,'running/'+receiver, 'running')
  stream = subprocess.run(cmd.split(' '),stdout=subprocess.PIPE).stdout.decode()
  dels(leaderip,'running/'+receiver)

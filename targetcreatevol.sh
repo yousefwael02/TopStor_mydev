@@ -75,7 +75,9 @@ then
  ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/volumes/${pool}_$newvol/request volumes_$stamp
  ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/volumes/${pool}_$newvol/request/$leader volumes_$stamp
  docker rm -f `docker ps | grep -w $ipaddress | awk '{print $1}'` 2>/dev/null
- echo result_${oldnew}vol/@${oldnew}result_$pool/${newvol}result_${latestsnap}result_
+ #echo result_${oldnew}vol/@${oldnew}result_$pool/${newvol}result_${latestsnap}result_
+ echo result_${oldnew}vol/@${oldnew}result_$pool/${newvol}result_
 else
  echo result_problem/@newresult_
 fi 
+echo volume_$pool/${newvol}volume_
