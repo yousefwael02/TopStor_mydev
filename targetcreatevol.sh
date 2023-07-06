@@ -51,7 +51,7 @@ else
  then
   echo ./createmyvol.py $leaderip $myhost $myhostip $pool $name $ipaddress $Subnet $size $typep $groups ${extras}
   ./createmyvol.py $leaderip $myhost $myhostip $pool $name $ipaddress $Subnet $size $typep $groups ${extras}
-  exit
+  #exit
  else
   echo ./createmyvol.py $leaderip $myhost $myhostip $pool $name $ipaddress $Subnet $size $typep $groups $extras
   ./createmyvol.py $leaderip $myhost $myhostip $pool $name $ipaddress $Subnet $size $typep $groups $extras
