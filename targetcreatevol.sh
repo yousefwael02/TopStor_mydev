@@ -34,7 +34,7 @@ then
  then
  	zfs unmount -f $pool/${newvol}
  fi
- #latestsnap=`/TopStor/getlatestsnap.py $newvol | awk -F'result_' '{print $2}'`
+ latestsnap=`/TopStor/getlatestsnap.py $newvol | awk -F'result_' '{print $2}'`
  echo 'noold' | grep $oldsnap
  if [ $? -eq 0 ];
  then
