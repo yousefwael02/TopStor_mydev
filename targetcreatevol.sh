@@ -50,17 +50,11 @@ else
  if [ $? -eq 0 ];
  then
   echo ./createmyvol.py $leaderip $myhost $myhostip $pool $name $ipaddress $Subnet $size $typep $groups ${extras}
-  ./createmyvol.py $leaderip $myhost $myhostip $pool $name $ipaddress $Subnet $size $typep $groups ${extras}
+  ./createmyvol.py $leaderip $myhost $myhostip $pool ${name}_repli $ipaddress $Subnet $size $typep $groups ${extras}
   #exit
  else
   echo ./createmyvol.py $leaderip $myhost $myhostip $pool $name $ipaddress $Subnet $size $typep $groups $extras
-  ./createmyvol.py $leaderip $myhost $myhostip $pool $name $ipaddress $Subnet $size $typep $groups $extras
- fi
- newvol=`zfs list | grep ${name}_ | awk '{print $1}'`
- echo 'hi'$newvol | grep pdhcp
- if [ $? -eq 0 ];
- then
-  zfs rename $newvol $name
+  ./createmyvol.py $leaderip $myhost $myhostip $pool ${name}_repli $ipaddress $Subnet $size $typep $groups $extras
  fi
 fi
 newvol=`/TopStor/etcdget.py $leaderip vol $name | grep $pool | awk -F'/' '{print $6}'`
