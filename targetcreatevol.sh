@@ -77,4 +77,4 @@ then
 else
  echo result_problem/@newresult_
 fi 
-echo volume_${newvol}volume_
+echo volume_${pool}/${newvol}volume_
