@@ -87,6 +87,15 @@ def replistream(receiver, nodeip, snapshot, nodeowner, poolvol, pool, volume, cs
     volsubnet = volumeinfo[3]
     extras = volumeinfo[5]
  quota=subprocess.run(cmd.split(' '),stdout=subprocess.PIPE).stdout.decode().split('\t')[2]
+ oldsnap = 'noold'
+ cmd = nodeloc + ' /TopStor/getlatestsnap.sh '+volume
+ isopen, result = checkpartner(receiver, nodeip, cmd.split(), 'old')
+ remotesnap = result.split('result_')
+ if remotesnap != 'noold':
+  cmd = 'zfs list -t snapshot'
+  mysnaps = subprocess.run(cmd.split(' '),stdout=subprocess.PIPE).stdout.decode()
+  if remotesnap[1] in mysnaps:
+   oldsnap = remotesnap[2] 
  cmd = nodeloc + ' /TopStor/targetcreatevol.sh '+poolvol+' '+volip+' '+volsubnet+' '+quota+' '+voltype+' '+' '+oldsnap+' '+volgrps+' '+extras
  isopen, result = checkpartner(receiver, nodeip, cmd.split(), 'old')
  response = result.split('result_')
@@ -103,8 +112,9 @@ def replistream(receiver, nodeip, snapshot, nodeowner, poolvol, pool, volume, cs
  else:
   #cmd = './sendzfs.sh old '+myvol+'@'+lastsnap+' '+myvol+'@'+snapshot+' '+poolvol+' '+nodeloc
   remvol = result.split('volume_')[1]
-  cmd = '/TopStor/sendzfs.sh old '+myvol+'@'+oldsnap+' '+myvol+'@'+snapshot+' '+remvol +' '+nodeloc.replace(' ','%%')
-  print('/TopStor/sendzfs.sh old '+myvol+'@'+oldsnap+' '+myvol+'@'+snapshot+' '+remvol +' '+nodeloc.replace(' ','%%'))
+  myoldsnap = oldsnap.split('@')[1]
+  cmd = '/TopStor/sendzfs.sh old '+myvol+'@'+myoldsnap+' '+myvol+'@'+snapshot+' '+remvol +' '+nodeloc.replace(' ','%%')
+  print('/TopStor/sendzfs.sh old '+myvol+'@'+myoldsnap+' '+myvol+'@'+snapshot+' '+remvol +' '+nodeloc.replace(' ','%%'))
  put(leaderip,'running/'+receiver, 'running')
  stream = subprocess.run(cmd.split(' '),stdout=subprocess.PIPE).stdout.decode()
  dels(leaderip,'running/'+receiver)
