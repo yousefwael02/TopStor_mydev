@@ -9,6 +9,7 @@ echo oper=$oper > $cronout
 leaderip=`echo $@ | awk -F/ '{print $1}'`;
 hostnam=`echo $@ | awk -F/ '{print $2}'`;
 oper1=`echo $oper | awk '{print $3}'`;
+repli=`echo $oper | awk '{print $NF}'`;
 #realoper=`echo $oper1 | awk -F'/' '{print $2"/"$3}'`;
 realoper=$oper1
 
@@ -34,17 +35,22 @@ keep=$(($keep+0));
 echo keeppluszero=$keep >> $cronout
 timenow=`date`;
 userreq='system';
+replicationflag='hi'
 if (( $countsnap >  $keep )); then 
+ replicationflag=$oldsnap
+ echo $repli | grep repli
+ if [ $? -ne  0 ];
+ then
   docker exec etcdclient /TopStor/logmsg.py Snap1022 info $userreq $oldsnap
- echo /sbin/zfs destroy $oldsnap > /root/tmpcron
- /sbin/zfs destroy $oldsnap > /root/tmpcron
- if [ $? -ne  0  ]; then
+  echo /sbin/zfs destroy $oldsnap > /root/tmpcron
+  /sbin/zfs destroy $oldsnap > /root/tmpcron
+  if [ $? -ne  0  ]; then
    docker exec etcdclient /TopStor/logmsg.py Snap1023 error $userreq $oldsnap
- else
+  else
    docker exec etcdclient /TopStor/logmsg.py Snap1025 info $userreq $oldsnap
-
- fi
+  fi
 fi
+echo repli_${replicationflag}repli_
 newsnap2=`echo $oper2.$stamp`;
 echo newsnap2=$newsnap2 >> $cronout
 newsnap=`echo $oper1@$newsnap2`;

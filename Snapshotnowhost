@@ -42,7 +42,9 @@ then
  docker exec etcdclient /TopStor/logmsg.py Replispacest01 info $userreq $vol $shortreceiver  
  echo /logmsg.py Replispacest01 info $userreq $vol $shortreceiver  
 fi
-res=`/TopStor/Snapshotnow $leaderip $myhost $@ | awk -F'_newsnap' '{print $2}'`
+result=`/TopStor/Snapshotnow $leaderip $myhost $@ | awk -F'_newsnap' '{print $2}'`
+res=`echo $result | awk -F'_newsnap' '{print $2}'`
+replicationflag=`echo $result | awk -F'repli_' '{print $2}'`
 echo $res | grep Erro
 if [ $? -eq 0 ];
 then
@@ -110,6 +112,13 @@ then
    #./logmsg.py Replispacefa01 error $userreq $shortreceiver $vol
    docker exec etcdclient /TopStor/logmsg.py Streamfa01 error $userreq $vol $shortreceiver
   else
+   echo /sbin/zfs destroy $oldsnap
+   /sbin/zfs destroy $oldsnap
+   if [ $? -ne  0  ]; then
+    docker exec etcdclient /TopStor/logmsg.py Snap1023 error $userreq $oldsnap
+   else
+    docker exec etcdclient /TopStor/logmsg.py Snap1025 info $userreq $oldsnap
+   fi
     echo successfulwork
     docker exec etcdclient /TopStor/logmsg.py Replispacesu01 info $userreq $vol $shortreceiver
   fi 
