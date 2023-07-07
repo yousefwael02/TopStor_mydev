@@ -2,6 +2,7 @@
 source /root/.bash_profile
 export ETCDCTL_API=3
 cd /TopStor
+echo $@ > /root/Snapshotnowhost
 pDG=`echo $@ | awk '{print $1}'`;
 DG=`echo $@ | awk -F/ '{print $1}'`;
 vol=`echo $@ | awk '{print $1}'| awk -F/ '{print $2}'`;
@@ -65,7 +66,7 @@ then
  while [ $waiting -eq 1 ];
  do 
   running=`/TopStor/etcdget.py $leaderip running $receiver`
-  echo $running | grep $receiver 
+  echo 'checking'$running | grep $receiver 
   if [ $? -eq 0 ];
   then
    echo waiting the current replications to finish in Snapshotnowhost
@@ -108,8 +109,8 @@ then
   then
    #./logmsg.py Replispacefa01 error $userreq $shortreceiver $vol
    docker exec etcdclient /TopStor/logmsg.py Streamfa01 error $userreq $vol $shortreceiver
-   exit
   else
+    echo successfulwork
     docker exec etcdclient /TopStor/logmsg.py Replispacesu01 info $userreq $vol $shortreceiver
   fi 
   docker exec etcdclient /TopStor/logqueue.py `basename "$0"` stop system 
@@ -118,5 +119,4 @@ then
  #./etcdput.py $leaderip sync/running/____/request running_$stamp
  #./etcdput.py $leaderip sync/running/____/request/$leader running_$stamp
 fi
-echo successfulwork
 docker exec etcdclient /TopStor/logqueue.py `basename "$0"` stop system 
