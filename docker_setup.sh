@@ -413,7 +413,7 @@ then
 	echo adding all sync inits as I am primary
 	echo docker exec etcdclient /pace/checksyncs.py syncinit $etcd
 	echo row 293 checksync init >> /root/checksync
-	/pace/checksyncs.py syncinit $etcd 
+	/pace/checksyncs.py syncinit $etcd $myhost
 fi
 # echo running rabbit receive daemon
 # /TopStor/topstorrecvreply.py $etcd & disown
