@@ -55,7 +55,11 @@ def replitargetget(receiver, volume, volused, snapshot):
   print('################################################333')
   repliselection = nodeloc+' /TopStor/repliSelection.py '+volume+' '+volused+' '+snapshot
   print('start checkpartner')
-  isopen, response = checkpartner(receiver, nodeip, repliselection.split(), 'old')
+  try:
+   isopen, response = checkpartner(receiver, nodeip, repliselection.split(), 'old')
+  except:
+   print('result_failresult_ connection to the remote parnter')
+   exit()
   print('finish checkpartner')
   print('>>>>>>>>>>>>>>>>>>>>',isopen)
   if 'open' in isopen:
@@ -89,7 +93,12 @@ def replistream(receiver, nodeip, snapshot, nodeowner, poolvol, pool, volume, cs
  quota=subprocess.run(cmd.split(' '),stdout=subprocess.PIPE).stdout.decode().split('\t')[2]
  oldsnap = 'noold'
  cmd = nodeloc + ' /TopStor/getlatestsnap.sh '+volume
- isopen, result = checkpartner(receiver, nodeip, cmd.split(), 'old')
+ try:
+  isopen, result = checkpartner(receiver, nodeip, cmd.split(), 'old')
+ except:
+   print('result_failresult_ connection to the remote parnter')
+   exit()
+
  remotesnap = result.split('result_')
  if remotesnap != 'noold':
   cmd = 'zfs list -t snapshot'
@@ -97,7 +106,12 @@ def replistream(receiver, nodeip, snapshot, nodeowner, poolvol, pool, volume, cs
   if remotesnap[1] in mysnaps:
    oldsnap = remotesnap[2] 
  cmd = nodeloc + ' /TopStor/targetcreatevol.sh '+poolvol+' '+volip+' '+volsubnet+' '+quota+' '+voltype+' '+' '+oldsnap+' '+volgrps+' '+extras
- isopen, result = checkpartner(receiver, nodeip, cmd.split(), 'old')
+ try:
+  isopen, result = checkpartner(receiver, nodeip, cmd.split(), 'old')
+ except:
+   print('result_failresult_ connection to the remote parnter')
+   exit()
+
  response = result.split('result_')
  print('the response of create:',response)
  if oldsnap == 'noold':
@@ -133,7 +147,12 @@ def replistream(receiver, nodeip, snapshot, nodeowner, poolvol, pool, volume, cs
   cmd = nodeloc + ' /TopStor/zfsdestroy.sh '+destroy[:-1]
   with open('/root/destroynow','w') as f:
     f.write(cmd+'\n')
-  checkpartner(receiver, nodeip, cmd.split(), 'old')
+  try:
+   checkpartner(receiver, nodeip, cmd.split(), 'old')
+  except:
+   print('result_failresult_ connection to the remote parnter')
+   exit()
+
  
  cmd = '/usr/sbin/zfs list -t snapshot -o name'
  _ , snaps = checkpartner(receiver, nodeip, cmd.split(), 'old')

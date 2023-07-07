@@ -42,9 +42,9 @@ then
  docker exec etcdclient /TopStor/logmsg.py Replispacest01 info $userreq $vol $shortreceiver  
  echo /logmsg.py Replispacest01 info $userreq $vol $shortreceiver  
 fi
-result=`/TopStor/Snapshotnow $leaderip $myhost $@ | awk -F'_newsnap' '{print $2}'`
+result=`/TopStor/Snapshotnow $leaderip $myhost $@`
 res=`echo $result | awk -F'_newsnap' '{print $2}'`
-replicationflag=`echo $result | awk -F'repli_' '{print $2}'`
+soldsnap=`echo $result | awk -F'repli_' '{print $2}'`
 echo $res | grep Erro
 if [ $? -eq 0 ];
 then
@@ -106,18 +106,27 @@ then
   echo .................................................................
   echo result=$result
   echo ............................................
-  echo $result | grep 'fail'
-  if [ $? -eq 0 ];
+  echo 'hi'$result | grep 'Success'
+  if [ $? -ne 0 ];
   then
    #./logmsg.py Replispacefa01 error $userreq $shortreceiver $vol
+   echo removing new snap $snapshot from the source
+   echo /sbin/zfs destroy $snapshot
+   /sbin/zfs destroy $snapshot
+   if [ $? -ne  0  ]; then
+    docker exec etcdclient /TopStor/logmsg.py Snap1023 error $userreq $snapshot
+   else
+    docker exec etcdclient /TopStor/logmsg.py Snap1025 info $userreq $snapshot
+   fi
    docker exec etcdclient /TopStor/logmsg.py Streamfa01 error $userreq $vol $shortreceiver
   else
-   echo /sbin/zfs destroy $oldsnap
-   /sbin/zfs destroy $oldsnap
+   echo removing oldsnap $soldsnap from the source
+   echo /sbin/zfs destroy $soldsnap
+   /sbin/zfs destroy $soldsnap
    if [ $? -ne  0  ]; then
-    docker exec etcdclient /TopStor/logmsg.py Snap1023 error $userreq $oldsnap
+    docker exec etcdclient /TopStor/logmsg.py Snap1023 error $userreq $soldsnap
    else
-    docker exec etcdclient /TopStor/logmsg.py Snap1025 info $userreq $oldsnap
+    docker exec etcdclient /TopStor/logmsg.py Snap1025 info $userreq $soldsnap
    fi
     echo successfulwork
     docker exec etcdclient /TopStor/logmsg.py Replispacesu01 info $userreq $vol $shortreceiver

@@ -9,10 +9,9 @@ echo oper=$oper > $cronout
 leaderip=`echo $@ | awk -F/ '{print $1}'`;
 hostnam=`echo $@ | awk -F/ '{print $2}'`;
 oper1=`echo $oper | awk '{print $3}'`;
-repli=`echo $oper | awk '{print $NF}'`;
+receiver=`echo $oper | awk '{print $NF}'`;
 #realoper=`echo $oper1 | awk -F'/' '{print $2"/"$3}'`;
 realoper=$oper1
-
 oper2=`echo $oper | awk '{print $4}'`;
 txtres='/TopStordata/'`basename $0`$userreq'.txt'
 rm $txtres 2>/dev/null
@@ -38,8 +37,8 @@ userreq='system';
 replicationflag='hi'
 if (( $countsnap >  $keep )); then 
  replicationflag=$oldsnap
- echo $repli | grep repli
- if [ $? -ne  0 ];
+ echo $receiver | grep NoReceive
+ if [ $? -eq  0 ];
  then
   docker exec etcdclient /TopStor/logmsg.py Snap1022 info $userreq $oldsnap
   echo /sbin/zfs destroy $oldsnap > /root/tmpcron
@@ -49,7 +48,9 @@ if (( $countsnap >  $keep )); then
   else
    docker exec etcdclient /TopStor/logmsg.py Snap1025 info $userreq $oldsnap
   fi
+ fi
 fi
+echo hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
 echo repli_${replicationflag}repli_
 newsnap2=`echo $oper2.$stamp`;
 echo newsnap2=$newsnap2 >> $cronout
