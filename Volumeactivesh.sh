@@ -33,7 +33,7 @@ then
   if [ $? -eq 0 ]
   then
    sed -i 's/active/disabled/g' /$pDG/smb.$name
-   dockerps=`docker ps | grep $ipaddr | awk '{print $1}'`
+   dockerps=`docker ps | grep -w $ipaddr | awk '{print $1}'`
    docker rm -f $dockerps 2>/dev/null
    zfs set status:mount=disabled $pDG/$name
    zfs unmount -f $pDG/$name
