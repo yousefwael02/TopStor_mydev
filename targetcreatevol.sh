@@ -56,9 +56,12 @@ else
   echo ./createmyvol.py $leaderip $myhost $myhostip $pool $name $ipaddress $Subnet $size $typep $groups $extras
   ./createmyvol.py $leaderip $myhost $myhostip $pool $name $ipaddress $Subnet $size $typep $groups $extras
  fi
- #oldnew='new'
- #latestsnap=''
- #zfs destroy -f $pool/${newvol}
+ newvol=`zfs list | grep ${name}_ | awk '{print $1}'`
+ echo 'hi'$newvol | grep pdhcp
+ if [ $? -eq 0 ];
+ then
+  zfs rename $newvol $name
+ fi
 fi
 newvol=`/TopStor/etcdget.py $leaderip vol $name | grep $pool | awk -F'/' '{print $6}'`
 echo 'newvol'$newvol | grep  $name 
@@ -75,9 +78,8 @@ then
  ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/volumes/${pool}_$newvol/request volumes_$stamp
  ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/volumes/${pool}_$newvol/request/$leader volumes_$stamp
  docker rm -f `docker ps | grep -w $ipaddress | awk '{print $1}'` 2>/dev/null
- #echo result_${oldnew}vol/@${oldnew}result_$pool/${newvol}result_${latestsnap}result_
- echo result_${oldnew}vol/@${oldnew}result_$pool/${newvol}result_
+ echo result_${oldnew}vol/@${oldnew}result_$pool/${newvol}result_${latestsnap}result_
+ #echo result_${oldnew}vol/@${oldnew}result_$pool/${newvol}result_
 else
  echo result_problem/@newresult_
 fi 
-echo volume_$pool/${newvol}volume_
