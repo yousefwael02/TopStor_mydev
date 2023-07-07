@@ -34,15 +34,17 @@ then
  then
  	zfs unmount -f $pool/${newvol}
  fi
- latestsnap=`/TopStor/getlatestsnap.py $newvol | awk -F'result_' '{print $2}'`
+ #latestsnap=`/TopStor/getlatestsnap.py $newvol | awk -F'result_' '{print $2}'`
+ latestsnap=`zfs list -H -t snapshot | grep $newvol | awk '{print $1}' | awk -F'.' '{print $NF}' | sort | tail -1`
+ latetsnap=`zfs list -t snapshot | grep $newvol | grep -w $latestsnap | awk '{print $1}'`
  echo 'noold' | grep $oldsnap
  if [ $? -eq 0 ];
  then
   echo zfs list -t snapshot -o name \| grep ^${pool}/${newvol}@  \| tac \| xargs -n 1 zfs destroy -r 
   zfs list -t snapshot -o name | grep ^${pool}/${newvol}@  | tac | xargs -n 1 zfs destroy -r  2>/dev/null
  else
-  echo zfs rollback $pool/$newvol@$oldsnap
-  zfs rollback -r $pool/$newvol@$oldsnap
+  echo zfs rollback $oldsnap
+  zfs rollback -r $oldsnap
  fi
  oldnew='old'
 else 
