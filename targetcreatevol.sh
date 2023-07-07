@@ -83,3 +83,4 @@ then
 else
  echo result_problem/@newresult_
 fi 
+echo volume_${newvol}volume_
