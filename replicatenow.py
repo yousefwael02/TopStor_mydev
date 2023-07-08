@@ -80,16 +80,23 @@ def replistream(receiver, nodeip, snapshot, nodeowner, poolvol, pool, volume, cs
  volumeinfo = volumeline[1].split('/') 
  volgrps = volumeinfo[4]
  voltype = volumeline[0].split('/')[1]
- if voltype not in 'ISCSI':
+ if voltype in 'NFS':
     cmd = '/usr/sbin/zfs get quota '+myvol+' -H'
-    volip = volumeinfo[7]
-    volsubnet = volumeinfo[8]
+    volip = volumeinfo[9]
+    volsubnet = volumeinfo[10]
+    volgrps = volumeinfo[8]
     extras = ''
- else:
+ elif voltype in 'ISCSI':
     cmd = '/usr/sbin/zfs get volsize '+myvol+' -H'
     volip = volumeinfo[2]
     volsubnet = volumeinfo[3]
     extras = volumeinfo[5]
+ else:
+    cmd = '/usr/sbin/zfs get quota '+myvol+' -H'
+    volip = volumeinfo[7]
+    volsubnet = volumeinfo[8]
+    extras = ''
+
  quota=subprocess.run(cmd.split(' '),stdout=subprocess.PIPE).stdout.decode().split('\t')[2]
  oldsnap = 'noold'
  cmd = nodeloc + ' /TopStor/getlatestsnap.sh '+volume
