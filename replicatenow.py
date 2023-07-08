@@ -267,9 +267,12 @@ def syncpush(receiver):
  usersinfo = getusersinfo()
  groups = getgroups()
  usershash = packagekeys('usershash','admin')
- cmd = nodeloc + ' /TopStor/replisyncpull.py '+usershash
+ usersinfo = packagekeys('usersinfo','admin')
+ groups = packagekeys('usersigroup','admin')
+ cmd = nodeloc + ' /TopStor/replisyncpull.py '+usershash+' '+usersinfo+' '+groups
  try:
    isopen, response = checkpartner(receiver, nodeip, cmd.split(), 'old')
+   print(response)
  except:
    print('result_failresult_ connection to the remote parnter')
    exit()
