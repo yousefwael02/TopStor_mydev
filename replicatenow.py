@@ -36,6 +36,25 @@ def checkpartner(receiver, nodeip, cmd, isnew):
     result=subprocess.run(cmd,stdout=subprocess.PIPE)
  return isitopen , result.stdout.decode()
 
+def createnodeloc(receiver):
+ global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip
+ partnerinfo = get(etcdip, 'Partner/'+receiver)[0].split('/')
+ replitype = partnerinfo[1]
+ pport = partnerinfo[2]
+ phrase = partnerinfo[-1]
+ print(replitype, pport, phrase, leaderip )
+ nodesinfo = get(etcdip, 'Partnernode/'+receiver,'--prefix')
+ print('hi',nodesinfo)
+ isopen = 'closed'
+ nodesinfo.append(('hi/hi/'+partnerinfo[0],'hi'))
+ for node in nodesinfo:
+  nodeip = node[0].split('/')[2]
+  nodeloc = 'ssh -oBatchmode=yes -i /TopStordata/'+nodeip+'_keys/'+nodeip+' -p '+pport+' -oStrictHostKeyChecking=no '+nodeip
+  print('################################################333')
+  print(nodeloc)
+  print('################################################333')
+  return nodeip, nodeloc
+
 def replitargetget(receiver, volume, volused, snapshot):
  global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip
  partnerinfo = get(etcdip, 'Partner/'+receiver)[0].split('/')
@@ -174,6 +193,9 @@ def replistream(receiver, nodeip, snapshot, nodeowner, poolvol, pool, volume, cs
 
 def repliparam(snapshot, receiver):
  global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip
+ if snapshot == 'sync':
+  syncpush(receiver)
+  return
  alldsks = get(leaderip, 'host','current')
  allinfo = getall(leaderip, alldsks)
  volume = snapshot.split('/')[1].split('@')[0]
@@ -207,7 +229,50 @@ def repliparam(snapshot, receiver):
  subprocess.run(cmd.split(' '),stdout=subprocess.PIPE).stdout.decode()
  #return _'+volume, volused, snapshot+'result_'
  return result
+def getusershash():
+ global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip
+ usershash = get(leaderip, 'usershash','--prefix')
+ usershash = [ x for x in usershash if 'admin' not in x[0] ]
+ return usershash
 
+def getusersinfo():
+ global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip
+ usersinfo = get(leaderip, 'usersinfo','--prefix')
+ usersinfo = [ x for x in usersinfo if 'admin' not in x[0] ]
+ return usersinfo
+
+def getgroups():
+ global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip
+ groups = get(leaderip, 'usersigroup','--prefix')
+ groups = [ x for x in groups if 'admin' not in x[0] ]
+ return groups 
+
+def packagekeys(key,exception):
+ global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip
+ keylist = get(leaderip, key, '--prefix')
+ keylist = [ x for x in keylist if  exception not in x[0] ]
+ print(keylist)
+ stringlist = []
+ for key in keylist:
+  stringlist.append('tuple%'.join(key))
+ print('stringlist', stringlist)
+ keystring = 'list%'.join(stringlist)
+ print(keystring)
+ return keystring 
+
+def syncpush(receiver):
+ global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip
+ nodeip, nodeloc = createnodeloc(receiver)
+ usershash = getusershash()
+ usersinfo = getusersinfo()
+ groups = getgroups()
+ usershash = packagekeys('usershash','admin')
+ cmd = nodeloc + ' /TopStor/replisyncpull.py '+usershash
+ try:
+   isopen, response = checkpartner(receiver, nodeip, cmd.split(), 'old')
+ except:
+   print('result_failresult_ connection to the remote parnter')
+   exit()
 
 
 if __name__=='__main__':
