@@ -1,3 +1,5 @@
+modprobe bnx2
+systemctl restart NetworkManager
 myclusterf='/topstorwebetc/mycluster'
 mynodef='/topstorwebetc/mynode'
 myhost=`hostname`
