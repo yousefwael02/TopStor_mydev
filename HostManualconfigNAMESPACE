@@ -18,8 +18,10 @@ echo $newip | grep '10.11.11.250'
 if [ $? -ne 0 ];
 then
 	echo yes_fromNAME > /root/nodeconfigured
+ 	/pace/etcdput.py $leaderip configured/$myhost yes
 else
 	echo no_fromNAME > /root/nodeconfigured
+ 	/pace/etcdput.py $leaderip configured/$myhost no 
 fi
 echo checking $leader $myhost >> /root/tmpnamespace
 echo $leader | grep $myhost
