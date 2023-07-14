@@ -5,7 +5,7 @@ from etcdget import etcdget as get
 from getallraids import newraids, selectdisks, initgetraids
 from levelthis import levelthis
 from sendhost import sendhost
-
+from time import sleep
 allinfo = {}
 
 def selectDG(volname , volsize):
