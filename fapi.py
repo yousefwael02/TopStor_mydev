@@ -1197,6 +1197,25 @@ def api_filter():
 
     results = cur.execute(query, to_filter).fetchall()
     return jsonify(results)
+
+@app.route('/api/v1/pools/actionOnDisk', methods=['GET','POST'])
+@login_required
+def offlineOrOnlineDisk(data):
+    global allinfo, myhost
+    getalltime()
+    owner = allinfo['pools'][data['pool']]['host']
+    ownerip = allinfo['hosts'][owner]['ipaddress']
+    action = data['action']
+    pool = data['pool']
+    disk = data['disk']
+    datastr = data['action'] + ' ' + data['pool'] + ' ' + data['disk'] 
+    cmndstring = 'python /TopStor/actionOnDisk.py ' + datastr + ' >> v.txt'
+    z= cmndstring.split(' ')
+    msg={'req': 'Pumpthis', 'reply':z}
+    sendhost(ownerip, str(msg),'recvreply',myhost)
+    return data
+    #return {'action': action, 'pool': pool, 'disk': disk}
+
 leaderip =0 
 myhost=0
 if __name__=='__main__':
