@@ -60,7 +60,7 @@ do
 			exit
 		fi
 		fnupdate $branch $developer $devrepo
-		cjobs=(`echo "${cjobs[@]}" | sed "s/$jobc//g" `)
+		cjobs=(`echo "${cjobs[@]}" | sed -e "s/$jobc//g" `)
   	done
 	lencjobs=`echo $cjobs | wc -c`
 	if [ $lencjobs -le 3 ];
