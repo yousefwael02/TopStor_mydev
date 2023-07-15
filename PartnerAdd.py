@@ -42,8 +42,6 @@ def addpartner(*bargs):
     etcd = leaderip
  else:
     etcd = myhostip
- with open('/root/PartnerAdd','w') as f:
-  f.write(str(bargs))
  partnerip = bargs[0]
  partneralias = bargs[1].replace('_','').replace('/',':::')
  replitype = bargs[2]
@@ -77,4 +75,7 @@ def addpartner(*bargs):
 
 if __name__=='__main__':
  initpartner('init')
+ with open('/root/PartnerAdd','w') as f:
+    import json
+    json.dump(sys.argv[1:], f)
  addpartner(*sys.argv[1:])

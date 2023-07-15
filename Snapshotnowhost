@@ -2,6 +2,7 @@
 source /root/.bash_profile
 export ETCDCTL_API=3
 cd /TopStor
+echo $@ > /root/Snapshotnowhost
 pDG=`echo $@ | awk '{print $1}'`;
 DG=`echo $@ | awk -F/ '{print $1}'`;
 vol=`echo $@ | awk '{print $1}'| awk -F/ '{print $2}'`;
@@ -41,7 +42,9 @@ then
  docker exec etcdclient /TopStor/logmsg.py Replispacest01 info $userreq $vol $shortreceiver  
  echo /logmsg.py Replispacest01 info $userreq $vol $shortreceiver  
 fi
-res=`/TopStor/Snapshotnow $leaderip $myhost $@ | awk -F'_newsnap' '{print $2}'`
+result=`/TopStor/Snapshotnow $leaderip $myhost $@`
+res=`echo $result | awk -F'_newsnap' '{print $2}'`
+soldsnap=`echo $result | awk -F'repli_' '{print $2}'`
 echo $res | grep Erro
 if [ $? -eq 0 ];
 then
@@ -65,7 +68,7 @@ then
  while [ $waiting -eq 1 ];
  do 
   running=`/TopStor/etcdget.py $leaderip running $receiver`
-  echo $running | grep $receiver 
+  echo 'checking'$running | grep $receiver 
   if [ $? -eq 0 ];
   then
    echo waiting the current replications to finish in Snapshotnowhost
@@ -92,6 +95,7 @@ then
   #./etcdput.py $leaderip sync/running/____/request running_$stamp
   #./etcdput.py $leaderip sync/running/____/request/$leader running_$stamp
   echo /TopStor/replicatenow.py $leaderip $etcd $snapshot $receiver >/root/snapshotpls
+  echo /TopStor/replicatenow.py $leaderip $etcd $snapshot $receiver 
   #result=`/TopStor/replicatenow.py $leaderip $etcd $snapshot $receiver 2>/root/replicatenow`
   /TopStor/replicatenow.py $leaderip $etcd $snapshot $receiver >/TopStordata/remotereplicatenow 2>/root/replicatenow
   result=`cat /TopStordata/remotereplicatenow`
@@ -102,14 +106,32 @@ then
   echo .................................................................
   echo result=$result
   echo ............................................
-  echo $result | grep 'fail'
-  if [ $? -eq 0 ];
+  echo 'hi'$result | grep 'Success'
+  if [ $? -ne 0 ];
   then
    #./logmsg.py Replispacefa01 error $userreq $shortreceiver $vol
+   echo removing new snap $snapshot from the source
+   echo /sbin/zfs destroy $snapshot
+   /sbin/zfs destroy $snapshot
+   if [ $? -ne  0  ]; then
+    docker exec etcdclient /TopStor/logmsg.py Snap1023 error $userreq $snapshot
+   else
+    docker exec etcdclient /TopStor/logmsg.py Snap1025 info $userreq $snapshot
+   fi
    docker exec etcdclient /TopStor/logmsg.py Streamfa01 error $userreq $vol $shortreceiver
   else
+   echo removing oldsnap $soldsnap from the source
+   echo /sbin/zfs destroy $soldsnap
+   /sbin/zfs destroy $soldsnap
+   if [ $? -ne  0  ]; then
+    docker exec etcdclient /TopStor/logmsg.py Snap1023 error $userreq $soldsnap
+   else
+    docker exec etcdclient /TopStor/logmsg.py Snap1025 info $userreq $soldsnap
+   fi
+    echo successfulwork
     docker exec etcdclient /TopStor/logmsg.py Replispacesu01 info $userreq $vol $shortreceiver
   fi 
+  docker exec etcdclient /TopStor/logqueue.py `basename "$0"` stop system 
  fi
  #./etcdput.py $leaderip running/$myhost/$receiver finished 
  #./etcdput.py $leaderip sync/running/____/request running_$stamp

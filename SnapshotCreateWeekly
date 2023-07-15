@@ -43,7 +43,7 @@ else
  stamp=` echo $@ | awk '{print $7}'`;
 fi
 crontab -l > $cronthis
-echo $min  $hr "*" "*" $every  /TopStor/Snapshotnowhost $DG/$FileS Weekly.$keep.$hr.$min.$every $stamp $receiver 2>txt/SnapshotnowSystem.txt >> $cronthis
+echo $min  $hr "*" "*" $every  /TopStor/putcron.sh /TopStor/etcdput.py $leaderip call/$stamp /TopStor/Snapshotnowhost::$DG/$FileS::Weekly.$keep.$hr.$min.$every::$stamp::$receiver 2>txt/SnapshotnowSystem.txt >> $cronthis
 crontab $cronthis
 if [ $? -ne  0 ]; then
    docker exec etcdclient /TopStor/logmsg.py Snap1032 error $userreq  $DG/$FileS

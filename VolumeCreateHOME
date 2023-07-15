@@ -4,8 +4,15 @@ cd /TopStor
 echo $@ > /root/volcreatehome
 leaderip=`echo $@ | awk '{print $1}'`;
 shortname=`echo $@ | awk '{print $3}'`;
-nameid=$RANDOM$RANDOM
-name=${shortname}_$nameid
+echo $shortname | grep '_repli'
+if [ $? -eq 0 ];
+then
+ shortname=`echo $shortname | awk -F'_repli' '{print $1}'`
+ name=$shortname
+else
+ nameid=$RANDOM$RANDOM
+ name=${shortname}_$nameid
+fi
 pDG=`echo $@ | awk '{print $2}'`;
 quota=`echo $@ | awk '{print $4}'`;
 writev=`echo $@ | awk '{print $5}'`;
