@@ -23,8 +23,8 @@ fnupdate () {
 	sync
 }
 cjobs=(`echo TopStor/TopStordev.git pace/HC.git topstorweb/TopStorweb.git`)
-branch=$1
-developer=$2
+developer=$1
+branch=$2
 loc='http://10.11.11.252/git/'${developer}'_'
 branchc=`echo y$branch | wc -c`
 if [ $branchc -lt 4 ];
