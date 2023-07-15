@@ -58,4 +58,5 @@ do
 	fi
 done
 cd /TopStor
+git show | grep commit
 echo finished

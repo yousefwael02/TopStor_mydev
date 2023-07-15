@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/usr/bin/bash
+source /root/.bash_profile
 export ETCDCTL_API=3
 cd /TopStor
 pDG=`echo $@ | awk '{print $1}'`;
@@ -40,7 +41,7 @@ then
  docker exec etcdclient /TopStor/logmsg.py Replispacest01 info $userreq $vol $shortreceiver  
  echo /logmsg.py Replispacest01 info $userreq $vol $shortreceiver  
 fi
-res=`./Snapshotnow $leaderip $myhost $@ | awk -F'_newsnap' '{print $2}'`
+res=`/TopStor/Snapshotnow $leaderip $myhost $@ | awk -F'_newsnap' '{print $2}'`
 echo $res | grep Erro
 if [ $? -eq 0 ];
 then
@@ -52,7 +53,6 @@ zfs set snap:type=$stype $snapshot
 echo $receiver | grep NoReceiver 
 if [ $? -ne 0 ];
 then 
- echo ./replicatenow.py $leaderip $etcd $snapshot $receiver
  echo $receiver | grep NoReceive
  if [ $? -eq 0 ];
  then
@@ -61,21 +61,22 @@ then
  	waiting=1
  fi
  echo $receiver, $waiting
+ waiting=0
  while [ $waiting -eq 1 ];
  do 
-  running=`./etcdget.py $leaderip running $receiver`
+  running=`/TopStor/etcdget.py $leaderip running $receiver`
   echo $running | grep $receiver 
   if [ $? -eq 0 ];
   then
-   echo waiting the current replications to finish
+   echo waiting the current replications to finish in Snapshotnowhost
    queue=`ps -ef | grep Snapshotnow | wc -l`
    if [ $queue -ge 10 ];
    then
     stamp=`date +%s`
-    ./etcddel.py $leaderip running $receiver
-    ./etcdput.py $leaderip running/stub/$receiver  no
-    ./etcdput.py $leaderip sync/running/____/request running_$stamp
-    ./etcdput.py $leaderip sync/running/____/request/$leader running_$stamp
+    /TopStor/etcddel.py $leaderip running $receiver
+    #./etcdput.py $leaderip running/stub/$receiver  no
+    #./etcdput.py $leaderip sync/running/____/request running_$stamp
+    #./etcdput.py $leaderip sync/running/____/request/$leader running_$stamp
     exit
     waiting=0
    fi
@@ -85,13 +86,18 @@ then
   fi
  done
  echo $receiver | grep NoReceive
- if [ $? -eq 0 ];
+ if [ $? -ne 0 ];
  then
-  ./etcdput.py $leaderip running/$myhost/$receiver $receiver 
-  ./etcdput.py $leaderip sync/running/____/request running_$stamp
-  ./etcdput.py $leaderip sync/running/____/request/$leader running_$stamp
-  result=`./replicatenow.py $snapshot $receiver 2>/root/replicatenow`
-  echo result=$result >> /root/replicatenow
+  #./etcdput.py $leaderip running/$myhost/$receiver $receiver 
+  #./etcdput.py $leaderip sync/running/____/request running_$stamp
+  #./etcdput.py $leaderip sync/running/____/request/$leader running_$stamp
+  echo /TopStor/replicatenow.py $leaderip $etcd $snapshot $receiver >/root/snapshotpls
+  #result=`/TopStor/replicatenow.py $leaderip $etcd $snapshot $receiver 2>/root/replicatenow`
+  /TopStor/replicatenow.py $leaderip $etcd $snapshot $receiver >/TopStordata/remotereplicatenow 2>/root/replicatenow
+  result=`cat /TopStordata/remotereplicatenow`
+  echo result=$result > /root/snaph 
+  echo result=$result 
+  
   result=`echo $result | grep 'result_' | awk -F'result_' '{print $2}'`
   echo .................................................................
   echo result=$result
@@ -105,8 +111,8 @@ then
     docker exec etcdclient /TopStor/logmsg.py Replispacesu01 info $userreq $vol $shortreceiver
   fi 
  fi
- ./etcdput.py $leaderip running/$myhost/$receiver finished 
- ./etcdput.py $leaderip sync/running/____/request running_$stamp
- ./etcdput.py $leaderip sync/running/____/request/$leader running_$stamp
+ #./etcdput.py $leaderip running/$myhost/$receiver finished 
+ #./etcdput.py $leaderip sync/running/____/request running_$stamp
+ #./etcdput.py $leaderip sync/running/____/request/$leader running_$stamp
 fi
 docker exec etcdclient /TopStor/logqueue.py `basename "$0"` stop system 

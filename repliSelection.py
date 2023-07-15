@@ -1,16 +1,15 @@
 #!/usr/bin/python3
-import sys
+import sys, subprocess
 from allphysicalinfo import getall 
-from etcdgetlocalpy import etcdget as get
-from getallraids import newraids, selectdisks
+from etcdget import etcdget as get
+from getallraids import newraids, selectdisks, initgetraids
 from levelthis import levelthis
 from sendhost import sendhost
 
 allinfo = {}
-myhost = get('clusternode')[0] 
 
 def selectDG(volname , volsize):
- global allinfo, myhost
+ global allinfo, leader, leaderip, clusterip, myhost, myhostip
  posraids = newraids(allinfo['disks'])
  raidname = 'noraid'
  raidsize = float('inf')
@@ -70,8 +69,7 @@ def selectDG(volname , volsize):
   counter -= 1
   sleep(10)
   alldsks = get('host','current')
-  allinfo = getall(alldsks)
-  allinfo = getall(alldsks)
+  allinfo = getall(leaderip, alldsks)
   newpool = allinfo['disks'][selecteddisks[0]]['pool']
   if 'ree' not in newpool:
    createdpool = newpool
@@ -84,6 +82,7 @@ def selectDG(volname , volsize):
  
   
 def selectPool(volname, volsize):
+ global leader, leaderip, clusterip, myhost, myhostip
  pools = allinfo['pools']
  volquota = levelthis(volsize,'G')
  pool = 'No_vol_space'
@@ -99,6 +98,7 @@ def selectPool(volname, volsize):
    
  
 def selectVol(volname, volsize):
+ global leader, leaderip, clusterip, myhost, myhostip
  volinfo = allinfo['volumes']
  volumes='No_vol_space'
  for vol in volinfo:
@@ -120,9 +120,19 @@ if __name__=='__main__':
  volname = sys.argv[1]
  volsize = float(sys.argv[2])
  snapshot = sys.argv[3]
+ cmdline='docker exec etcdclient /TopStor/etcdgetlocal.py leader'
+ leader=subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','').replace(' ','')
+ cmdline='docker exec etcdclient /TopStor/etcdgetlocal.py leaderip'
+ leaderip=subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','').replace(' ','')
+ cmdline='docker exec etcdclient /TopStor/etcdgetlocal.py clusternode'
+ myhost=subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','').replace(' ','')
+ cmdline='docker exec etcdclient /TopStor/etcdgetlocal.py clusternodeip'
+ myhostip=subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','').replace(' ','')
+ initgetraids(leader, leaderip, myhost, myhostip)
+ 
  #snapused = levelthis(sys.argv[4])
- alldsks = get('host','current')
- allinfo = getall(alldsks)
+ alldsks = get(leaderip, 'host','current')
+ allinfo = getall(leaderip, alldsks)
  #volsize = sys.argvlevelthis('96K','G')
  #snapused = levelthis('1K','G')
  #volname = 'common_427522895'

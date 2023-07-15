@@ -21,7 +21,7 @@ fi
 contrun=`./privthis.sh $privilege $userreq`;
 if [[ $contrun == 'true' ]]
 then
-/TopStor/SnapshotnowOnce $leaderip $pDG $FileS $name $receiver $userreq > $txtres
+/TopStor/SnapshotnowOnce $leaderip $name $pDG $FileS $receiver $userreq > $txtres
 fi
 docker exec etcdclient /TopStor/logqueue.py `basename "$0"` stop $userreq 
 /pace/putzpool.py

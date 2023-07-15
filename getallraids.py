@@ -1,11 +1,12 @@
 #!/usr/bin/python3
 
 from allphysicalinfo import getall 
-from etcdgetlocalpy import etcdget as get
+from etcdget import etcdget as get
 from levelthis import levelthis
 from copy import deepcopy 
 
 def selectnewmirror(fdisk, diskdict, fmirror):
+ global leader, leaderip, clusterip, myhost, myhostip
  single = newraids(diskdict)['single']
  fmdisks = [x for x in fmirror['disks'] if x != fdisk]
  size = float('inf')
@@ -28,7 +29,7 @@ def selectnewmirror(fdisk, diskdict, fmirror):
    hostdisks[diskdict[dsk]['host']].append(dsk)
    hosts.add(diskdict[dsk]['host'])
  pool = fmirror['pool']
- balance = get('balance', pool)[0][1]
+ balance = get(leaderip, 'balance', pool)[0][1]
  hostdiskcopy = deepcopy(hostdisks)
  hosts = list(hosts)
  finishedhosts = set() 
@@ -67,6 +68,7 @@ def selectnewmirror(fdisk, diskdict, fmirror):
 
 
 def getmirror(single,group,diskdict):
+ global leader, leaderip, clusterip, myhost, myhostip
  mirror = dict() 
  for size in single:
   otherslist = [] 
@@ -87,6 +89,7 @@ def getmirror(single,group,diskdict):
  return mirror
 
 def getraid(single,group,parity,diskdict):
+ global leader, leaderip, clusterip, myhost, myhostip
  theraid = dict()
  for size in single:
   otherslist = [] 
@@ -115,6 +118,7 @@ allraids ={'raid5':{'parity':1, 'group':3 } , 'raid6':{ 'parity':2, 'group':4}, 
            'raid6plus':{'parity':3, 'group':5} }
 
 def newraids(diskdict):
+ global leader, leaderip, clusterip, myhost, myhostip
  allsizes = dict() 
  single = dict() 
  #allsizes['single'] = single
@@ -135,6 +139,7 @@ def newraids(diskdict):
  return allsizes
 
 def selectdisks(disks,singles, disksinfo):
+ global leader, leaderip, clusterip, myhost, myhostip
  #print('#########disks',disks)
  #print('#########singles',singles)
  thedisks = []
@@ -170,11 +175,26 @@ def selectdisks(disks,singles, disksinfo):
  #print('thehththeheh',thedisks)
  return thedisks
 
+def initgetraids(*args):
+    global leader, leaderip, clusterip, myhost, myhostip
+    if args[0] == 'init':
+        cmdline='docker exec etcdclient /TopStor/etcdgetlocal.py leader'
+        leader=subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','').replace(' ','')
+        cmdline='docker exec etcdclient /TopStor/etcdgetlocal.py leaderip'
+        leaderip=subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','').replace(' ','')
+        cmdline='docker exec etcdclient /TopStor/etcdgetlocal.py clusternode'
+        myhost=subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','').replace(' ','')
+        cmdline='docker exec etcdclient /TopStor/etcdgetlocal.py clusternodeip'
+        myhostip=subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','').replace(' ','')
+    else:
+        leader = args[0]
+        leaderip = args[1]
+        myhost = args[2]
+        myhostip = args[3]
 
 if __name__=='__main__':
- from etcdgetpy import etcdget as getp
- leaderip = get('leaderip')[0]
- alldsks = getp(leaderip, 'host','current')
+ initgetraids('init') 
+ alldsks = get(leaderip, 'host','current')
  allinfo = getall(leaderip, alldsks)
  disks = allinfo['disks']
  raids = newraids(disks)
