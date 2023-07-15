@@ -57,34 +57,64 @@ then
   then 
    extraparms='/'$domain'/'$domainsrvn'/'$domainsrvi'/'$domadm'/'$dompass
   else
-    extraparms='/'`echo $older | awk -F'/' '{for(i=NF-4;i<=NF;i++) printf $i"/"; print ""}' | sed "s/')\///g"`
+    #extraparms='/'`echo $older | awk -F'/' '{for(i=NF-4;i<=NF;i++) printf $i"/"; print ""}' | sed "s/')\///g"`
+    extraparms='/'$active
   fi
  fi
  echo /pace/etcdput.py $leaderip volumes/CIFS/$myhost/$DG/$name $DG/$name/no/yes/$writev/administrator/yes/$oldipaddr/${oldipsubnet}$extraparms/$active >> /root/volchange
  oldipaddr=`zfs get -H ip:addr $DG/$name | awk '{print $3}'`
  oldipsubnet=`zfs get -H ip:subnet $DG/$name | awk '{print $3}'`
- /TopStor/VolumefixChangeCIFS $leaderip $pDG $name CIFS $oldipaddr $userreq 
- /TopStor/VolumeDockerChange.py /$DG/$name $ipaddr
+ #/TopStor/VolumefixChangeCIFS $leaderip $pDG $name CIFS $oldipaddr $userreq 
+ /TopStor/VolumeDockerChange.py $oldipaddr $oldipsubnet CIFS 
+
  ETCDCTL_API=3 /pace/etcddel.py $leaderip volumes $name
+ ETCDCTL_API=3 /pace/etcddel.py $leaderip sync $name
+ /sbin/zfs set ip:addr=$ipaddr $DG/$name
+ /sbin/zfs set ip:subnet=$ipsubnet $DG/$name
+ /sbin/zfs set status:mount=$active $DG/$name
+ shortname=`echo ${name} | rev | cut -d_ -f2- | rev`
+ yes | cp sharecifs.txt /TopStordata/smb.${name}
+ sed -i "s/Vtype/CIFS/g"  /TopStordata/smb.${name}
+ sed -i "s/Rpool/$DG/g"  /TopStordata/smb.${name}
+ sed -i "s/Rname/$name/g"  /TopStordata/smb.${name}
+ sed -i "s/Rreadv/no/g"  /TopStordata/smb.${name}
+ sed -i "s/Rbrows/yes/g"  /TopStordata/smb.${name}
+ sed -i "s/Rwritev/$writev/g"  /TopStordata/smb.${name}
+ sed -i "s/Radmin/administrator/g"  /TopStordata/smb.${name}
+ sed -i "s/Rwritea/yes/g"  /TopStordata/smb.${name}
+ sed -i "s/Ripadd/$ipaddr/g"  /TopStordata/smb.${name}
+ sed -i "s/Ripsub/$ipsubnet/g"  /TopStordata/smb.${name}
+ sed -i "s/SHORTNAME/$shortname/g"  /TopStordata/smb.${name}
+ sed -i "s/NAMECIFS/$name/g"  /TopStordata/smb.${name}
+ sed -i "s/POOL/$DG/g" /TopStordata/smb.${name}
+ sed -i "s/no/no/g" /TopStordata/smb.${name}
+ sed -i "s/yes/yes/g" /TopStordata/smb.${name}
+ sed -i "s/administrator/administrator/g" /TopStordata/smb.${name}
+ sed -i "s/Yes/yes/g" /TopStordata/smb.${name}
+ sed -i "s/\@everyone/$writev/g" /TopStordata/smb.${name}
+ sed -i "s/IPADDRESS/$ipaddr/g" /TopStordata/smb.${name}
+ sed -i "s/IPSUBNET/$ipsubnet/g" /TopStordata/smb.${name}
+ sed -i "s/ACTIVE/$active/g" /TopStordata/smb.${name}
+ yes | cp /TopStordata/smb.$name /$DG/
+ echo $writev | egrep -w 'nogroup|DOMAIN'
+ if [ $? -ne 0 ];
+ then
+  setfacl -b -R /$DG/$name
+  writevtemp=`echo $writev | sed 's/\,/ /g'`
+  for grp in $writevtemp ;do  setfacl -R -m g:$grp:rwx /$DG/$name; done
+ fi
  echo ETCDCTL_API=3 /pace/etcdput.py $leaderip volumes/CIFS/$myhost/$DG/$name $DG/$name/no/yes/$writev/administrator/yes/$ipaddr/${ipsubnet}$extraparms/$active
  ETCDCTL_API=3 /pace/etcdput.py $leaderip volumes/CIFS/$myhost/$DG/$name $DG/$name/no/yes/$writev/administrator/yes/$ipaddr/${ipsubnet}$extraparms/$active
  stamp=`date +%s`
  ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/volumes/${DG}_$name/request volumes_$stamp
  ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/volumes/${DG}_$name/request/$leader volumes_$stamp
- echo checkkkkkkkkkkkkkkkkkkkkkkkkking
- ETCDCTL_API=3 /pace/etcdget.py $leaderip volumes $name
- sed -i "s/$oldipaddr/$ipaddr/g" /$DG/smb.$name
- sed -i "s/$oldipsubnet/$ipsubnet/g" /$DG/smb.$name
- /sbin/zfs set ip:addr=$ipaddr $DG/$name
- /sbin/zfs set ip:subnet=$ipsubnet $DG/$name
- /sbin/zfs set status:mount=$active $DG/$name
  echo $writev | grep DOMAIN
- if [ $? -ne 0 ];
+ if [ $? -eq 0 ];
  then
    echo imaheeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeer
   /TopStor/VolumeActivateCIFS $leaderip vol=$name user=$userreq
  else 
-   /TopStor/VolumeActivateCIFSdom $leaderip vol=$name user=$userreq
+   /TopStor/cifs.py $leader $leaderip $myhost $myhostip $etcd $DG $name $ipaddr $ipsubnet CIFS
  fi
  /pace/putzpool.py $leaderip 
  docker exec etcdclient /TopStor/logmsg.py VolCsu01 info $userreq $name

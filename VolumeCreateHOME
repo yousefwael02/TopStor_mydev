@@ -71,6 +71,12 @@ then
  /sbin/zfs set ip:addr=$ipaddr $DG/$name
  /sbin/zfs set ip:subnet=$ipsubnet $DG/$name
  /sbin/zfs set status:mount=$active $DG/$name
+ usermod -d $DG/$name $shortname
+ chown $shortname /$DG/$name
+ chgrp $shortname /$DG/$name
+ chmod 750 /$DG/$name
+ #chmod o-rwx /$DG/$shortname -R
+
  shortname=`echo ${name} | rev | cut -d_ -f2- | rev`
  yes | cp sharecifs.txt /TopStordata/smb.${name}
  sed -i "s/Vtype/HOMEE/g"  /TopStordata/smb.${name}

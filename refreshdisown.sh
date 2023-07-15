@@ -30,8 +30,8 @@ cmdcjobs['checksyncs']="echo"
 while true;
 do
  flag=0
- echo docker exec etcdclient /TopStor/etcdgetlocal.py refreshdisown \| grep yes 
- docker exec etcdclient /TopStor/etcdgetlocal.py refreshdisown | grep yes 
+ echo docker exec etcdclient /TopStor/etcdgetlocal.py refreshdisown/$myhost \| grep yes 
+ docker exec etcdclient /TopStor/etcdgetlocal.py refreshdisown/$myhost | grep yes 
  if [ $? -eq 0 ];
  then
   flag=1
@@ -48,7 +48,7 @@ do
   fi
   echo 'SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSstart'
   cjobs=(`echo "${cujobs[@]}"`)
-  docker exec etcdclient /TopStor/etcdput.py etcd refreshdisown 0 
+  docker exec etcdclient /TopStor/etcdput.py etcd refreshdisown/$myhost 0 
  fi
  while [ $flag -ne 0 ];
  do
@@ -59,7 +59,7 @@ do
   do
 	echo '###########################################'
  	echo $job
-  	flag=`docker exec etcdclient /TopStor/etcdgetlocal.py refreshdisown`
+  	flag=`docker exec etcdclient /TopStor/etcdgetlocal.py refreshdisown/$myhost`
         echo flaginfor $flag
  	fnkillall $job
  	isproc=`ps -ef | grep $job | grep -v color | grep -v grep | awk '{print $2}' | wc -l`
@@ -73,10 +73,10 @@ do
 	fi
 	flag=$((flag+isproc))
 	echo flagwithiscproc=$flag
-  	docker exec etcdclient /TopStor/etcdput.py etcd refreshdisown $flag 
+  	docker exec etcdclient /TopStor/etcdput.py etcd refreshdisown/$myhost $flag 
 	echo flag=$flag
   done
-  flag=`docker exec etcdclient /TopStor/etcdgetlocal.py refreshdisown`
+  flag=`docker exec etcdclient /TopStor/etcdgetlocal.py refreshdisown/$myhost`
   echo flaginwhile=$flag
  done
  echo 'SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSstop'

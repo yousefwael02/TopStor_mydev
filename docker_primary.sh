@@ -3,7 +3,7 @@ mynodef='/topstorwebetc/mynode'
 myhost=`echo $@ | awk '{print $1}'`
 myhostip=`echo $@ | awk '{print $2}'`
 leaderip=`echo $@ | awk '{print $3}'`
-myclusterip=`echo $@ | awk '{print $4}'`
+myclusterip=$leaderip
 leader=$myhost
 nmcli conn up mynode
 zpool export -a

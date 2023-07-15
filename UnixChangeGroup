@@ -97,11 +97,13 @@ then
    else
     usergroups=$usergroups','$groupname
    fi 
+    echo ------------------------------------------------------------------------------
    echo /TopStor/UnixChangeUser $l groups$usergroups $userreq 
-   /TopStor/UnixChangeUser $l groups$usergroups $userreq 2&>/root/UnixChangeUser
+   /TopStor/UnixChangeUser $leaderip $l groups$usergroups $userreq $ischange 2&>/root/UnixChangeUser
   done 
  else
-   /TopStor/UnixChangeUser NoUser groups$groupname $userreq 2&>/root/UnixChangeUser
+    echo ---------------0000000000000000000000000------------------- 
+   /TopStor/UnixChangeUser $leaderip NoUser groups$groupname $userreq $ischange 2&>/root/UnixChangeUser
  fi 
  #/TopStor/broadcast.py GroupChange /TopStor/pump.sh UnixChangeGroup_sync -d$myhost $@ 
  docker exec etcdclient /TopStor/logmsg.py Unsu1025 info $userreq $groupname

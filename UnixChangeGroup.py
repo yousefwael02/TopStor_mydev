@@ -48,8 +48,9 @@ def main(leaderip, myhost, groupname, groupusers, userreq, ischange):
     else:
         put( etcdip, 'usersigroup/'+groupname, "/".join(neworiggrp))
     if leader == myhost:
-        put( leaderip, 'sync/user/usergroups/request/'+myhost, 'GrpChange_'+groupname+'_'+str(stamp()))
-        put( leaderip, 'sync/user/usergroups/request/', 'GrpChange_'+groupname+'_'+str(stamp()))
+        stampi=str(stamp())
+        put( leaderip, 'sync/user/usergroups/request/'+myhost, 'GrpChange_'+groupname+'_'+stampi)
+        put( leaderip, 'sync/user/usergroups/request/', 'GrpChange_'+groupname+'_'+stampi)
     
     for user in toremove:
         cmdline='gpasswd -d '+user+' '+groupname

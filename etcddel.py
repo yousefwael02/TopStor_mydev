@@ -17,7 +17,11 @@ def etcddel(etcd, *args):
  else:
   cmdline=['etcdctl','--user=root:YN-Password_123','--endpoints='+endpoints,'get',args[0]]
   cmdline=['etcdctl','--endpoints='+endpoints,'get',args[0]]
- result=subprocess.run(cmdline,stdout=subprocess.PIPE)
+ try:
+    result=subprocess.run(cmdline,stdout=subprocess.PIPE, timeout=2)
+ except:
+    print('no reachable')
+    return
  mylist=str(result.stdout.decode()).replace('\n\n','\n').split('\n')
  zipped=zip(mylist[0::2],mylist[1::2])
  if mylist==['']:

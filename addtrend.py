@@ -14,7 +14,8 @@ def addtrend(vol,size,stamp):
  csizes = get(leaderip, 'sizevol/'+vol)[0]
  csizes += '/'+stamp+'-'+normsize
  put(leaderip, 'sizevol/'+vol,csizes)
- put(leaderip, 'sync/sizevol/Add_'+'sizevol::'+vol+'_'+csizes.replace('/','::')+'/request/'+myhost, 'sizevol'_str(stamp()))
+ put(leaderip, 'sync/sizevol/Add_'+'sizevol::'+vol+'_'+csizes.replace('/','::')+'/request/'+myhost, 'sizevol'_stamp)
+ put(leaderip, 'sync/sizevol/Add_'+'sizevol::'+vol+'_'+csizes.replace('/','::')+'/request/', 'sizevol'_stamp)
 # broadcasttolocal('sizevol/'+vol,csizes)
  
 if __name__=='__main__':

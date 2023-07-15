@@ -28,8 +28,11 @@ def create(leader, leaderip, myhost, myhostip, etcdip, pool, name, ipaddr, ipsub
         leftvol = vol[0].split('/')[4]
         mounts += '-v/'+pool+'/'+leftvol+':/'+pool+'/'+leftvol+':rw'
         with open('/TopStordata/tempsmb.'+ipaddr,'a') as fip:
-            with open('/'+pool+'/smb.'+leftvol, 'r') as fvol:
-                fip.write(fvol.read())
+            try:
+                with open('/'+pool+'/smb.'+leftvol, 'r') as fvol:
+                    fip.write(fvol.read())
+            except:
+               continue 
     cmdline = 'cp /TopStordata/tempsmb.'+ipaddr+' /TopStordata/smb.'+ipaddr
     subprocess.run(cmdline.split(),stdout=subprocess.PIPE)  
     if '_' not in vtype:
@@ -43,10 +46,10 @@ def create(leader, leaderip, myhost, myhostip, etcdip, pool, name, ipaddr, ipsub
         users=get(etcdip,'usershash','--prefix')
         users=[x for x in users if 'admin' not in x[0] ]
         for user in users:
-            username = user[0].splt('/')[1]
+            username = user[0].split('/')[1]
             cmdline = '/TopStor/decthis.sh '+username+' '+user[1]
             passwd = subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode().split('_result')[1]
-            cmdline = 'docker exec '+resname+' /hostetc/smbuserfix.sh '+username+' '+passwd
+            cmdline = 'docker exec '+resname+' /hostetc/smbuserfix.sh x '+username+' '+passwd
             subprocess.run(cmdline.split(),stdout=subprocess.PIPE)  
             
     print(mounts)

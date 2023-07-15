@@ -23,6 +23,6 @@ then
   ./etcdput.py configured/$myhost yes
   exit
  fi
- /TopStor/etcdput.py $leaderip rebootme/$myhost pls
+ /TopStor/etcdput.py $leaderip rebootme/$myhost pls_fromCF
 fi
 

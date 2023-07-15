@@ -497,7 +497,7 @@ def pgroupchange(data):
     if str(suser['id']) == str(usr):
      usrstr += suser['name']+',' 
   usrstr = usrstr[:-1]
- cmndstring = '/TopStor/UnixChangeGroup.py '+leaderip+' '+myhost+' '+data.get('name')+' users'+usrstr+' '+data['user']+' '+'change'
+ cmndstring = '/TopStor/UnixChangeGroup '+leaderip+' '+' '+data.get('name')+' users'+usrstr+' '+data['user']+' '+'change'
  postchange(cmndstring)
  return data
 

@@ -38,34 +38,30 @@ then
  #rm -rf /home/$username &>/dev/null
  userdel -f  $username 
  datenow=`date +%m/%d/%Y`;timenow=`date +%T`;
- cat /etc/passwd |  grep $username
+ cat /etc/passwd |  grep -w $username
  if [ $? -eq 0 ]; then
    docker exec etcdclient /TopStor/logmsg.py Unlin11001 error $userreq $myhost
  else
   #/TopStor/broadcast.py UserDel /TopStor/pump.sh UnixDelUser_sync -d$myhost $username $userreq
   echo usename=$username
   cgrps=`/pace/etcdget.py $etcd usersigroup $username`
+  echo cgrps $cgrps
   cgrpsl=${#cgrps}
   while [ $cgrpsl  -gt 4 ];
   do
-   l=`echo "${cgrps[@]}" | tail -1 `
+   l=`echo "${cgrps[@]}" | tail -1`
+   echo l: $l
    cgrps=`echo "${cgrps[@]}" | sed '$d'`
    cgrpsl=${#cgrps}
    cgrp=`echo $l | sed "s/('usersigroup\///g" | awk -F"'" '{print $1}' `  
    usersall=`/pace/etcdget.py $etcd usersigroup/$cgrp`
-   cusers=`echo $usersall | awk -F'/' '{print $3}'`
+   cusers='/'`echo $usersall | awk -F'/' '{print $3}'`'/'
    cusersleft=`echo $usersall | cut -d/ -f1-2`
    cusersright=`echo $usersall | cut -d/ -f4-`
-   newusers=`echo ${cusers} | sed "s/,$username//g" | sed "s/$username,//g"`
-   resusers=${#newusers}
-   if [ $resusers -le 2 ];
-   then
-    newusers='no'
-   fi
-   newop=$cusersleft'/'$newusers'/'$cusersright
-   groupres=`echo ${newop} | sed "s/$username,//g" | sed "s/,$username//g" `
-   echo to remove : $cgrp to be $groupres
-   /pace/etcdput.py $etcd usersigroup/$cgrp $groupres 
+   newusers=`echo ${cusers} | sed "s/,$username,/,/g" | sed "s/\/$username,/\//g" | sed "s/,$username\//\//g" | sed "s/\/$username\//\/no\//g"`
+   newop=${cusersleft}${newusers}$cusersright
+   echo newop $newop
+   /pace/etcdput.py $etcd usersigroup/$cgrp $newop 
   done
   pool=`ETCDCTL_API=3 /pace/etcdget.py $etcd usersinfo/$username | awk -F'/' '{print $2}'`
   echo Home=$pool
@@ -76,7 +72,8 @@ then
   echo vol=$vol $userreq
  # ./VolumeDeleteHome.py $pool $vol $userreq
   fi
-  /pace/etcddel.py $etcd users $username
+  /pace/etcddel.py $etcd users /$username/
+  /pace/etcddel.py $etcd usershash $username
   docker exec etcdclient /TopStor/logmsg.py Unlin1010 info $userreq $username
  fi;
 fi
@@ -86,6 +83,7 @@ then
 	stamp=`date +%s%N`
 	myscript=`basename "$0"`
 	params=`echo $myscript $@ $stamp | sed 's\ \\_\g'`
+	/pace/etcddel.py $leaderip sync/user _${username}_
 	/pace/etcdput.py $etcd sync/user/$params/request/$myhost user_${username}_$stamp
 	/pace/etcdput.py $etcd sync/user/$params/request user_${username}_$stamp
 fi

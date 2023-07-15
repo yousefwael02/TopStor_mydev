@@ -102,6 +102,14 @@ then
  ETCDCTL_API=3 /pace/etcdput.py $leaderip volumes/CIFS/$myhost/$DG/$name $DG/$name/no/yes/$writev/administrator/yes/$ipaddr/$ipsubnet/$active
  ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/volumes/${DG}_$name/request volumes_$stamp
  ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/volumes/${DG}_$name/request/$leader volumes_$stamp
+ chmod 2770 /$DG/$name
+ setfacl -b -R /$DG/$name
+ echo $writev | grep -w nogroup
+ if [ $? -ne 0 ];
+ then
+  writevtemp=`echo $writev | sed 's/\,/ /g'`
+  for grp in $writevtemp ;do  setfacl -R -m g:$grp:rwx /$DG/$name; done
+ fi
 
  /TopStor/cifs.py $leader $leaderip $myhost $myhostip $etcd $DG $name $ipaddr $ipsubnet CIFS
     #/TopStor/cifs.sh $leaderip $pool $name $ipaddr $ipsubnet cifs

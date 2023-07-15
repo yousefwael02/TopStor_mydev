@@ -16,8 +16,9 @@ def clearvol(vol):
  volin=[x for x in allvols if vol in x[1] and '/' not in x[1].replace('/'+vol,'')]
  for x in volin:
   deli(leaderip, x[0],x[0])
- put(leaderip, 'sync/ipaddr/request','ipaddr_'+str(stamp()))
- put(leaderip, 'sync/ipaddr/request/'+leader,'ipaddr_'+str(stamp()))
+ stampi = str(stamp())
+ put(leaderip, 'sync/ipaddr/request','ipaddr_'+stampi)
+ put(leaderip, 'sync/ipaddr/request/'+leader,'ipaddr_'+stampi)
  if len(volin) > 0:
   print('result='+volin[0][1].replace('/'+vol,''))
   return volin[0][1].replace('/'+vol,'')
@@ -30,8 +31,9 @@ def redvol(vol):
  remvol=[(x[0],x[1].replace('/'+vol,'')) for x in allvols if vol in x[1] and '/' in x[1].replace('/'+vol,'')]
  for x in remvol:
   put(leaderip, x[0],x[1])
- put(leaderip, 'sync/ipaddr/request','ipaddr_'+str(stamp()))
- put(leaderip, 'sync/ipaddr/request/'+leader,'ipaddr_'+str(stamp()))
+ stampi = str(stamp())
+ put(leaderip, 'sync/ipaddr/request','ipaddr_'+stampi)
+ put(leaderip, 'sync/ipaddr/request/'+leader,'ipaddr_'+stampi)
  if len(remvol) > 0:
   print('result='+remvol[0][1].split('/')[0])
   return 'result='+remvol[0][1].split('/')[0]

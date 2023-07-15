@@ -1,5 +1,6 @@
 #!/usr/bin/sh
 fnupdate () {
+	echo '###########################################' $1
 	git checkout -b $1
 	git checkout $1
 	git reset --hard
@@ -7,6 +8,7 @@ fnupdate () {
 	git config --replace-all pull.rebase false
 	git checkout -- *
 	git rm -rf __py*
+	rm -rf __py*
 	#git add --all
 	#git commit -am 'fixing' 
 	git pull origin $1
@@ -27,6 +29,11 @@ then
 	echo no valid branch is supplied .... exiting
 	exit
 fi 
+echo $branch | grep samebranch
+if [ $? -eq 0 ];
+then
+	branch=`git branch | grep '*' | awk '{print $2}'`
+fi
 flag=1
 while [ $flag -ne 0 ];
 do
@@ -34,7 +41,6 @@ do
 	echo rjobs=${rjobs[@]}
 	for job in "${rjobs[@]}";
 	do
-		echo '###########################################'
  		echo $job
 		cd /$job
 		if [ $? -ne 0 ];

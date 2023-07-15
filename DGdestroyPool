@@ -69,6 +69,10 @@ echo iam in >> /root/tmp2
    docker exec etcdclient /TopStor/logmsg.py DGfa5 error $userreq $pool
  else
   stamp=`date +%s`
+  ETCDCTL_API=3 /pace/etcddel.py $leaderip ActPools/$pool 
+  ETCDCTL_API=3 /pace/etcddel.py $leaderip sync/ActPool/ ${pool} 
+  ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/ActPool/Del_${pool}_$guid/request actpools_$stamp 
+  ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/ActPool/Del_${pool}_$guid/request/$leader actpools_$stamp 
   ETCDCTL_API=3 /pace/etcddel.py $leaderip pools $pool
   ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/pools/Del_pools_${pool}/request pools_$stamp 
   ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/pools/Del_pools_${pool}/request/$leader pools_$stamp

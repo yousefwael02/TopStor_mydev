@@ -2,24 +2,37 @@
 export ETCDCTL_API=3
 cd /TopStor/
 echo $@ > /root/mgmtip
-leader=`echo $@ | awk '{print $1}'`
-leaderip=`echo $@ | awk '{print $2}'`
-myhost=`echo $@ | awk '{print $3}'`
-hostip=`echo $@ | awk '{print $4}'`
+leader=`docker exec etcdclient /TopStor/etcdgetlocal.py leader`
+leaderip=`docker exec etcdclient /TopStor/etcdgetlocal.py leaderip`
+myhost=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternode`
+hostip=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternodeip`
 myclusterdev='enp0s8'
 newip=`/TopStor/etcdget.py $leaderip namespace/mgmtip`
-nmcli conn mod mycluster ipv4.addresses $newip 
-echo yes > /root/nodeconfigured
+isinsync='no'
+while [[ $isinsync != 'yes' ]];
+do
+isinsync=`/TopStor/etcdget.py $leaderip isinsync`
+sleep 1
+done
+echo $newip | grep '10.11.11.250'
+if [ $? -ne 0 ];
+then
+	echo yes_fromNAME > /root/nodeconfigured
+else
+	echo no_fromNAME > /root/nodeconfigured
+fi
 echo checking $leader $myhost >> /root/tmpnamespace
 echo $leader | grep $myhost
-if [ $? -eq 0 ];
+if [ $? -ne 0 ];
 then
  echo addingpls >> /root/tmpnamespace
  /TopStor/etcdput.py $hostip namespace/mgmtip $newip
- stamp=`date +%s`
- ./etcdput.py $leaderip sync/nmspce/_____/request nmspce_$stamp
-  ./etcdput.py $leaderip sync/nmspce/_____/request/$leader nmspce_$stamp
-# ./etcdput.py $leaderip rebootme/$myhost pls
-
 fi
+echo $newip > /root/newcaddr
+./etcdput.py $leaderip rebootme/$myhost pls_fromNAME
+#else:
+# stamp=`date +%s`
+# ./etcdput.py $leaderip sync/nmspce/_____/request nmspce_$stamp
+# ./etcdput.py $leaderip sync/nmspce/_____/request/$leader nmspce_$stamp
+#fi
 #/sbin/reboot
