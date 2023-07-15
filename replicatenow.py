@@ -2,10 +2,11 @@
 import sys, subprocess
 from allphysicalinfo import getall 
 from etcdgetpy import etcdget as get
-from pumpkeys import pumpkeys
+from etcdput import etcdput as put 
+from etcddel import etcddel as dels 
+from pumpkeys import pumpkeys, initpumpkeys
+from time import sleep
 
-leaderip = '0'
-etcdip = '0'
 
 allinfo = {}
 phrase = ''
@@ -13,22 +14,46 @@ myclusterip = ''
 pport = ''
 nodeloc = ''
 replitype = 'Receiver'
-
+isitopen = 'closed'
 def checkpartner(receiver, nodeip, cmd, isnew):
+ global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip, isitopen
+ if isitopen == 'closed':
+    tempcmd = nodeloc+' ls'
+    count = 0
+    while count < 10:
+        result=subprocess.run(tempcmd.split(),stdout=subprocess.PIPE)
+        if result.returncode == 0: 
+            isitopen = 'open'
+            break
+        if count == 0:
+            print('start pump')
+            pumpkeys(nodeip, replitype, pport, phrase)
+            print('finish pump')
+        count += 1
+        sleep(1)
+ if isitopen == 'open':
+    print('running'," ".join(cmd))
+    result=subprocess.run(cmd,stdout=subprocess.PIPE)
+ return isitopen , result.stdout.decode()
+
+def createnodeloc(receiver):
  global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip
- result=subprocess.run(cmd.split(' '),stdout=subprocess.PIPE)
- response = result.stdout.decode()
- print(result.returncode)
- isopen = 'closed' if result.returncode else 'open'
- if result.returncode and isnew == 'old':
-  pumpkeys(nodeip, replitype, pport, phrase)
-  count = 0
-  while count < 10:
-   isopen, response = checkpartner(receiver, nodeip,  cmd, 'new')
-   count += 1
-   if isopen == 'open':
-    count = 11
- return isopen, response 
+ partnerinfo = get(etcdip, 'Partner/'+receiver)[0].split('/')
+ replitype = partnerinfo[1]
+ pport = partnerinfo[2]
+ phrase = partnerinfo[-1]
+ print(replitype, pport, phrase, leaderip )
+ nodesinfo = get(etcdip, 'Partnernode/'+receiver,'--prefix')
+ print('hi',nodesinfo)
+ isopen = 'closed'
+ nodesinfo.append(('hi/hi/'+partnerinfo[0],'hi'))
+ for node in nodesinfo:
+  nodeip = node[0].split('/')[2]
+  nodeloc = 'ssh -oBatchmode=yes -i /TopStordata/'+nodeip+'_keys/'+nodeip+' -p '+pport+' -oStrictHostKeyChecking=no '+nodeip
+  print('################################################333')
+  print(nodeloc)
+  print('################################################333')
+  return nodeip, nodeloc
 
 def replitargetget(receiver, volume, volused, snapshot):
  global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip
@@ -39,13 +64,22 @@ def replitargetget(receiver, volume, volused, snapshot):
  print(replitype, pport, phrase, leaderip )
  nodesinfo = get(etcdip, 'Partnernode/'+receiver,'--prefix')
  print('hi',nodesinfo)
+ isopen = 'closed'
  nodesinfo.append(('hi/hi/'+partnerinfo[0],'hi'))
  for node in nodesinfo:
   nodeip = node[0].split('/')[2]
   nodeloc = 'ssh -oBatchmode=yes -i /TopStordata/'+nodeip+'_keys/'+nodeip+' -p '+pport+' -oStrictHostKeyChecking=no '+nodeip 
+  print('################################################333')
   print(nodeloc)
+  print('################################################333')
   repliselection = nodeloc+' /TopStor/repliSelection.py '+volume+' '+volused+' '+snapshot
-  isopen, response = checkpartner(receiver, nodeip, repliselection, 'old')
+  print('start checkpartner')
+  try:
+   isopen, response = checkpartner(receiver, nodeip, repliselection.split(), 'old')
+  except:
+   print('result_failresult_ connection to the remote parnter')
+   exit()
+  print('finish checkpartner')
   print('>>>>>>>>>>>>>>>>>>>>',isopen)
   if 'open' in isopen:
    break
@@ -63,28 +97,67 @@ def replistream(receiver, nodeip, snapshot, nodeowner, poolvol, pool, volume, cs
    break
  volumeline = get(etcdip, 'volume', volume)[0]
  volumeinfo = volumeline[1].split('/') 
- volip = volumeinfo[7]
- volsubnet = volumeinfo[8]
  volgrps = volumeinfo[4]
  voltype = volumeline[0].split('/')[1]
- cmd = '/usr/sbin/zfs get quota '+myvol+' -H'
+ if voltype in 'NFS':
+    cmd = '/usr/sbin/zfs get quota '+myvol+' -H'
+    volip = volumeinfo[9]
+    volsubnet = volumeinfo[10]
+    volgrps = volumeinfo[8]
+    extras = ''
+ elif voltype in 'ISCSI':
+    cmd = '/usr/sbin/zfs get volsize '+myvol+' -H'
+    volip = volumeinfo[2]
+    volsubnet = volumeinfo[3]
+    extras = volumeinfo[5]
+ else:
+    cmd = '/usr/sbin/zfs get quota '+myvol+' -H'
+    volip = volumeinfo[7]
+    volsubnet = volumeinfo[8]
+    extras = ''
+
  quota=subprocess.run(cmd.split(' '),stdout=subprocess.PIPE).stdout.decode().split('\t')[2]
- cmd = nodeloc + ' /TopStor/targetcreatevol.sh '+poolvol+' '+volip+' '+volsubnet+' '+quota+' '+voltype+' '+volgrps+' '+oldsnap
- isopen, response = checkpartner(receiver, nodeip, cmd, 'old')
- response = response.split('result_')
+ oldsnap = 'noold'
+ cmd = nodeloc + ' /TopStor/getlatestsnap.sh '+volume
+ try:
+  isopen, result = checkpartner(receiver, nodeip, cmd.split(), 'old')
+ except:
+   print('result_failresult_ connection to the remote parnter')
+   exit()
+
+ remotesnap = result.split('result_')
+ if remotesnap != 'noold':
+  cmd = 'zfs list -t snapshot'
+  mysnaps = subprocess.run(cmd.split(' '),stdout=subprocess.PIPE).stdout.decode()
+  if remotesnap[1] in mysnaps:
+   oldsnap = remotesnap[2] 
+ cmd = nodeloc + ' /TopStor/targetcreatevol.sh '+poolvol+' '+volip+' '+volsubnet+' '+quota+' '+voltype+' '+' '+oldsnap+' '+volgrps+' '+extras
+ try:
+  isopen, result = checkpartner(receiver, nodeip, cmd.split(), 'old')
+ except:
+   print('result_failresult_ connection to the remote parnter')
+   exit()
+
+ response = result.split('result_')
+ print('the response of create:',response)
  if oldsnap == 'noold':
   response[1] = 'newvol/@new'
  if 'problem/@problem' in response[1]:
   print(' a problem creating/using the volume in the remote cluster')
   return
  elif 'newvol/@new' in response[1]:
-  #print('./sendzfs.sh new '+ myvol+'@'+snapshot +' '+ poolvol +' '+ nodeloc.replace(' ','%%'))
-  cmd = './sendzfs.sh new '+ myvol+'@'+snapshot +' '+ poolvol +' '+ nodeloc.replace(' ','%%')
+  remvol = result.split('volume_')[1]
+  print('/TopStor/sendzfs.sh new '+ myvol+'@'+snapshot +' '+ remvol +' '+ nodeloc.replace(' ','%%'))
+  cmd = '/TopStor/sendzfs.sh new '+ myvol+'@'+snapshot +' '+ remvol +' '+ nodeloc.replace(' ','%%')
  else:
   #cmd = './sendzfs.sh old '+myvol+'@'+lastsnap+' '+myvol+'@'+snapshot+' '+poolvol+' '+nodeloc
-  cmd = './sendzfs.sh old '+myvol+'@'+oldsnap+' '+myvol+'@'+snapshot+' '+response[2]+' '+nodeloc.replace(' ','%%')
-  print('./sendzfs.sh old '+myvol+'@'+oldsnap+' '+myvol+'@'+snapshot+' '+response[2]+' '+nodeloc.replace(' ','%%'))
+  remvol = result.split('volume_')[1]
+  myoldsnap = oldsnap.split('@')[1]
+  cmd = '/TopStor/sendzfs.sh old '+myvol+'@'+myoldsnap+' '+myvol+'@'+snapshot+' '+remvol +' '+nodeloc.replace(' ','%%')
+  print('/TopStor/sendzfs.sh old '+myvol+'@'+myoldsnap+' '+myvol+'@'+snapshot+' '+remvol +' '+nodeloc.replace(' ','%%'))
+ put(leaderip,'running/'+receiver, 'running')
  stream = subprocess.run(cmd.split(' '),stdout=subprocess.PIPE).stdout.decode()
+ dels(leaderip,'running/'+receiver)
  print('streaming: ',stream)
  print('start checking csnaps')
  csnaps = csnaps.split(',')
@@ -100,26 +173,42 @@ def replistream(receiver, nodeip, snapshot, nodeowner, poolvol, pool, volume, cs
   cmd = nodeloc + ' /TopStor/zfsdestroy.sh '+destroy[:-1]
   with open('/root/destroynow','w') as f:
     f.write(cmd+'\n')
-  checkpartner(receiver, nodeip, cmd, 'old')
+  try:
+   checkpartner(receiver, nodeip, cmd.split(), 'old')
+  except:
+   print('result_failresult_ connection to the remote parnter')
+   exit()
+
+ 
+ cmd = '/usr/sbin/zfs list -t snapshot -o name'
+ _ , snaps = checkpartner(receiver, nodeip, cmd.split(), 'old')
  print('end checking csnaps')
+ if snapshot in str(snaps):
+    print('success')
+    return 'success' 
+ else:
+    print('fail')
+    return 'fail'
  return stream
 
 def repliparam(snapshot, receiver):
  global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip
- alldsks = get(etcdip, 'host','current')
+ if snapshot == 'sync':
+  syncpush(receiver)
+  return
+ alldsks = get(leaderip, 'host','current')
  allinfo = getall(leaderip, alldsks)
  volume = snapshot.split('/')[1].split('@')[0]
  pool = snapshot.split('/')[0]
  snapshot = snapshot.split('@')[1].replace(' ','')
  volused = str(allinfo['volumes'][volume]['referenced'])
  snapused = '0' 
- 
  nodeip, selection = replitargetget(receiver, volume, volused, snapshot)
  if selection == 'closed':
-  print('no node is open for replication in the '+receiver)
+  print('(fail) no node is open for replication in the '+receiver)
   return 'closed'
  if 'No_vol_space' in str(selection):
-  print('No space in the receiver: '+receiver)
+  print('(fail) No space in the receiver: '+receiver)
   return 'No_Sppue'
  print('selection',selection)
  nodeowner = selection.split(':')[0]
@@ -130,16 +219,69 @@ def repliparam(snapshot, receiver):
   csnaps = 'noold'
  result = replistream(receiver, nodeip, snapshot, nodeowner, poolvol, pool, volume, csnaps)
  if 'fail' in result:
+  print('fail')
   cmd = '/usr/sbin/zfs destroy -r '+' '+pool+'/'+volume+'@'+snapshot 
  else:
+  print('success ',result)
+  cmd = nodeloc+'  /TopStor/setsnapsender.py '+snapshot+' '+leaderip
+  subprocess.run(cmd.split(' '),stdout=subprocess.PIPE).stdout.decode()
   cmd = '/usr/sbin/zfs set partner:receiver='+receiver.split('_')[0]+' '+pool+'/'+volume+'@'+snapshot
  subprocess.run(cmd.split(' '),stdout=subprocess.PIPE).stdout.decode()
  #return _'+volume, volused, snapshot+'result_'
  return result
+def getusershash():
+ global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip
+ usershash = get(leaderip, 'usershash','--prefix')
+ usershash = [ x for x in usershash if 'admin' not in x[0] ]
+ return usershash
 
+def getusersinfo():
+ global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip
+ usersinfo = get(leaderip, 'usersinfo','--prefix')
+ usersinfo = [ x for x in usersinfo if 'admin' not in x[0] ]
+ return usersinfo
+
+def getgroups():
+ global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip
+ groups = get(leaderip, 'usersigroup','--prefix')
+ groups = [ x for x in groups if 'admin' not in x[0] ]
+ return groups 
+
+def packagekeys(key,exception):
+ global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip
+ keylist = get(leaderip, key, '--prefix')
+ keylist = [ x for x in keylist if  exception not in x[0] ]
+ print(keylist)
+ stringlist = []
+ for key in keylist:
+  stringlist.append('tuple%'.join(key))
+ print('stringlist', stringlist)
+ keystring = 'list%'.join(stringlist)
+ print(keystring)
+ return keystring 
+
+def syncpush(receiver):
+ global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip
+ nodeip, nodeloc = createnodeloc(receiver)
+ usershash = getusershash()
+ usersinfo = getusersinfo()
+ groups = getgroups()
+ usershash = packagekeys('usershash','admin')
+ usersinfo = packagekeys('usersinfo','admin')
+ groups = packagekeys('usersigroup','admin')
+ cmd = nodeloc + ' /TopStor/replisyncpull.py '+usershash+' '+usersinfo+' '+groups
+ try:
+   isopen, response = checkpartner(receiver, nodeip, cmd.split(), 'old')
+   print(response)
+ except:
+   print('result_failresult_ connection to the remote parnter')
+   exit()
 
 
 if __name__=='__main__':
  leaderip =  sys.argv[1]
  etcdip =  sys.argv[2]
- result = repliparam(*sys.argv[3:])
+ initpumpkeys('init')
+ with open('/root/replicatenowpy','w') as f:
+    f.write(' '.join(sys.argv[1:]))
+ repliparam(*sys.argv[3:])

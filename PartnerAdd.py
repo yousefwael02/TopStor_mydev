@@ -1,19 +1,14 @@
 #!/usr/bin/python3
 import sys, subprocess
 from etcdput import etcdput as put
-from etcdgetlocalpy import etcdget as get 
+from etcdget import etcdget as get 
 from etcddel import etcddel as dels
-from logqueue import queuethis
 from logmsg import sendlog, initlog
 from sendhost import sendhost
 from privthis import privthis 
 from time import time as stamp
 
 
-myhost = get('clusternode')[0] 
-myip = get('clusternodeip')[0]
-clusterip = get('leaderip')[0]
-initlog(clusterip, myhsot)
 
 def dosync(leader,sync,  *args):
   global leaderip
@@ -22,11 +17,31 @@ def dosync(leader,sync,  *args):
   put(leaderip, args[0]+'/'+leader,args[1])
   return 
 
+def initpartner(*args):
+    global leader, leaderip, clusterip, myhost, myhostip
+    if args[0] == 'init':
+        cmdline='docker exec etcdclient /TopStor/etcdgetlocal.py leader'
+        leader=subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','').replace(' ','')
+        cmdline='docker exec etcdclient /TopStor/etcdgetlocal.py leaderip'
+        leaderip=subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','').replace(' ','')
+        cmdline='docker exec etcdclient /TopStor/etcdgetlocal.py clusternode'
+        myhost=subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','').replace(' ','')
+        cmdline='docker exec etcdclient /TopStor/etcdgetlocal.py clusternodeip'
+        myhostip=subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','').replace(' ','')
+    else:
+        leader = args[0]
+        leaderip = args[1]
+        myhost = args[2]
+        myhostip = args[3]
+    clusterip = leaderip 
+    initlog(clusterip, myhost)
 
 def addpartner(*bargs):
- global leaderip, myhost, myip
- with open('/root/PartnerAdd','w') as f:
-  f.write(str(bargs))
+ global leader, leaderip, clusterip, myhost, myhostip
+ if myhost == leader:
+    etcd = leaderip
+ else:
+    etcd = myhostip
  partnerip = bargs[0]
  partneralias = bargs[1].replace('_','').replace('/',':::')
  replitype = bargs[2]
@@ -34,14 +49,14 @@ def addpartner(*bargs):
  phrase = bargs[4]
  userreq = bargs[5]
  init = bargs[6]
- if (privthis('Replication',userreq) != 'true'):
+ if (privthis(etcd,'Replication',userreq) != 'true'):
   print('not authorized to add partner')
   return
  sendlog('Partner1000','info',userreq,partneralias,replitype)
  if 'Sender' not in replitype:
   cmdline = '/TopStor/preparekeys.sh '+partnerip
   result = subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').split('\n')[0].replace(' ','_spc_')
-  z=['/TopStor/pump.sh','receivekeys.sh',myhost,myip,clusterip, replitype, repliport, phrase, result]
+  z=['/TopStor/receivekeys.sh',myhost,myhostip,clusterip, replitype, repliport, phrase, result]
   msg={'req': 'Exchange', 'reply':z}
   print(msg)
   sendhost(partnerip, str(msg),'recvreply',myhost)
@@ -51,7 +66,6 @@ def addpartner(*bargs):
   if 'open' not in result:
    sendlog('Partner1fa2','error',userreq,partneralias,replitype)
    return
-# broadcasttolocal('Partner/'+partneralias+'_'+replitype,partnerip+'/'+replitype+'/'+str(repliport)+'/'+phrase) 
  if 'init' in init:
   put(leaderip, 'Partner/'+partneralias+'_'+replitype , partnerip+'/'+replitype+'/'+str(repliport)+'/'+phrase) 
   dosync(myhost,'Partnr_str_', 'sync/Partnr/Add_'+partneralias+':::'+replitype+'_'+partnerip+'::'+replitype+'::'+str(repliport)+'::'+phrase+'/request','Partnr_str_'+str(stamp())) 
@@ -60,4 +74,8 @@ def addpartner(*bargs):
  
 
 if __name__=='__main__':
+ initpartner('init')
+ with open('/root/PartnerAdd','w') as f:
+    import json
+    json.dump(sys.argv[1:], f)
  addpartner(*sys.argv[1:])

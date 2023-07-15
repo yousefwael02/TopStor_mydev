@@ -506,7 +506,7 @@ def pgroupchange(data):
 def partneradd(data):
  if 'baduser' in data['response']:
   return {'response': 'baduser'}
- cmndstring = '/TopStor/pump.sh PartnerAdd.py '+data.get('partnerip')+' '+data.get('partneralias')+' '+data.get('replitype')+' '+data.get('repliport')+' '+data.get('phrase')+' '+data.get('user')
+ cmndstring = '/TopStor/PartnerAdd.py '+data.get('partnerip')+' '+data.get('partneralias')+' '+data.get('replitype')+' '+data.get('repliport')+' '+data.get('phrase')+' '+data.get('user')
  postchange(cmndstring)
  return data
 
@@ -953,7 +953,7 @@ def groupdel(data):
 def partnerdel(data):
  if 'baduser' in data['response']:
   return {'response': 'baduser'}
- cmndstring = '/TopStor/pump.sh repliPartnerDel '+data.get('name')+' no '+data['user']
+ cmndstring = '/TopStor/repliPartnerDel '+data.get('name')+' no '+data['user']
  postchange(cmndstring)
  return data
 
@@ -996,7 +996,7 @@ def AddPartner(data):
  print('##########################33333')
  print(data)
  print('##########################33333')
- cmdstring = '/TopStor/pump.sh PartnerAdd.py '+data['ip']+' '+data['alias']+' '+data['type']+' '+data['port']+' '+data['pass']+' '+data['user'] + ' init'
+ cmdstring = '/TopStor/PartnerAdd.py '+data['ip']+' '+data['alias']+' '+data['type']+' '+data['port']+' '+data['pass']+' '+data['user'] + ' init'
  postchange(cmdstring)
  return data
 
@@ -1197,6 +1197,25 @@ def api_filter():
 
     results = cur.execute(query, to_filter).fetchall()
     return jsonify(results)
+
+@app.route('/api/v1/pools/actionOnDisk', methods=['GET','POST'])
+@login_required
+def offlineOrOnlineDisk(data):
+    global allinfo, myhost
+    getalltime()
+    owner = allinfo['pools'][data['pool']]['host']
+    ownerip = allinfo['hosts'][owner]['ipaddress']
+    action = data['action']
+    pool = data['pool']
+    disk = data['disk']
+    datastr = data['action'] + ' ' + data['pool'] + ' ' + data['disk'] 
+    cmndstring = 'python /TopStor/actionOnDisk.py ' + datastr + ' >> v.txt'
+    z= cmndstring.split(' ')
+    msg={'req': 'Pumpthis', 'reply':z}
+    sendhost(ownerip, str(msg),'recvreply',myhost)
+    return data
+    #return {'action': action, 'pool': pool, 'disk': disk}
+
 leaderip =0 
 myhost=0
 if __name__=='__main__':

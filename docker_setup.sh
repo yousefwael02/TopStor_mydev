@@ -1,10 +1,19 @@
+modprobe bnx2
+systemctl restart NetworkManager
 myclusterf='/topstorwebetc/mycluster'
 mynodef='/topstorwebetc/mynode'
 myhost=`hostname`
 firewall-cmd --permanent --add-port=5672/tcp
 firewall-cmd --permanent --add-port=5672/udp
+firewall-cmd --permanent --add-port=137/tcp
+firewall-cmd --permanent --add-port=137/udp
+firewall-cmd --permanent --add-port=138/tcp
+firewall-cmd --permanent --add-port=138/udp
+firewall-cmd --permanent --add-port=139/tcp
+firewall-cmd --permanent --add-port=139/udp
+firewall-cmd --permanent --add-port=445/tcp
+firewall-cmd --permanent --add-port=445/udp
 firewall-cmd --reload
-
 
 mypid='/TopStordata/diskchange'
 echo stop stop stop stop > $mypid
@@ -406,7 +415,7 @@ then
 	echo adding all sync inits as I am primary
 	echo docker exec etcdclient /pace/checksyncs.py syncinit $etcd
 	echo row 293 checksync init >> /root/checksync
-	/pace/checksyncs.py syncinit $etcd 
+	/pace/checksyncs.py syncinit $etcd $myhost
 fi
 # echo running rabbit receive daemon
 # /TopStor/topstorrecvreply.py $etcd & disown
@@ -476,6 +485,7 @@ fi
  /pace/heartbeatlooper.sh & disown
  /pace/fapilooper.sh & disown
  stamp=`date +%s%N`
+/TopStor/etcddel.py $myclusterip rebootwait/$myhost
 /TopStor/etcddel.py $myclusterip sync/ready $myhost 
 /TopStor/etcdput.py $myclusterip ready/$myhost $mynodeip
 /TopStor/etcdput.py $mynodeip ready/$myhost $mynodeip

@@ -2,8 +2,11 @@
 export ETCDCTL_API=3
 cd /TopStor
 echo $@ > /root/tmppartnerdel
-myhost=` ./etcdgetlocal.py clusternode`
-leaderip=` ./etcdgetlocal.py leaderip`
+
+myhost=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternode`
+myhostip=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternodeip`
+leader=`docker exec etcdclient /TopStor/etcdgetlocal.py leader`
+leaderip=`docker exec etcdclient /TopStor/etcdgetlocal.py leaderip`
 cronthis='/TopStordata/cronthis.txt'
 Partner=`echo $@ | awk '{print $1}'`;
 issync=`echo $@ | awk '{print $2}'`;
@@ -12,24 +15,21 @@ privilege="Replication";
 contrun=`./privthis.sh $privilege $userreq`;
 if [[ $contrun == 'true' ]]
 then
-  /TopStor/logmsg.py Partner1003 info $userreq $Partner
-  leader=` ./etcdgetlocal.py leader `
-  echo $leader | grep $myhost
+  docker exec etcdclient /TopStor/logmsg.py Partner1003 info $userreq $Partner
+  echo $myhost | grep $leader
   if [ $? -eq 0 ];
   then
-   isleader=$leaderip
-   islocal=''
+ 	etcd=$leaderip
   else
-   isleader=''
-   islocal='local'
+  	etcd=$myhostip
   fi
   issender=`echo $Partner | awk -F'_' '{print $2}'`
-  partnerinfo=`./etcdgetlocal.py Partner/${Partner}` 
+  partnerinfo=`/TopStor/etcdget.py $etcd Partner/${Partner}` 
   clusterip=`echo $partnerinfo | awk -F'/' '{print $1}'`
   currentkeys=`cat /root/.ssh/authorized_keys`
   currenthosts=`cat /root/.ssh/known_hosts`
-  nodes=`./etcdgetlocal.py node${issender}/$clusterip --prefix | awk -F'dhcp' '{print $2}' | sed "s/')//g" | sed 's/ /\//g' `
-  hosts=`./etcdgetlocal.py node${issender}/$clusterip --prefix | awk -F"', '" '{print $1}' | awk -F"/" '{print $NF}'`
+  nodes=`/TopStor/etcdget.py $etcd node${issender}/$clusterip --prefix | awk -F'dhcp' '{print $2}' | sed "s/')//g" | sed 's/ /\//g' `
+  hosts=`/TopStor/etcdget.py $etcd node${issender}/$clusterip --prefix | awk -F"', '" '{print $1}' | awk -F"/" '{print $NF}'`
   echo clusterip=$clusterip
   echo currentkeys="$currentkeys"
   echo currenthosts="$currenthosts"
@@ -69,7 +69,7 @@ then
   if [ $? -eq 0 ];
   then
    pport=` echo $partnerinfo | awk -F'/' '{print $3}'`
-   allpartners=`./etcdgetlocal.py Partner --prefix | grep -v $clusterip`
+   allpartners=`/TopStor/etcdget.py $etcd Partner --prefix | grep -v $clusterip`
    echo $allpartners | grep $pport
    if [ $? -ne 0 ];
    then
@@ -78,7 +78,7 @@ then
     systemctl restart sshd
    fi
   fi 
-  ./etcddel.py $leaderip Partner $Partner 
+  /TopStor/etcddel.py $leaderip Partner $Partner 
   crontab -l | grep -v $Partner > $cronthis
   crontab $cronthis
   echo $issync | grep yes 
@@ -88,5 +88,5 @@ then
     /pace/etcdput.py $leaderip sync/replipart/`basename "$0"`_${Parnter}_yes_$userreq/request/$myhost replipart_$stamp
     /pace/etcdput.py $leaderip sync/replipart/`basename "$0"`_${Parnter}_yes_$userreq/request/$myhost replipart_$stamp
   fi
-  /TopStor/logmsg.py Partner1004 info $userreq $Partner
+  docker exec etcdclient /TopStor/logmsg.py Partner1004 info $userreq $Partner
 fi

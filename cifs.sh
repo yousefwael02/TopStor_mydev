@@ -81,6 +81,6 @@ else
   		--name $resname moataznegm/quickstor:membersmb 
 	#cat /TopStordata/resolv.conf > /etc/resolv.conf
 	echo /TopStor/dockmember.sh $resname sh /hostetc/smb${membername}.sh 
-	/TopStor/dockmember.sh $resname sh /hostetc/smb${membername}.sh & disown
+	/TopStor/dockmember.sh $resname sh /hostetc/smb${membername}.sh
 
 fi

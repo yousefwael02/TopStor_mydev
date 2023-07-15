@@ -1,36 +1,38 @@
 #!/usr/bin/python3
 import sys, subprocess
-from etcdgetlocalpy import etcdget as get
 
 def createvol(*args):
  datastr = ''
- owner = args[0] 
- ownerip = get('ready/'+args[0])[0]
- pool = args[1]
- name = args[2]
- ipaddress = args[3]
- Subnet = args[4]
- size = args[5]
+ leaderip = args[0] 
+ owner = args[1] 
+ ownerip = args[2]
+ pool = args[3]
+ name = args[4]
+ ipaddress = args[5]
+ Subnet = args[6]
+ size = args[7]
  user = 'system'
- typep = args[6]
+ typep = args[8]
  if 'ISCSI' in typep:
   chapuser = 'MoatazNegm'
   chappas = 'MezoAdmin'
-  portalport = args[7]
-  initiators = args[8]
-  datastr = pool+' '+name+' '+size+' '+ipaddress+' '+Subnet+' disabled '+portalport+' '+initiators+' '+chapuse+' '+chappas+' '+user+' '+owner+' '+user
+  portalport = args[9]
+  initiators = args[10]
+  datastr = leaderip+' '+pool+' '+name+' '+size+' '+ipaddress+' '+Subnet+' '+portalport+' '+initiators+' '+chapuser+' '+chappas+' disabled '+user+' '+owner+' '+user
  elif 'CIFSdom' in typep:
-  domname = args[7]
-  dompass = args[8]
-  domsrv = args[9]
-  domip = args[10]
-  domadmin = args[11]
+  extras = args[9].split('ee_ee')
+  domname = extras[0]
+  dompass = extras[1]
+  domsrv = extras[2]
+  domip = extras[3]
+  domadmin = extras[4] 
   cmdline=['./encthis.sh',domname,dompass]
   dompass=subprocess.run(cmdline,stdout=subprocess.PIPE).stdout.decode().split('_result')[1].replace('/','@@sep')[:-1]
-  datastr = pool+' '+name+' '+size+' '+ipaddress+' '+Subnet+' '+user+' '+owner+' '+user+' '+domname+' '+domsrv+' '+ domip+' '+domadmin+' '+dompass 
+  datastr = leaderip+' '+pool+' '+name+' '+size+' '+ipaddress+' '+Subnet+' '+user+' '+owner+' '+user+' '+domname+' '+domsrv+' '+ domip+' '+domadmin+' '+dompass 
  else:
-  groups = args[7]
-  datastr = pool+' '+name+' '+size+' '+groups+' '+ipaddress+' '+Subnet+' disabled '+user+' '+owner+' '+user
+  groups = args[9] 
+  print(leaderip+' '+pool+' '+name+' '+size+' '+groups+' '+ipaddress+' '+Subnet+' disabled '+user+' '+owner+' '+user)
+  datastr = leaderip+' '+pool+' '+name+' '+size+' '+groups+' '+ipaddress+' '+Subnet+' disabled '+user+' '+owner+' '+user
  print('#############################')
  print('/TopStor/VolumeCreate'+typep,datastr)
  print('###########################')

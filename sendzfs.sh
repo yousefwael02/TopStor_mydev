@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 isnew=`echo $@ | awk '{print $1}'`
 echo $@ > /root/sendzfstmp
 echo $isnew | grep new
@@ -7,8 +7,9 @@ then
  snapshot=`echo $@ | awk '{print $2}'`
  poolvol=`echo $@ | awk '{print $3}'`
  nodeloc=`echo $@ | awk '{print $4}' | sed 's/\%\%/ /g' `
+ echo hihihihihihihih
  echo zfs send -DvPc $snapshot \| $nodeloc zfs recv -F $poolvol
- left='send -DvPc '$snapshot
+ left='-DvPc '$snapshot
  #zfs send -DvPc $snapshot | $nodeloc zfs recv -F $poolvol
 else
  #cmd = './sendzfs.sh old '+myvol+' '+snapshot+' '+poolvol+' '+nodeloc
@@ -21,6 +22,7 @@ else
  #zfs send -DvPc -i $myvolsnap $snapshot | $nodeloc zfs recv -F $poolvol
 fi
 right=' '${nodeloc}' zfs recv -F '$poolvol
+echo /usr/sbin/zfs send $left \| $right
 /usr/sbin/zfs send $left | $right
 if [ $? -eq 0 ]
 then

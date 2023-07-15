@@ -53,7 +53,7 @@ then
  /sbin/zfs set ip:subnet=$ipsubnet $DG/$name
  /sbin/zfs set status:mount=$active $DG/$name
  /TopStor/VolumeActivateNFS vol=$name user=$userreq
- echo $older | grep $ipaddr/$ipsubnet
+ echo $older | grep -w $ipaddr/$ipsubnet
  if [ $? -ne 0 ];
  then 
   echo /TopStor/VolumeActivateNFS vol=$name user=$userreq
