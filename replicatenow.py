@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import sys, subprocess
+import sys, subprocess, logmsg
 from allphysicalinfo import getall 
 from etcdgetpy import etcdget as get
 from etcdput import etcdput as put 
@@ -51,6 +51,7 @@ def createnodeloc(receiver):
   nodeip = node[0].split('/')[2]
   nodeloc = 'ssh -oBatchmode=yes -i /TopStordata/'+nodeip+'_keys/'+nodeip+' -p '+pport+' -oStrictHostKeyChecking=no '+nodeip
   print('################################################333')
+  print(nodeip)
   print(nodeloc)
   print('################################################333')
   return nodeip, nodeloc
@@ -191,10 +192,10 @@ def replistream(receiver, nodeip, snapshot, nodeowner, poolvol, pool, volume, cs
     return 'fail'
  return stream
 
-def repliparam(snapshot, receiver):
+def repliparam(snapshot, receiver, userreq='system'):
  global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip
  if snapshot == 'sync':
-  syncpush(receiver)
+  syncpush(receiver, userreq)
   return
  alldsks = get(leaderip, 'host','current')
  allinfo = getall(leaderip, alldsks)
@@ -260,8 +261,9 @@ def packagekeys(key,exception):
  print(keystring)
  return keystring 
 
-def syncpush(receiver):
+def syncpush(receiver, userreq):
  global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip
+ logmsg.sendlog('Partnerst01','info',userreq, receiver.split('_')[0])
  nodeip, nodeloc = createnodeloc(receiver)
  usershash = getusershash()
  usersinfo = getusersinfo()
@@ -270,18 +272,32 @@ def syncpush(receiver):
  usersinfo = packagekeys('usersinfo','admin')
  groups = packagekeys('usersigroup','admin')
  cmd = nodeloc + ' /TopStor/replisyncpull.py '+usershash+' '+usersinfo+' '+groups
+ print('nodeloc',nodeloc)
  try:
    isopen, response = checkpartner(receiver, nodeip, cmd.split(), 'old')
    print(response)
  except:
    print('result_failresult_ connection to the remote parnter')
+   logmsg.sendlog('Partnerfa01','error',userreq, receiver.split('_')[0])
    exit()
+ if 'Successfull_sync' in response:
+    logmsg.sendlog('Partnersu01','info',userreq, receiver.split('_')[0])
+ else:
+    logmsg.sendlog('Partnerfa01','error',userreq, receiver.split('_')[0])
 
+
+def repliinit(ldrip,etip):
+ global leaderip, etcdip
+ leaderip = ldrip
+ etcdip = etip
 
 if __name__=='__main__':
  leaderip =  sys.argv[1]
  etcdip =  sys.argv[2]
  initpumpkeys('init')
+ cmdline='docker exec etcdclient /TopStor/etcdgetlocal.py clusternode'
+ myhost=subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','').replace(' ','')
+ logmsg.initlog(leaderip, myhost)
  with open('/root/replicatenowpy','w') as f:
     f.write(' '.join(sys.argv[1:]))
  repliparam(*sys.argv[3:])

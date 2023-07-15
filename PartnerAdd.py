@@ -69,8 +69,10 @@ def addpartner(*bargs):
  if 'init' in init:
   put(leaderip, 'Partner/'+partneralias+'_'+replitype , partnerip+'/'+replitype+'/'+str(repliport)+'/'+phrase) 
   dosync(myhost,'Partnr_str_', 'sync/Partnr/Add_'+partneralias+':::'+replitype+'_'+partnerip+'::'+replitype+'::'+str(repliport)+'::'+phrase+'/request','Partnr_str_'+str(stamp())) 
-
  sendlog('Partner1002','info',userreq,partneralias,replitype)
+ cmdline = '/TopStor/replicatenow.py '+leaderip+' '+leaderip+' sync '+partneralias+'_Receiver '+userreq
+ print(cmdline)
+ result = subprocess.run(cmdline.split(),stdout=subprocess.PIPE)
  
 
 if __name__=='__main__':

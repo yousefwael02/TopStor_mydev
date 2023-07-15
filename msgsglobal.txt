@@ -172,6 +172,9 @@ Partst05:2: : from :: Node : raised alert that some node is down
 Partsu05:0: : from :: Node : is taking action due to lost node
 Partst06:0: : from :: started checking and syncing this partner active pools 
 Partsu06:0: : from :: finished checking and syncing this partner active pools 
+Partnerst01:0: : from :: Start pushing cluster users, groups,...etc. to the partner receiver : 
+Partnersu01:0: : from :: Succeeded pushing cluster users, groups,...etc. to the partner receiver : 
+Partnerfa01:0: : from :: failed pushing cluster users, groups,...etc. to the partner receiver : 
 Partner1000:2: : from :: Adding partner : in : mode.
 Partner1001:1: : from :: Partner : already exists
 Partner1002:1: : from :: Success adding partner : in : mode
