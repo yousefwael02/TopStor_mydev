@@ -41,7 +41,7 @@ else
  stamp=` echo $@ | awk '{print $7}'`;
 fi
 crontab -l > $cronthis
-echo $min  "*"/$every "*" "*" "*"  /TopStor/Snapshotnowhost $DG/$FileS Hourly.$keep.$min.$every.na $stamp $receiver 2> txt/err.txt >> $cronthis
+echo $min  "*"/$every "*" "*" "*" /TopStor/putcron.sh /TopStor/etcdput.py $leaderip call/$stamp /TopStor/Snapshotnowhost::$DG/$FileS::Hourly.$keep.$min.$every.na::$stamp::$receiver 2> txt/err.txt >> $cronthis
 crontab $cronthis 2>> $txtres
 err=`wc -c  $txtres | awk '{print $1}'`;
 datenow=`date +%m/%d/%Y`; timenow=`date +%T`;

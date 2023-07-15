@@ -29,7 +29,7 @@ then
  	fi
   stamp=`date +%s`;
  crontab -l > $cronthis
- echo $min "*"/$every "*" "*" "*"  /TopStor/Snapshotnowhosttrend $DG/$FileS Trend $stamp  >> $cronthis
+ echo $min "*"/$every "*" "*" "*"  /TopStor/putcron.sh /TopStor/etcdput.py $leaderip call/$stamp /TopStor/Snapshotnowhosttrend::$DG/$FileS::Trend::$stamp  >> $cronthis
  crontab $cronthis 2>> $txtres
  /pace/etcdput.py $etcd sizevol/$DG/$FileS $stamp-0 
  if [ -z $local ];

@@ -16,10 +16,9 @@ def createvol(*args):
  if 'ISCSI' in typep:
   chapuser = 'MoatazNegm'
   chappas = 'MezoAdmin'
-  extras = args[9].split('ee_ee')
-  portalport =  extras[0]
-  initiators = args[1]
-  datastr = pool+' '+name+' '+size+' '+ipaddress+' '+Subnet+' disabled '+portalport+' '+initiators+' '+chapuse+' '+chappas+' '+user+' '+owner+' '+user
+  portalport = args[9]
+  initiators = args[10]
+  datastr = leaderip+' '+pool+' '+name+' '+size+' '+ipaddress+' '+Subnet+' '+portalport+' '+initiators+' '+chapuser+' '+chappas+' disabled '+user+' '+owner+' '+user
  elif 'CIFSdom' in typep:
   extras = args[9].split('ee_ee')
   domname = extras[0]
@@ -29,7 +28,7 @@ def createvol(*args):
   domadmin = extras[4] 
   cmdline=['./encthis.sh',domname,dompass]
   dompass=subprocess.run(cmdline,stdout=subprocess.PIPE).stdout.decode().split('_result')[1].replace('/','@@sep')[:-1]
-  datastr = pool+' '+name+' '+size+' '+ipaddress+' '+Subnet+' '+user+' '+owner+' '+user+' '+domname+' '+domsrv+' '+ domip+' '+domadmin+' '+dompass 
+  datastr = leaderip+' '+pool+' '+name+' '+size+' '+ipaddress+' '+Subnet+' '+user+' '+owner+' '+user+' '+domname+' '+domsrv+' '+ domip+' '+domadmin+' '+dompass 
  else:
   groups = args[9] 
   print(leaderip+' '+pool+' '+name+' '+size+' '+groups+' '+ipaddress+' '+Subnet+' disabled '+user+' '+owner+' '+user)

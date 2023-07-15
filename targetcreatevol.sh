@@ -8,8 +8,8 @@ ipaddress=`echo $@ | awk '{print $2}'`
 Subnet=`echo $@ | awk '{print $3}'`
 size=`echo $@ | awk '{print $4}'`
 typep=`echo $@ | awk '{print $5}'`
-groups=`echo $@ | awk '{print $6}'`
-oldsnap=`echo $@ | awk '{print $7}'`
+oldsnap=`echo $@ | awk '{print $6}'`
+groups=`echo $@ | awk '{print $7}'`
 extras=`echo $@ | awk '{print $8}'`
 myhost=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternode`
 myhostip=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternodeip`
@@ -24,31 +24,43 @@ else
 fi
 
 newvol=`/TopStor/etcdget.py $leaderip vol $name | grep $pool | awk -F'/' '{print $6}'`
-echo $newvol | grep $name 
+echo 'newvol'$newvol | grep $name 
 if [ $? -eq 0 ];
 then
  volinfo=`/TopStor/etcdget.py $leaderip vol $newvol`
- zfs unmount -f $pool/${newvol}
+ echo 
+ echo $typep | grep 'ISCSI'
+ if [ $? -ne 0 ];
+ then
+ 	zfs unmount -f $pool/${newvol}
+ fi
  #latestsnap=`/TopStor/getlatestsnap.py $newvol | awk -F'result_' '{print $2}'`
+ latestsnap=`zfs list -H -t snapshot | grep $newvol | awk '{print $1}' | awk -F'.' '{print $NF}' | sort | tail -1`
+ latetsnap=`zfs list -t snapshot | grep $newvol | grep -w $latestsnap | awk '{print $1}'`
  echo 'noold' | grep $oldsnap
  if [ $? -eq 0 ];
  then
   echo zfs list -t snapshot -o name \| grep ^${pool}/${newvol}@  \| tac \| xargs -n 1 zfs destroy -r 
-  zfs list -t snapshot -o name | grep ^${pool}/${newvol}@  | tac | xargs -n 1 zfs destroy -r 
+  zfs list -t snapshot -o name | grep ^${pool}/${newvol}@  | tac | xargs -n 1 zfs destroy -r  2>/dev/null
  else
-  echo zfs rollback $pool/$newvol@$oldsnap
-  zfs rollback -r $pool/$newvol@$oldsnap
+  echo zfs rollback $oldsnap
+  zfs rollback -r $oldsnap
  fi
  oldnew='old'
 else 
- echo ./createmyvol.py $myhost $myhostip $pool $name $ipaddress $Subnet $size $typep $groups 
- ./createmyvol.py $leaderip $myhost $myhostip $pool $name $ipaddress $Subnet $size $typep $groups $extras
- oldnew='new'
- latestsnap=''
- zfs destroy -f $pool/${newvol}
+ echo $typep | grep ISCSI
+ if [ $? -eq 0 ];
+ then
+  echo ./createmyvol.py $leaderip $myhost $myhostip $pool $name $ipaddress $Subnet $size $typep $groups ${extras}
+  ./createmyvol.py $leaderip $myhost $myhostip $pool ${name}_repli $ipaddress $Subnet $size $typep $groups ${extras}
+  #exit
+ else
+  echo ./createmyvol.py $leaderip $myhost $myhostip $pool $name $ipaddress $Subnet $size $typep $groups $extras
+  ./createmyvol.py $leaderip $myhost $myhostip $pool ${name}_repli $ipaddress $Subnet $size $typep $groups $extras
+ fi
 fi
 newvol=`/TopStor/etcdget.py $leaderip vol $name | grep $pool | awk -F'/' '{print $6}'`
-echo $newvol | grep $name 
+echo 'newvol'$newvol | grep  $name 
 if [ $? -eq 0 ];
 then
  volinfo=`/TopStor/etcdget.py $leaderip vol $newvol`
@@ -61,8 +73,10 @@ then
  stamp=`date +%s`
  ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/volumes/${pool}_$newvol/request volumes_$stamp
  ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/volumes/${pool}_$newvol/request/$leader volumes_$stamp
- docker rm -f `docker ps | grep $ipaddress | awk '{print $1}'` 2>/dev/null
+ docker rm -f `docker ps | grep -w $ipaddress | awk '{print $1}'` 2>/dev/null
  echo result_${oldnew}vol/@${oldnew}result_$pool/${newvol}result_${latestsnap}result_
+ #echo result_${oldnew}vol/@${oldnew}result_$pool/${newvol}result_
 else
  echo result_problem/@newresult_
 fi 
+echo volume_${pool}/${newvol}volume_
