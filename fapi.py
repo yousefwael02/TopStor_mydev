@@ -506,7 +506,7 @@ def pgroupchange(data):
 def partneradd(data):
  if 'baduser' in data['response']:
   return {'response': 'baduser'}
- cmndstring = '/TopStor/pump.sh PartnerAdd.py '+data.get('partnerip')+' '+data.get('partneralias')+' '+data.get('replitype')+' '+data.get('repliport')+' '+data.get('phrase')+' '+data.get('user')
+ cmndstring = '/TopStor/PartnerAdd.py '+data.get('partnerip')+' '+data.get('partneralias')+' '+data.get('replitype')+' '+data.get('repliport')+' '+data.get('phrase')+' '+data.get('user')
  postchange(cmndstring)
  return data
 
@@ -953,7 +953,7 @@ def groupdel(data):
 def partnerdel(data):
  if 'baduser' in data['response']:
   return {'response': 'baduser'}
- cmndstring = '/TopStor/pump.sh repliPartnerDel '+data.get('name')+' no '+data['user']
+ cmndstring = '/TopStor/repliPartnerDel '+data.get('name')+' no '+data['user']
  postchange(cmndstring)
  return data
 
@@ -996,7 +996,7 @@ def AddPartner(data):
  print('##########################33333')
  print(data)
  print('##########################33333')
- cmdstring = '/TopStor/pump.sh PartnerAdd.py '+data['ip']+' '+data['alias']+' '+data['type']+' '+data['port']+' '+data['pass']+' '+data['user'] + ' init'
+ cmdstring = '/TopStor/PartnerAdd.py '+data['ip']+' '+data['alias']+' '+data['type']+' '+data['port']+' '+data['pass']+' '+data['user'] + ' init'
  postchange(cmdstring)
  return data
 

@@ -2,13 +2,14 @@
 echo $@ > /root/snapnowparam
 cd /TopStor
 leaderip=`echo $@ | awk '{print $1}'`;
-pool=`echo $@ | awk '{print $2}'`;
-vol=`echo $@ | awk '{print $3}'`;
-name=`echo $@ | awk '{print $4}'` ;
+name=`echo $@ | awk '{print $2}'` ;
+pool=`echo $@ | awk '{print $3}'`;
+vol=`echo $@ | awk '{print $4}'`;
 receiver=`echo $@ | awk '{print $5}'` ;
 userreq=`echo $@ | awk '{print $6}'` ;
 stamp=`date +%s`;
 snapshot=$pool'/'$vol'@'${name}'.'$stamp
+echo new snpashot-$snapshot
 shortreceiver=`echo $receiver | awk -F'_' '{print $1}'`
 	myhost=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternode`
 	myhostip=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternodeip`
@@ -26,7 +27,7 @@ echo $receiver | grep NoReceiver
 if [ $? -ne 0 ];
 then 
  docker exec etcdclient /TopStor/logmsg.py Replispacest01 info $userreq $vol $shortreceiver  
- echo /logmsg.py Replispacest01 info $userreq $vol $shortreceiver  
+ echo /TopStor/logmsg.py Replispacest01 info $userreq $vol $shortreceiver  
 else
  docker exec etcdclient /TopStor/logmsg.py Snap1026 info $userreq $name 
 fi
@@ -55,7 +56,7 @@ do
   then
    echo waiting the current replications to finish
    queue=`ps -ef | grep Snapshotnow | wc -l`
-   if [ $queue -ge 10 ];
+   if [ $queue -le 10 ];
    then
     /TopStor/etcdput.py $leaderip running/$receiver no
     exit
@@ -72,7 +73,7 @@ then
  /TopStor/etcdput.py $leaderip running/$receiver $receiver
  /TopStor/etcdput.py $leaderip sync/running/____/request running_$stamp
  /TopStor/etcdput.py $leaderip sync/running/____/request/$leader running_$stamp
- echo ./replicatenow.py $snapshot $receiver
+ echo ./replicatenow.py $leaderip $etcd $snapshot $receiver
  result=`./replicatenow.py $leaderip $etcd $snapshot $receiver`
  result=`echo $result | grep 'result_' | awk -F'result_' '{print $2}'`
  echo .................................................................
@@ -82,9 +83,9 @@ then
  if [ $? -eq 0 ];
  then
   #./logmsg.py Replispacefa01 error $userreq $shortreceiver $vol
-  ./logmsg.py Streamfa01 error $userreq $vol $shortreceiver
+  docker exec etcdclient /TopStor/logmsg.py Streamfa01 error $userreq $vol $shortreceiver
  else
-   ./logmsg.py Replispacesu01 info $userreq $shortreceiver $vol
+  docker exec etcdclient /TopStor/logmsg.py Replispacesu01 info $userreq $shortreceiver $vol
  fi 
  /TopStor/etcdput.py $leaderip running/$receiver finish 
  /TopStor/etcdput.py $leaderip sync/running/____/request running_$stamp
