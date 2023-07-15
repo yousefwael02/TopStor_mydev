@@ -11,6 +11,8 @@ fnupdate () {
 	git rm -rf __py*
 	origin=`git remote -v | grep 252 | head -1 | awk '{print $1}'`
 	remote=`git remote -v | grep github | head -1 | awk '{print $1}'`
+	git add .
+	git commit -m 'fixing'
 	git pull $remote $1
 	if [ $? -ne 0 ];
 	then
