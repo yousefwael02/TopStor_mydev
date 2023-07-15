@@ -9,24 +9,33 @@ fnupdate () {
 	git checkout -- *
 	git rm -rf __py*
 	rm -rf __py*
+        git remote add $2 $3
 	#git add --all
 	#git commit -am 'fixing' 
-	git pull origin $1
+	git pull $2 $1
 	if [ $? -ne 0 ];
 	then
-		echo something went wrong while updating $1 .... consult the devleloper
+		echo something went wrong while updating branch:$1 for repo $3 
 		exit
 	fi
 	sync
 	sync
 	sync
 }
-cjobs=(`echo TopStor pace topstorweb`)
+cjobs=(`echo TopStor/TopStordev.git pace/HC.git topstorweb/TopStorweb.git`)
 branch=$1
-branchc=`echo $branch | wc -c`
-if [ $branchc -le 3 ];
+developer=$2
+loc='http://10.11.11.252/git/'${developer}'_'
+branchc=`echo y$branch | wc -c`
+if [ $branchc -lt 4 ];
 then
 	echo no valid branch is supplied .... exiting
+	exit
+fi 
+developerc=`echo y$developer | wc -c`
+if [ $developer -lt 3 ];
+then
+	echo no valid developer is supplied .... exiting
 	exit
 fi 
 echo $branch | grep samebranch
@@ -39,16 +48,19 @@ while [ $flag -ne 0 ];
 do
 	rjobs=(`echo "${cjobs[@]}"`)
 	echo rjobs=${rjobs[@]}
-	for job in "${rjobs[@]}";
+	for jobc in "${rjobs[@]}";
 	do
+		job=`echo $jobc | awk -F'/' '{print $1}'`
+		devrepo=$loc`echo $jobc | awk -F'/' '{print $2}'`
  		echo $job
 		cd /$job
 		if [ $? -ne 0 ];
 		then
-			echo the directory $job is not found... exiting
+			echo the directory $job is not found... creating it
+			mkdir /$job	
 			exit
 		fi
-		fnupdate $branch 
+		fnupdate $branch $developer $devrepo
 		cjobs=(`echo "${cjobs[@]}" | sed "s/$job//g" `)
   	done
 	lencjobs=`echo $cjobs | wc -c`
