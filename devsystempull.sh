@@ -56,12 +56,11 @@ do
 		cd /$job
 		if [ $? -ne 0 ];
 		then
-			echo the directory $job is not found... creating it
-			mkdir /$job	
+			echo the directory $job is not found...exiting 
 			exit
 		fi
 		fnupdate $branch $developer $devrepo
-		cjobs=(`echo "${cjobs[@]}" | sed "s/$job//g" `)
+		cjobs=(`echo "${cjobs[@]}" | sed "s/$jobc//g" `)
   	done
 	lencjobs=`echo $cjobs | wc -c`
 	if [ $lencjobs -le 3 ];
