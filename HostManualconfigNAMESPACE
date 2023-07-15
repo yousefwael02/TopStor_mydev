@@ -9,11 +9,11 @@ hostip=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternodeip`
 myclusterdev='enp0s8'
 newip=`/TopStor/etcdget.py $leaderip namespace/mgmtip`
 isinsync='no'
-while [[ $isinsync != 'yes' ]];
-do
-isinsync=`/TopStor/etcdget.py $leaderip isinsync`
-sleep 1
-done
+#while [[ $isinsync != 'yes' ]];
+#do
+##isinsync=`/TopStor/etcdget.py $leaderip isinsync`
+#sleep 1
+#done
 echo $newip | grep '10.11.11.250'
 if [ $? -ne 0 ];
 then
