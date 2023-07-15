@@ -1,5 +1,7 @@
 #!/usr/bin/sh
 fnupdate () {
+	git add .
+	git commit -m 'fixing'
 	git checkout -b $1
 	git checkout $1
 	git reset --hard
