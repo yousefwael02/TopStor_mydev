@@ -1,3 +1,5 @@
+modprobe bnx2
+systemctl restart NetworkManager
 myclusterf='/topstorwebetc/mycluster'
 mynodef='/topstorwebetc/mynode'
 myhost=`hostname`
@@ -483,6 +485,7 @@ fi
  /pace/heartbeatlooper.sh & disown
  /pace/fapilooper.sh & disown
  stamp=`date +%s%N`
+/TopStor/etcddel.py $myclusterip rebootwait/$myhost
 /TopStor/etcddel.py $myclusterip sync/ready $myhost 
 /TopStor/etcdput.py $myclusterip ready/$myhost $mynodeip
 /TopStor/etcdput.py $mynodeip ready/$myhost $mynodeip

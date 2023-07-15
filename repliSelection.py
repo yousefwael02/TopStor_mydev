@@ -5,7 +5,7 @@ from etcdget import etcdget as get
 from getallraids import newraids, selectdisks, initgetraids
 from levelthis import levelthis
 from sendhost import sendhost
-
+from time import sleep
 allinfo = {}
 
 def selectDG(volname , volsize):
@@ -60,7 +60,8 @@ def selectDG(volname , volsize):
   datastr = 'parity3 '+data['user']+' '+owner+" "+diskstring+" "+data['user']+" "+owner
  elif 'raid6' in data['redundancy']:
   datastr = 'parity2 '+data['user']+' '+owner+" "+diskstring+" "+data['user']+" "+owner
- cmndstring = '/TopStor/pump.sh DGsetPool '+datastr+' '+data['user']
+ cmndstring = '/TopStor/DGsetPool '+leaderip+' '+datastr+' '+data['user']
+ print('new poolcreate:',cmndstring)
  z= cmndstring.split(' ')
  msg={'req': 'Pumpthis', 'reply':z}
  sendhost(ownerip, str(msg),'recvreply',myhost)
@@ -68,7 +69,7 @@ def selectDG(volname , volsize):
  while counter > 0:
   counter -= 1
   sleep(10)
-  alldsks = get('host','current')
+  alldsks = get(leaderip,'host','current')
   allinfo = getall(leaderip, alldsks)
   newpool = allinfo['disks'][selecteddisks[0]]['pool']
   if 'ree' not in newpool:
