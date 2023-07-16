@@ -15,10 +15,13 @@ pport = ''
 nodeloc = ''
 replitype = 'Receiver'
 isitopen = 'closed'
+
+
 def checkpartner(nodeloccmd):
  global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip, isitopen
  isitopen == 'closed'
  count = 0
+ resultdecod = 0
  print('sending to the cluster', nodeloccmd)
  try:
     result=subprocess.run(nodeloccmd.split(),stdout=subprocess.PIPE)
@@ -59,7 +62,6 @@ def createnodeloc(receiver, cmd):
     break
  if isopen != 'open':
     print('result_failresult_ connection to all the nodes  cluster '+nodeip)
-  
  if nodeip == remoteCluster and isopen == 'open' :
     nodeloccmd = nodeloc +' '+ '/TopStor/nodeinfo.sh' 
     print('################################################333')
@@ -75,7 +77,7 @@ def createnodeloc(receiver, cmd):
         print(response)
         print('################################################333')
         partnerinfo = response.split('_')
-        pumpkeys(nodeip, replitype, pport, phrase)
+        pumpkeys(partnerinfo[3], replitype, pport, phrase)
         put(etcdip,'repliPartner/'+receiver+'/'+partnerinfo[3], partnerinfo[2])
 
  if nodeip == remoteCluster and isopen != 'open' :
