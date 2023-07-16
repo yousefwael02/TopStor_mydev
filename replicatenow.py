@@ -15,46 +15,74 @@ pport = ''
 nodeloc = ''
 replitype = 'Receiver'
 isitopen = 'closed'
-def checkpartner(receiver, nodeip, cmd, isnew):
+def checkpartner(nodeloccmd):
  global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip, isitopen
- if isitopen == 'closed':
-    tempcmd = nodeloc+' ls'
-    count = 0
-    while count < 10:
-        result=subprocess.run(tempcmd.split(),stdout=subprocess.PIPE)
-        if result.returncode == 0: 
-            isitopen = 'open'
-            break
-        if count == 0:
-            print('start pump')
-            pumpkeys(nodeip, replitype, pport, phrase)
-            print('finish pump')
-        count += 1
-        sleep(1)
- if isitopen == 'open':
-    print('running'," ".join(cmd))
-    result=subprocess.run(cmd,stdout=subprocess.PIPE)
- return isitopen , result.stdout.decode()
+ isitopen == 'closed'
+ count = 0
+ print('sending to the cluster', nodeloccmd)
+ try:
+    result=subprocess.run(nodeloccmd.split(),stdout=subprocess.PIPE)
+    if result.returncode == 0: 
+        isitopen = 'open'
+        resultdecod = result.stdout.decode()
+ except:
+    resultdecod = 0
+ return isitopen , resultdecod
 
-def createnodeloc(receiver):
+def createnodeloc(receiver, cmd):
  global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip
  partnerinfo = get(etcdip, 'Partner/'+receiver)[0].split('/')
+ remoteCluster = partnerinfo[0]
  replitype = partnerinfo[1]
  pport = partnerinfo[2]
  phrase = partnerinfo[-1]
+ print(partnerinfo)
  print(replitype, pport, phrase, leaderip )
- nodesinfo = get(etcdip, 'Partnernode/'+receiver,'--prefix')
- print('hi',nodesinfo)
+ nodesinfo = get(etcdip, 'repliPartner/'+receiver,'--prefix')
  isopen = 'closed'
- nodesinfo.append(('hi/hi/'+partnerinfo[0],'hi'))
+ print('hi',nodesinfo)
+ nodesinfo.append(('hi/hi/'+partnerinfo[0],'hi')) 
+ isopen = 'close'
  for node in nodesinfo:
+  print(node)
   nodeip = node[0].split('/')[2]
-  nodeloc = 'ssh -oBatchmode=yes -i /TopStordata/'+nodeip+'_keys/'+nodeip+' -p '+pport+' -oStrictHostKeyChecking=no '+nodeip
+  if nodeip == remoteCluster :
+    pumpkeys(nodeip, replitype, pport, phrase)
+  nodeloc = 'ssh -oBatchmode=yes -i /TopStordata/'+nodeip+'_keys/'+nodeip+' -p '+pport+' -oStrictHostKeyChecking=no ' + nodeip 
+  nodeloccmd = nodeloc+' '+ cmd
   print('################################################333')
   print(nodeip)
   print(nodeloc)
   print('################################################333')
-  return nodeip, nodeloc
+  isopen, response = checkpartner(nodeloccmd)
+  if isopen == 'open':
+    break
+ if isopen != 'open':
+    print('result_failresult_ connection to all the nodes  cluster '+nodeip)
+  
+ if nodeip == remoteCluster and isopen == 'open' :
+    nodeloccmd = nodeloc +' '+ '/TopStor/nodeinfo.sh' 
+    print('################################################333')
+    print(nodeip)
+    print(nodeloccmd)
+    print('################################################333')
+    isopen, response = checkpartner(nodeloccmd)
+    print('response',response)
+    if isopen != 'open':
+        print('result_failresult_ connection to remote node '+nodeip)
+    else:
+        print('################################################333')
+        print(response)
+        print('################################################333')
+        partnerinfo = response.split('_')
+        pumpkeys(nodeip, replitype, pport, phrase)
+        put(etcdip,'repliPartner/'+receiver+'/'+partnerinfo[3], partnerinfo[2])
+
+ if nodeip == remoteCluster and isopen != 'open' :
+   print('result_failresult_ connection to all the nodes in the remote cluster '+nodeip)
+    
+ exit()
+ return nodeip, nodeloc
 
 def replitargetget(receiver, volume, volused, snapshot):
  global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip
@@ -63,7 +91,7 @@ def replitargetget(receiver, volume, volused, snapshot):
  pport = partnerinfo[2]
  phrase = partnerinfo[-1]
  print(replitype, pport, phrase, leaderip )
- nodesinfo = get(etcdip, 'Partnernode/'+receiver,'--prefix')
+ nodesinfo = get(etcdip, 'cPartnernode/'+receiver,'--prefix')
  print('hi',nodesinfo)
  isopen = 'closed'
  nodesinfo.append(('hi/hi/'+partnerinfo[0],'hi'))
@@ -264,7 +292,6 @@ def packagekeys(key,exception):
 def syncpush(receiver, userreq):
  global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip
  logmsg.sendlog('Partnerst01','info',userreq, receiver.split('_')[0])
- nodeip, nodeloc = createnodeloc(receiver)
  usershash = getusershash()
  usersinfo = getusersinfo()
  groups = getgroups()
@@ -272,6 +299,8 @@ def syncpush(receiver, userreq):
  usersinfo = packagekeys('usersinfo','admin')
  groups = packagekeys('usersigroup','admin')
  cmd = nodeloc + ' /TopStor/replisyncpull.py '+usershash+' '+usersinfo+' '+groups
+ cmd = '/TopStor/replisyncpull.py '+usershash+' '+usersinfo+' '+groups
+ nodeip, nodeloc, response = createnodeloc(receiver, cmd)
  print('nodeloc',nodeloc)
  try:
    isopen, response = checkpartner(receiver, nodeip, cmd.split(), 'old')

@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 import sys, subprocess
 from sendhost import sendhost
+from time import sleep 
+
 def initpumpkeys(*args):
     global leader, leaderip, myhost, myhostip
     if args[0] == 'init':
@@ -32,7 +34,18 @@ def pumpkeys(*bargs):
  msg={'req': 'Exchange', 'reply':z}
  print(msg)
  sendhost(partnerip, str(msg),'recvreply',myhost)
- 
+ sleep(2)
+ nodeloc = 'ssh -oBatchmode=yes -i /TopStordata/'+partnerip+'_keys/'+partnerip+' -p '+repliport+' -oStrictHostKeyChecking=no '+partnerip+' ls'
+ print(nodeloc)
+ count = 0 
+ while count < 10:
+        result=subprocess.run(nodeloc.split(),stdout=subprocess.PIPE)
+        if result.returncode == 0:
+            isitopen = 'open'
+            break
+        count += 1
+        sleep(1) 
+  
 
 if __name__=='__main__':
  initpumpkeys('init')
