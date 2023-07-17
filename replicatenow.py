@@ -60,8 +60,9 @@ def createnodeloc(receiver, cmd):
   isopen, response = checkpartner(nodeloccmd)
   if isopen == 'open':
     break
+ finalresponse = 'open'
  if isopen != 'open':
-    print('result_failresult_ connection to all the nodes  cluster '+nodeip)
+    finalresponse = 'result_failresult_ connection to all the nodes  cluster '+nodeip
  if nodeip == remoteCluster and isopen == 'open' :
     nodeloccmd = nodeloc +' '+ '/TopStor/nodeinfo.sh' 
     print('################################################333')
@@ -71,7 +72,7 @@ def createnodeloc(receiver, cmd):
     isopen, response = checkpartner(nodeloccmd)
     print('response',response)
     if isopen != 'open':
-        print('result_failresult_ connection to remote node '+nodeip)
+        finalresponse = 'result_failresult_ connection to remote node '+nodeip
     else:
         print('################################################333')
         print(response)
@@ -81,10 +82,9 @@ def createnodeloc(receiver, cmd):
         put(etcdip,'repliPartner/'+receiver+'/'+partnerinfo[3], partnerinfo[2])
 
  if nodeip == remoteCluster and isopen != 'open' :
-   print('result_failresult_ connection to all the nodes in the remote cluster '+nodeip)
+   finalresponse = 'result_failresult_ connection to all the nodes in the remote cluster '+nodeip
     
- exit()
- return nodeip, nodeloc
+ return nodeip, nodeloc, finalresponse
 
 def replitargetget(receiver, volume, volused, snapshot):
  global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip
@@ -302,25 +302,19 @@ def syncpush(receiver, userreq):
  groups = packagekeys('usersigroup','admin')
  cmd = nodeloc + ' /TopStor/replisyncpull.py '+usershash+' '+usersinfo+' '+groups
  cmd = '/TopStor/replisyncpull.py '+usershash+' '+usersinfo+' '+groups
- nodeip, nodeloc, response = createnodeloc(receiver, cmd)
- print('nodeloc',nodeloc)
- try:
-   isopen, response = checkpartner(receiver, nodeip, cmd.split(), 'old')
-   print(response)
- except:
-   print('result_failresult_ connection to the remote parnter')
-   logmsg.sendlog('Partnerfa01','error',userreq, receiver.split('_')[0])
-   exit()
- if 'Successfull_sync' in response:
-    logmsg.sendlog('Partnersu01','info',userreq, receiver.split('_')[0])
- else:
+ nodeip, nodeloc, finalresponse = createnodeloc(receiver, cmd)
+ print('finalresponse', finalresponse)
+ if 'fail' in finalresponse:
     logmsg.sendlog('Partnerfa01','error',userreq, receiver.split('_')[0])
-
+ else:
+    logmsg.sendlog('Partnersu01','info',userreq, receiver.split('_')[0])
+ return finalresponse
 
 def repliinit(ldrip,etip):
  global leaderip, etcdip
  leaderip = ldrip
  etcdip = etip
+ initpumpkeys('init')
 
 if __name__=='__main__':
  leaderip =  sys.argv[1]

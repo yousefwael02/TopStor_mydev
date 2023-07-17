@@ -953,7 +953,7 @@ def groupdel(data):
 def partnerdel(data):
  if 'baduser' in data['response']:
   return {'response': 'baduser'}
- cmndstring = '/TopStor/repliPartnerDel '+data.get('name')+' no '+data['user']
+ cmndstring = '/TopStor/PartnerDel.py '+data.get('name')+' no '+data['user']
  postchange(cmndstring)
  return data
 

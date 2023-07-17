@@ -18,7 +18,7 @@ def dosync(leader,sync,  *args):
   return 
 
 def initpartner(*args):
-    global leader, leaderip, clusterip, myhost, myhostip
+    global leader, leaderip, clusterip, myhost, myhostip, etcdip
     if args[0] == 'init':
         cmdline='docker exec etcdclient /TopStor/etcdgetlocal.py leader'
         leader=subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','').replace(' ','')
@@ -34,37 +34,36 @@ def initpartner(*args):
         myhost = args[2]
         myhostip = args[3]
     clusterip = leaderip 
+    if myhost == leader:
+        etcdip = leaderip
+    else:
+        etcdip = myhostip
     initlog(clusterip, myhost)
 
-def addpartner(*bargs):
- global leader, leaderip, clusterip, myhost, myhostip
- if myhost == leader:
-    etcd = leaderip
- else:
-    etcd = myhostip
- partnerip = bargs[0]
- partneralias = bargs[1].replace('_','').replace('/',':::')
- replitype = bargs[2]
- repliport = bargs[3]
- phrase = bargs[4]
- userreq = bargs[5]
- init = bargs[6]
- if (privthis(etcd,'Replication',userreq) != 'true'):
+def delpartner(*bargs):
+ global leader, leaderip, clusterip, myhost, myhostip, etcdip
+ partner = bargs[0]
+ issync = bargs[1]
+ userreq = bargs[2]
+ if (privthis(etcdip,'Replication',userreq) != 'true'):
   print('not authorized to add partner')
   return
- sendlog('Partner1000','info',userreq,partneralias,replitype)
- repliinit(leaderip,etcd)
- if 'init' in init:
-  put(leaderip, 'Partner/'+partneralias+'_'+replitype , partnerip+'/'+replitype+'/'+str(repliport)+'/'+phrase) 
-  dosync(myhost,'Partnr_str_', 'sync/Partnr/Add_'+partneralias+':::'+replitype+'_'+partnerip+'::'+replitype+'::'+str(repliport)+'::'+phrase+'/request','Partnr_str_'+str(stamp())) 
- if 'Sender' not in replitype:
-  syncpush(partneralias+'_'+replitype,userreq) 
- sendlog('Partner1002','info',userreq,partneralias,replitype)
+ sendlog('Partner1003','info',userreq,partner)
+ dels(etcdip,'Partner',partner)
+ dels(etcdip,'repli',partner)
+ if 'yes' in issync:
+  cmdline = '/TopStor/SnapShotPeriodDelete '+leaderip+' '+partner+' '+'system'
+  result = subprocess.run(cmdline.split(),stdout=subprocess.PIPE)
+  stampit = str(stamp())
+  dels(etcdip,'sync',partner.replace('_',':::'))
+  put(leaderip, 'sync/Partnr/Del_'+partner.replace('_',':::')+':no:'+userreq+'/request','Partnr_'+stampit)
+  dosync(myhost,'Partnr_', 'sync/Partnr/Del_'+partner.replace('_',':::')+':no:'+userreq+'/request','Partnr_'+stampit) 
  
+ sendlog('Partner1004','info',userreq,partner)
 
 if __name__=='__main__':
  initpartner('init')
- with open('/root/PartnerAdd','w') as f:
+ with open('/root/PartnerDel','w') as f:
     import json
     json.dump(sys.argv[1:], f)
- addpartner(*sys.argv[1:])
+ delpartner(*sys.argv[1:])

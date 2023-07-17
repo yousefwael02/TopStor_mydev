@@ -11,10 +11,25 @@ privilege="Replication";
 contrun=`./privthis.sh $privilege $userreq`;
 if [[ $contrun == 'true' ]]
 then
-  leaderip=` ./etcdgetlocal.py leaderip `
-  myhost=`/TopStor/etcdgetlocal.py clusternode`
-  /TopStor/logmsg.py Partner1003 info $userreq $Partner
- ./etcddel.py $leaderip "" $Partner
+  leaderip=`docker exec -it etcdclient /TopStor/etcdgetlocal.py leaderip `
+  leader=` docker exec -it etcdclient /TopStor/etcdgetlocal.py leader `
+  myhost=`docker exec -it etcdclient /TopStor/etcdgetlocal.py clusternode`
+  myhostip=`docker exec -it etcdclient /TopStor/etcdgetlocal.py clusternodeip`
+  echo $myhost | grep $leader
+  if [ $? -eq 0 ];
+  then
+	etcdip=$leaderip
+  else
+	etcdip=$myhostip
+  fi
+  echo hihihi
+  docker exec -it etcdclient /TopStor/logmsg.py Partner1003 info $userreq $Partner
+  echo 222222 $etcdip $Partner $Partner
+  echo /TopStor/etcddel.py $etcdip Partner $Partner
+  hi=`/TopStor/etcddel.py $etcdip Partner $Partner`
+  echo 3333333
+  /TopStor/etcddel.py $etcdip repli $Partner
+  echo 4444444
   crontab -l | grep -v $Partner > $cronthis
   crontab $cronthis
   echo $issync | grep yes 
@@ -24,5 +39,5 @@ then
     ./etcdput.py $leaderip sync/replipart/PartnerDel_${Partner}_yes_${userreq}_/request  replipart_$stamp
     ./etcdput.py $leaderip sync/replipart/PartnerDel_${Partner}_yes_${userreq}_/request/$myhost  replipart_$stamp
   fi
-  /TopStor/logmsg.py Partner1004 info $userreq $Partner
+  docker exec -it etcdclient /TopStor/logmsg.py Partner1004 info $userreq $Partner
 fi
