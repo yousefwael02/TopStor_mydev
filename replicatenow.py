@@ -93,7 +93,7 @@ def replitargetget(receiver, volume, volused, snapshot):
  pport = partnerinfo[2]
  phrase = partnerinfo[-1]
  print(replitype, pport, phrase, leaderip )
- nodesinfo = get(etcdip, 'cPartnernode/'+receiver,'--prefix')
+ nodesinfo = get(etcdip, 'repliPartner/'+receiver,'--prefix')
  print('hi',nodesinfo)
  isopen = 'closed'
  nodesinfo.append(('hi/hi/'+partnerinfo[0],'hi'))
@@ -234,8 +234,9 @@ def repliparam(snapshot, receiver, userreq='system'):
  snapshot = snapshot.split('@')[1].replace(' ','')
  volused = str(allinfo['volumes'][volume]['referenced'])
  snapused = '0' 
- nodeip, selection = replitargetget(receiver, volume, volused, snapshot)
- if selection == 'closed':
+ cmd = ' /TopStor/repliSelection.py '+volume+' '+volused+' '+snapshot
+ nodeip, nodeloc, finalresponse = createnodeloc(receiver, cmd)
+ if 'fail' in finalresponse:
   print('(fail) no node is open for replication in the '+receiver)
   return 'closed'
  if 'No_vol_space' in str(selection):
@@ -300,7 +301,6 @@ def syncpush(receiver, userreq):
  usershash = packagekeys('usershash','admin')
  usersinfo = packagekeys('usersinfo','admin')
  groups = packagekeys('usersigroup','admin')
- cmd = nodeloc + ' /TopStor/replisyncpull.py '+usershash+' '+usersinfo+' '+groups
  cmd = '/TopStor/replisyncpull.py '+usershash+' '+usersinfo+' '+groups
  nodeip, nodeloc, finalresponse = createnodeloc(receiver, cmd)
  print('finalresponse', finalresponse)
