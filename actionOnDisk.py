@@ -1,17 +1,30 @@
 import sys, subprocess
-
-def control(action, pool, disk):
-    cmdline=['zpool', action, pool, disk]
-    result=subprocess.run(cmdline, capture_output=True)
+from logmsg import sendlog, initlog
+def control(argv):
+    myhost = argv[1]
+    leaderip = argv[4]
+    request = argv[2]
+    user = argv[3]
+    action = argv[5]
+    pool = argv[6]
+    disk = argv[7]
+    cmdline = ['zpool', action, pool, disk]
+    result = subprocess.run(cmdline, capture_output=True)
     error = str(result.stderr.decode()).replace('\n\n','\n').split('\n')
     error = [i for i in error if i] 
+    initlog(leaderip,myhost)
     if (not error or error[0] == ''):
-        return {'Status': 'Ok'}
+        if (action == 'offline'):
+            sendlog('Dist8:0', 'info', user, disk)
+        else:
+            sendlog('Dist10:0', 'info', user, disk)
+        #return {'Status': 'Ok'}
     else:
-        return {'Status': 'ERROR', 'Error': error}
+        if (action == 'offline'):
+            sendlog('Dist9', 'error', user, disk, error)
+        else:
+            sendlog('Dist11', 'error', user, disk, error)
+        #return {'Status': 'ERROR', 'Error': error}
     
 if __name__=='__main__':
-    action = sys.argv[1]
-    pool = sys.argv[2]
-    disk = sys.argv[3]
-    print(control(action, pool, disk))
+    control(sys.argv)
