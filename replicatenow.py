@@ -6,6 +6,7 @@ from etcdput import etcdput as put
 from etcddel import etcddel as dels 
 from pumpkeys import pumpkeys, initpumpkeys
 from time import sleep
+from time import time as stamp
 
 
 allinfo = {}
@@ -15,6 +16,13 @@ pport = ''
 nodeloc = ''
 replitype = 'Receiver'
 isitopen = 'closed'
+
+def dosync(sync,  *args):
+  global leaderip, leader
+  dels(leaderip, 'pullsync',sync) 
+  put(leaderip, *args)
+  put(leaderip, args[0]+'/'+leader,args[1])
+  return 
 
 
 def checkpartner(nodeloccmd):
@@ -280,7 +288,7 @@ def getgroups():
  return groups 
 
 def packagekeys(key,exception):
- global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip
+ global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip, leader
  keylist = get(leaderip, key, '--prefix')
  keylist = [ x for x in keylist if  exception not in x[0] ]
  print(keylist)
@@ -293,7 +301,7 @@ def packagekeys(key,exception):
  return keystring 
 
 def syncpush(receiver, userreq):
- global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip
+ global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip, leader
  logmsg.sendlog('Partnerst01','info',userreq, receiver.split('_')[0])
  usershash = getusershash()
  usersinfo = getusersinfo()
@@ -301,7 +309,13 @@ def syncpush(receiver, userreq):
  usershash = packagekeys('usershash','admin')
  usersinfo = packagekeys('usersinfo','admin')
  groups = packagekeys('usersigroup','admin')
- cmd = '/TopStor/replisyncpull.py '+usershash+' '+usersinfo+' '+groups
+ stampit = str(stamp())
+ put(leaderip, 'pushsync/sync/user/initial/request','user_'+stampit)
+ dosync('user_', 'pushsync/sync/user/initial/request','user_'+stampit)
+ put(leaderip, 'pushsync/sync/group/initial/request','group_'+stampit)
+ dosync('group_','pushsync/sync/group/initial/request','group_'+stampit)
+ syncinfo = packagekeys('pushsync/sync', '/dhcp')
+ cmd = '/TopStor/replisyncpull.py '+usershash+' '+usersinfo+' '+groups+' '+syncinfo
  nodeip, nodeloc, finalresponse = createnodeloc(receiver, cmd)
  print('finalresponse', finalresponse)
  if 'fail' in finalresponse:
@@ -310,10 +324,11 @@ def syncpush(receiver, userreq):
     logmsg.sendlog('Partnersu01','info',userreq, receiver.split('_')[0])
  return finalresponse
 
-def repliinit(ldrip,etip):
- global leaderip, etcdip
+def repliinit(ldrip, ldr, etip):
+ global leaderip, etcdip, leader
  leaderip = ldrip
  etcdip = etip
+ leader = ldr
  initpumpkeys('init')
 
 if __name__=='__main__':
@@ -322,6 +337,9 @@ if __name__=='__main__':
  initpumpkeys('init')
  cmdline='docker exec etcdclient /TopStor/etcdgetlocal.py clusternode'
  myhost=subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','').replace(' ','')
+ cmdline='docker exec etcdclient /TopStor/etcdgetlocal.py leader'
+ leader=subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','').replace(' ','')
+ 
  logmsg.initlog(leaderip, myhost)
  with open('/root/replicatenowpy','w') as f:
     f.write(' '.join(sys.argv[1:]))

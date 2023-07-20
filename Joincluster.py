@@ -9,7 +9,7 @@ from time import time as stamp
 discip = '10.11.11.253'
 def dosync(sync, *args):
   global leaderip, leader
-  dels(leaderip, sync)
+  dels(leaderip, 'sync',sync)
   put(leaderip, *args)
   put(leaderip, args[0]+'/'+leader,args[1])
   return 

@@ -7,12 +7,11 @@ from logmsg import sendlog, initlog
 from sendhost import sendhost
 from privthis import privthis 
 from time import time as stamp
-from replicatenow import syncpush, repliinit
 
 
 def dosync(leader,sync,  *args):
   global leaderip
-  dels(leaderip, sync) 
+  dels(leaderip, 'sync',sync) 
   put(leaderip, *args)
   put(leaderip, args[0]+'/'+leader,args[1])
   return 
@@ -56,6 +55,8 @@ def delpartner(*bargs):
   result = subprocess.run(cmdline.split(),stdout=subprocess.PIPE)
   stampit = str(stamp())
   dels(etcdip,'sync',partner.replace('_',':::'))
+  dels(etcdip,'pullsync',partner.replace('_',':::'))
+  dels(etcdip,'pushsync',partner.replace('_',':::'))
   put(leaderip, 'sync/Partnr/Del_'+partner.replace('_',':::')+':no:'+userreq+'/request','Partnr_'+stampit)
   dosync(myhost,'Partnr_', 'sync/Partnr/Del_'+partner.replace('_',':::')+':no:'+userreq+'/request','Partnr_'+stampit) 
  

@@ -12,7 +12,7 @@ from replicatenow import syncpush, repliinit
 
 def dosync(leader,sync,  *args):
   global leaderip
-  dels(leaderip, sync) 
+  dels(leaderip, 'sync',sync) 
   put(leaderip, *args)
   put(leaderip, args[0]+'/'+leader,args[1])
   return 
@@ -53,7 +53,7 @@ def addpartner(*bargs):
   print('not authorized to add partner')
   return
  sendlog('Partner1000','info',userreq,partneralias,replitype)
- repliinit(leaderip,etcd)
+ repliinit(leaderip,leader, etcd)
  if 'init' in init:
   put(leaderip, 'Partner/'+partneralias+'_'+replitype , partnerip+'/'+replitype+'/'+str(repliport)+'/'+phrase) 
   dosync(myhost,'Partnr_str_', 'sync/Partnr/Add_'+partneralias+':::'+replitype+'_'+partnerip+'::'+replitype+'::'+str(repliport)+'::'+phrase+'/request','Partnr_str_'+str(stamp())) 
