@@ -222,6 +222,7 @@ def repliparam(snapshot, receiver, userreq='system'):
  if 'No_vol_space' in str(finalresponse):
   print('(fail) No space in the receiver: '+receiver)
   return 'No_Sppue'
+ finalresponse = finalresponse.split('result_')[1]
  print('selection',finalresponse)
  nodeowner = finalresponse.split(':')[0]
  poolvol = finalresponse.split(':')[1].split('@')[0]
