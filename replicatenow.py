@@ -296,7 +296,7 @@ def packagekeys(key,exception):
  for key in keylist:
   stringlist.append('tuple%'.join(key))
  print('stringlist', stringlist)
- keystring = 'list%'.join(stringlist)
+ keystring = 'list%'.join(stringlist).replace('pushsync/','')
  print(keystring)
  return keystring 
 
