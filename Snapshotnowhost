@@ -102,7 +102,7 @@ then
   echo result=$result > /root/snaph 
   echo result=$result 
   
-  result=`echo $result | grep 'result_' | awk -F'result_' '{print $2}'`
+  result=`echo $result | grep 'replicatenow_' | awk -F'replicatenow_' '{print $2}'`
   echo .................................................................
   echo result=$result
   echo ............................................

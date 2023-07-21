@@ -197,10 +197,10 @@ def replistream(receiver, nodeip, snapshot, nodeowner, poolvol, pool, volume, cs
  print('end checking csnaps', snaps)
  print('-----------------------------------')
  if snapshot in str(snaps):
-    print('success')
+    print('replicatenow_successreplicatenow_')
     return 'success' 
  else:
-    print('fail')
+    print('replicatenow_failreplciatenow_')
     return 'fail'
  return stream
 
