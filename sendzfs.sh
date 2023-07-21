@@ -26,7 +26,7 @@ echo /usr/sbin/zfs send $left \| $right
 /usr/sbin/zfs send $left | $right
 if [ $? -eq 0 ]
 then
- echo result_Successresult_
+ echo result_successresult_
 else
  echo result_failresult_
 fi

@@ -106,7 +106,7 @@ then
   echo .................................................................
   echo result=$result
   echo ............................................
-  echo 'hi'$result | grep 'Success'
+  echo 'hi'$result | grep 'success'
   if [ $? -ne 0 ];
   then
    #./logmsg.py Replispacefa01 error $userreq $shortreceiver $vol

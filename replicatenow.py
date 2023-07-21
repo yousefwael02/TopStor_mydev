@@ -188,12 +188,14 @@ def replistream(receiver, nodeip, snapshot, nodeowner, poolvol, pool, volume, cs
    exit()
 
  
- nodeloccmd = '/usr/sbin/zfs list -t snapshot -o name'
+ nodeloccmd = '/usr/sbin/zfs list -H -t snapshot -o name'
  isopen , snaps = checkpartner(nodeloccmd)
  if 'open' not in isopen:
   print('result_failresult_ connection to the remote parnter')
   exit()
- print('end checking csnaps')
+ print('-----------------------------------')
+ print('end checking csnaps', snaps)
+ print('-----------------------------------')
  if snapshot in str(snaps):
     print('success')
     return 'success' 
