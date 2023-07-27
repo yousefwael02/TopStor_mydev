@@ -67,8 +67,8 @@ then
   docker exec etcdclient /TopStor/logmsg.py Unlin1023 warning $userreq $username
  fi
 echo useradd \-c"TopStor"$pas $homebase \-p $userpass \-s /usr/sbin/nologin $username
- #currentcifs=`pcs resource | grep cifs | awk '{print $1}'`
- #echo "$currentcifs" | while read y; do docker exec $y  sh /hostetc/smbuserfix.sh x $username $userpass;  done; 
+ currentcifs=`docker ps | egrep 'CIFS|HOM' | awk '{print $1}'`
+ echo "$currentcifs" | while read y; do docker exec $y  sh /hostetc/smbuserfix.sh x $username $userpass;  done; 
  #/bin/smbpasswd -x $username
  docker exec intsmb /root/smbuser.sh $username $userpass
  #docker exec etcdsmb "( echo $userpass; echo $userpass) | /bin/smbpasswd -s -a $username"

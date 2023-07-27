@@ -32,5 +32,8 @@ then
  		usermod $username -c"AdminStor"$pas
 	else
  		usermod $username -c"TopStor"$pas
+		currentcifs=`docker ps | egrep 'CIFS|HOM' | awk '{print $1}'`
+ 		echo "$currentcifs" | while read y; do docker exec $y  sh /hostetc/smbuserfix.sh x $username $userpass;  done; 
+ 
 	fi
 fi
