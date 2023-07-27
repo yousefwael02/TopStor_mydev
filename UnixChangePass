@@ -1,5 +1,5 @@
 #!/bin/sh
-echo $@ > /root/tmp
+echo $@ > /root/usrchapass
 export ETCDCTL_API=3
 
 cd /TopStor

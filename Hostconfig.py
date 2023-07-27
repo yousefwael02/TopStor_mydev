@@ -63,8 +63,6 @@ def config(leader, leaderip, myhost, *bargs):
   cmdlinep=['/TopStor/encthis.sh',arglist['username'],arglist['password']]
   encthis=subprocess.run(cmdlinep,stdout=subprocess.PIPE).stdout.decode('utf-8').split('_result')[1]
   put(leaderip, 'usershash/'+arglist['username'], encthis)
-  cmdlinep=['/TopStor/UnixChangePass',arglist['username'],arglist['user']]
-  result=subprocess.run(cmdlinep,stdout=subprocess.PIPE)
   dels(leaderip, 'sync', 'passwd_')
   put(leaderip, 'sync/passwd/UnixChangePass_'+arglist['username']+'_'+arglist['user']+'/request','passwd_'+stampi)
   put(leaderip, 'sync/passwd/UnixChangePass_'+arglist['username']+'_'+arglist['user']+'/request/'+myhost,'passwd_'+stampi)
@@ -174,6 +172,7 @@ if __name__=='__main__':
  arg={'ipaddr': '10.11.11.240', 'ipaddrsubnet': '24', 'id': '0', 'user': 'admin', 'name': 'dhcp207722', 'token': 'c20580a16e1c42a2d63f68719ab40ea9', 'response': 'admin'}
  arg={'ipaddr': '10.11.11.240', 'ipaddrsubnet': '24', 'id': '0', 'user': 'admin', 'name': 'dhcp207722', 'token': '9df4c7384591ccb9e699d0c4ec4321ac', 'response': 'admin'}
  arg={'ipaddr': '10.11.11.241', 'ipaddrsubnet': '24', 'id': '0', 'user': 'admin', 'name': 'dhcp250171', 'token': '869927c8ed2149878087f60124fe148a', 'response': 'admin'}
+ arg={'username': 'rezo', 'password': '111', 'user': 'admin'}
  config(leader, leaderip, myhost, arg)
 
 #{'cluster': '10.11.11.250/24', 'tz': 'Kuwait%(GMT+03!00)_Kuwait^_Riyadh^_Baghdad', 'id': '0', 'user': 'admin', 'name': 'dhcp32570', 'token': '501ef1257322d1814125b1e16af95aa9', 'response': 'admin'}
