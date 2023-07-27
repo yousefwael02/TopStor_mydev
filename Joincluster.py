@@ -34,7 +34,7 @@ def do(data):
  dosync('Partnr_str_', 'sync/allowedPartners/Add_'+name+'_'+nameip+'/request','Partnr_str_'+str(stamp())) 
  dosync('Partnr_str_', 'sync/ActivePartners/Add_'+name+'_'+nameip+'/request','Partnr_str_'+str(stamp())) 
  dels(leaderip,'possible',name)
- dels(leaderip,'possible',name)
+ dels(discip,'possible',name)
  queuethis('AddHost','stop',user)
 
 if __name__=='__main__':

@@ -27,6 +27,7 @@ docker stop httpd_local
 docker stop flask
 docker stop etcdclient 
 docker stop rmq 
+docker stop wetty 
 systemctl stop docker
 systemctl stop iscsid 
 systemctl stop target 
