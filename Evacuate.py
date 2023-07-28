@@ -38,6 +38,7 @@ def do(leaderip,myhost, *args):
    result=subprocess.run(cmdline,stdout=subprocess.PIPE)
  elif leader == myhost:
     stamp = time()
+    put(leaderip, 'ActivePartners/dhcpEvacuateNode,'10.11.11.251')
     put(leaderip, 'sync/evacuatehost/syncfn_setall_'+args[-2]+'_'+evacip+'_'+args[-1]+'/request', 'evacuatehost_'+str(stamp))
     put(leaderip, 'sync/evacuatehost/syncfn_setall_'+args[-2]+'_'+evacip+'_'+args[-1]+'/request/'+myhost, 'evacuatehost_'+str(stamp))
     setall(leaderip, myhost,args[-2],evacip,args[-1])
