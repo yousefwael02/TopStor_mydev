@@ -14,7 +14,9 @@ discip = '10.11.11.253'
 def do(leaderip,myhost, *args):
  #with open('/TopStor/tempEvacuate','w') as f:
   #f.write(" ".join([leaderip, myhost]+list(args)))
- 
+ if 'dhcpEvacuate' in args[-2]:
+    dels(leaderip,'ActivePartners/'+args[-2])
+    return 
  logmsg.initlog(leaderip, myhost)
  initqueue(leaderip, myhost)
  with open('/pacedata/perfmon','r') as f:
@@ -45,9 +47,9 @@ def do(leaderip,myhost, *args):
             nextleader = ready[0].split('/')[1]
             put(leaderip, 'nextlead/er',nextleader)
             put(leaderip, 'sync/nextlead/Add_er_'+nextleader+'/request','nextlead_'+str(stamp))
-            put(leaderip, 'sync/nextlead/Add_er_'+nextleader+'/request/'+myhost,'nextlead_'+str(stamp))
+            #put(leaderip, 'sync/nextlead/Add_er_'+nextleader+'/request/'+myhost,'nextlead_'+str(stamp))
             break
-    put(leaderip, 'ActivePartners/dhcpEvacuateNode', args[-2])
+    put(leaderip, 'ActivePartners/dhcpEvacuate.'+args[-2],'0')
     setall(leaderip, myhost,args[-2],evacip,args[-1])
     put(leaderip, 'sync/evacuatehost/syncfn_setall_'+args[-2]+'_'+args[-1]+'/request', 'evacuatehost_'+str(stamp))
     put(leaderip, 'sync/evacuatehost/syncfn_setall_'+args[-2]+'_'+args[-1]+'/request/'+myhost, 'evacuatehost_'+str(stamp))
