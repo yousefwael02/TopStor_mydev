@@ -1,3 +1,4 @@
+#!/usr/bin/sh
 modprobe bnx2
 systemctl restart NetworkManager
 myclusterf='/topstorwebetc/mycluster'
