@@ -47,13 +47,14 @@ def do(leaderip,myhost, *args):
             put(leaderip, 'sync/nextlead/Add_er_'+nextleader+'/request','nextlead_'+str(stamp))
             put(leaderip, 'sync/nextlead/Add_er_'+nextleader+'/request/'+myhost,'nextlead_'+str(stamp))
             break
-    print('putttttttttttttting')
-    put(leaderip, 'ActivePartners/dhcpEvacuateNode','12.11.11.251')
+    put(leaderip, 'ActivePartners/dhcpEvacuateNode', args[-2])
     setall(leaderip, myhost,args[-2],evacip,args[-1])
     put(leaderip, 'sync/evacuatehost/syncfn_setall_'+args[-2]+'_'+args[-1]+'/request', 'evacuatehost_'+str(stamp))
-    print(leaderip, 'sync/evacuatehost/syncfn_setall_'+args[-2]+'_'+args[-1]+'/request', 'evacuatehost_'+str(stamp))
     put(leaderip, 'sync/evacuatehost/syncfn_setall_'+args[-2]+'_'+args[-1]+'/request/'+myhost, 'evacuatehost_'+str(stamp))
     dels(discip,'possible', args[-2])
+
+        
+    
  #logmsg.sendlog('Evacuaesu01','info',args[-1],args[-2])
 
 if __name__=='__main__':
