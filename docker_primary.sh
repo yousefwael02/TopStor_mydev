@@ -6,7 +6,7 @@ leaderip=`echo $@ | awk '{print $3}'`
 myclusterip=$leaderip
 leader=$myhost
 nmcli conn up mynode
-zpool export -a
+#zpool export -a
 eth1='enp0s8'
 eth2='enp0s8'
 mynodedev=$eth1
@@ -72,3 +72,11 @@ docker run -itd --rm --name flask --hostname apisrv -v /etc/localtime:/etc/local
 #/pace/rebootmeplslooper.sh $leaderip $myhost & disown 
 echo hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
 /TopStor/ioperf.py $leaderip $myhost
+isbybyleader=`/TopStor/etcdget.py bybyleader`
+echo 'hihi'$isbybyleader | grep 'dhcp'
+if [ $? -eq 0 ];
+then
+	oldleader=`echo $isbybyleader | awk -F '/' '{print $1}'`
+	userreq=`echo $isbybyleader | awk -F '/' '{print $2}'`
+	/TopStor/Evacuate.py $leaderip $myhost $oldleader $userreq
+fi
