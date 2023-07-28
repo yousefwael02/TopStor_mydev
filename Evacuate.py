@@ -27,21 +27,32 @@ def do(leaderip,myhost, *args):
  logmsg.sendlog('Evacuaest01','info',args[-1],args[-2])
  leader = get(leaderip, 'leader')[0]
  evacip = get(leaderip, 'ActivePartners/'+args[-2])[0]
+ nextleader = get(leaderip,'nextlead/er')[0] 
  if leader == myhost and leader==args[-2]:
-   nextleader = get(leaderip,'nextlead/er')[0] 
    nextleaderip = [ host[1] for host in readies if nextleader in host[0] ][0]
    put(nextleaderip, 'bybyleader', myhost+'/'+args[-1])
    cmdline=['/TopStor/docker_setup.sh','reset']
    result=subprocess.run(cmdline,stdout=subprocess.PIPE)
+    
  elif myhost == args[-2]:
    cmdline=['/TopStor/docker_setup.sh','reset']
    result=subprocess.run(cmdline,stdout=subprocess.PIPE)
  elif leader == myhost:
     stamp = time()
-    put(leaderip, 'ActivePartners/dhcpEvacuateNode','10.11.11.251')
-    put(leaderip, 'sync/evacuatehost/syncfn_setall_'+args[-2]+'_'+evacip+'_'+args[-1]+'/request', 'evacuatehost_'+str(stamp))
-    put(leaderip, 'sync/evacuatehost/syncfn_setall_'+args[-2]+'_'+evacip+'_'+args[-1]+'/request/'+myhost, 'evacuatehost_'+str(stamp))
+    if  nextleader == args[-2]:
+     for ready in readies:
+        if nextleader not in str(ready) and leader not in str(ready):
+            nextleader = ready[0].split('/')[1]
+            put(leaderip, 'nextlead/er',nextleader)
+            put(leaderip, 'sync/nextlead/Add_er_'+nextleader+'/request','nextlead_'+str(stamp))
+            put(leaderip, 'sync/nextlead/Add_er_'+nextleader+'/request/'+myhost,'nextlead_'+str(stamp))
+            break
+    print('putttttttttttttting')
+    put(leaderip, 'ActivePartners/dhcpEvacuateNode','12.11.11.251')
     setall(leaderip, myhost,args[-2],evacip,args[-1])
+    put(leaderip, 'sync/evacuatehost/syncfn_setall_'+args[-2]+'_'+args[-1]+'/request', 'evacuatehost_'+str(stamp))
+    print(leaderip, 'sync/evacuatehost/syncfn_setall_'+args[-2]+'_'+args[-1]+'/request', 'evacuatehost_'+str(stamp))
+    put(leaderip, 'sync/evacuatehost/syncfn_setall_'+args[-2]+'_'+args[-1]+'/request/'+myhost, 'evacuatehost_'+str(stamp))
     dels(discip,'possible', args[-2])
  #logmsg.sendlog('Evacuaesu01','info',args[-1],args[-2])
 
