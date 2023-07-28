@@ -15,6 +15,14 @@ firewall-cmd --permanent --add-port=139/udp
 firewall-cmd --permanent --add-port=445/tcp
 firewall-cmd --permanent --add-port=445/udp
 firewall-cmd --reload
+cmdline=$@
+order=`cat /root/nodeconfigured`
+echo l$order | grep  reset
+if [ $? -eq 0 ];
+then 
+  cmdline='reset'
+  echo no > /root/nodeconfigured
+fi
 
 mypid='/TopStordata/diskchange'
 echo stop stop stop stop > $mypid
@@ -23,7 +31,7 @@ udevadm control -R
 sed -i 's/\=enforcing/\=disabled/g' /etc/selinux/config
 echo '# init' > /etc/exports
 rm -rf /TopStordata/exportip.*
-echo ${myhost}$@ | grep reboot
+echo ${myhost}$cmdline | grep reboot
 if [ $? -ne 0 ];
 then
  nmcli conn up mynode
@@ -31,7 +39,7 @@ then
 fi
 /usr/bin/targetcli clearconfig confirm=True	
 targetcli saveconfig
-echo ${myhost}$@ | egrep 'init|local'
+echo ${myhost}$cmdline | egrep 'init|local'
 if [ $? -eq 0 ];
 then
 	myhost='dhcp'`echo $RANDOM$RANDOM | cut -c -6`
@@ -49,18 +57,19 @@ then
 fi
 eth1='enp0s8'
 eth2='enp0s8'
-echo $1 | grep restart
+echo l$cmdline | grep restart
 if [ $? -eq 0 ];
 then
 	/TopStor/resetdocker.sh
 fi
-if [ $# -ge 1 ];
+lencmdline=`echo $cmdline | wc -w`
+if [ $lencmdline -ge 1 ];
 then 
-	echo $1 | egrep 'stop|reboot|reset'
+	echo $cmdline | egrep 'stop|reboot|reset'
 	if [ $? -eq 0 ];
 	then
 		/TopStor/resetdocker.sh
-		echo $1 | grep reset
+		echo $cmdline | grep reset
 		if [ $? -eq 0 ];
 		then
 			rm -rf /root/node*
@@ -79,19 +88,19 @@ then
 			hostname localhost
 			echo localhost > /etc/hostname
 		fi
-		echo $1 | egrep 'reboot|reset'
+		echo $cmdline | egrep 'reboot|reset'
 		if [ $? -eq 0 ];
 		then
 			reboot
 		fi
-		echo $1 | grep 'stop'
+		echo $cmdline | grep 'stop'
 		if [ $? -eq 0 ];
 		then
 			echo hihihihihi
 			exit
 		fi
 	fi
-	echo $1 | grep restart 
+	echo $cmdline | grep restart 
 	if [ $? -ne 0 ];
 	then
 		eth1=$1
