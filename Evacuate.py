@@ -51,6 +51,10 @@ def do(leaderip,myhost, *args):
             #put(leaderip, 'sync/nextlead/Add_er_'+nextleader+'/request/'+myhost,'nextlead_'+str(stamp))
             break
 
+    put(leaderip,'configured/'+args[-2],'reset')
+    put(evacip,'configured/'+args[-2],'reset')
+    #cmdline = '/pace/hostlost.sh '+leader+' '+leaderip+' '+myhost+' '+myhostip+' '+args[-2]
+    #result=subprocess.run(cmdline,stdout=subprocess.PIPE)
     cmndstring = '/pace/Evacuatelocal.py '+args[-2]+' '+leader
     z= cmndstring.split(' ')
     msg={'req': 'Pumpthis', 'reply':z}

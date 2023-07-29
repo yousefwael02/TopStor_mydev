@@ -17,7 +17,7 @@ def setall(*bargs):
  leaderip = bargs[0] 
  initqueue(leaderip, myhost)
  logmsg.initlog(leaderip, myhost)
-  
+ myhostip = get(leaderip, 'ready/'+myhost)[0] 
  hostn=bargs[2]
  hostip=bargs[3]
  userreq=bargs[-1]
@@ -26,6 +26,8 @@ def setall(*bargs):
  print('iiiiiiiiiiiiiiiii',hostn,myhost, leader, hostip)
  print('iam here', hostn, hostip)
  cmdline=['/pace/removetargetdisks.sh', hostn, hostip]
+ result=subprocess.run(cmdline,stdout=subprocess.PIPE)
+ cmdline=['/pace/hostlost.sh',leader, leaderip, myhostip, myhostip, hostn]
  result=subprocess.run(cmdline,stdout=subprocess.PIPE)
  deli(leaderip, "",hostn)
  logmsg.sendlog('Evacuaesu01','info',userreq ,hostn)
