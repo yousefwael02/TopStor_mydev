@@ -51,7 +51,7 @@ def do(leaderip,myhost, *args):
             #put(leaderip, 'sync/nextlead/Add_er_'+nextleader+'/request/'+myhost,'nextlead_'+str(stamp))
             break
 
-    cmndstring = '/pace/Evacuatelocal.sh '+args[-2]+' '+leader
+    cmndstring = '/pace/Evacuatelocal.py '+args[-2]+' '+leader
     z= cmndstring.split(' ')
     msg={'req': 'Pumpthis', 'reply':z}
     sendhost(evacip, str(msg),'recvreply',myhost)
