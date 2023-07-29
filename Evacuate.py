@@ -6,6 +6,7 @@ from etcdput import etcdput as put
 from etcddel import etcddel as dels 
 from Evacuatebyleader import setall
 from etcdget import etcdget as get 
+from sendhost import sendhost
 import logmsg
 
 
@@ -49,7 +50,11 @@ def do(leaderip,myhost, *args):
             put(leaderip, 'sync/nextlead/Add_er_'+nextleader+'/request','nextlead_'+str(stamp))
             #put(leaderip, 'sync/nextlead/Add_er_'+nextleader+'/request/'+myhost,'nextlead_'+str(stamp))
             break
-    put(leaderip, 'ActivePartners/dhcpEvacuate.'+args[-2],'0')
+
+    cmndstring = '/pace/Evacuatelocal.sh '+args[-2]+' '+leader
+    z= cmndstring.split(' ')
+    msg={'req': 'Pumpthis', 'reply':z}
+    sendhost(evacip, str(msg),'recvreply',myhost)
     setall(leaderip, myhost,args[-2],evacip,args[-1])
     put(leaderip, 'sync/evacuatehost/syncfn_setall_'+args[-2]+'_'+args[-1]+'/request', 'evacuatehost_'+str(stamp))
     #put(leaderip, 'sync/evacuatehost/syncfn_setall_'+args[-2]+'_'+args[-1]+'/request/'+myhost, 'evacuatehost_'+str(stamp))
