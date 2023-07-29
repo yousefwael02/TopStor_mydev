@@ -53,7 +53,7 @@ def do(leaderip,myhost, *args):
 
     put(leaderip,'configured/'+args[-2],'reset')
     put(evacip,'configured/'+args[-2],'reset')
-    put(evacip,'rebootpls/'+args[-2],'pls')
+    put(evacip,'rebootme/'+args[-2],'pls')
     #cmdline = '/pace/hostlost.sh '+leader+' '+leaderip+' '+myhost+' '+myhostip+' '+args[-2]
     #result=subprocess.run(cmdline,stdout=subprocess.PIPE)
     #cmndstring = '/pace/Evacuatelocal.py '+args[-2]+' '+leader
@@ -63,7 +63,7 @@ def do(leaderip,myhost, *args):
     #    sendhost(evacip, str(msg),'recvreply',myhost)
     #setall(leaderip, myhost,args[-2],evacip,args[-1])
     put(leaderip, 'sync/evacuatehost/syncfn_setall_'+args[-2]+'_'+args[-1]+'/request', 'evacuatehost_'+str(stamp))
-    put(leaderip, 'sync/evacuatehost/syncfn_setall_'+args[-2]+'_'+args[-1]+'/request/'+myhost, 'evacuatehost_'+str(stamp))
+    #put(leaderip, 'sync/evacuatehost/syncfn_setall_'+args[-2]+'_'+args[-1]+'/request/'+myhost, 'evacuatehost_'+str(stamp))
         
     
  #logmsg.sendlog('Evacuaesu01','info',args[-1],args[-2])
