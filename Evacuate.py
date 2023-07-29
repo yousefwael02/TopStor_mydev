@@ -54,7 +54,10 @@ def do(leaderip,myhost, *args):
     cmndstring = '/pace/Evacuatelocal.py '+args[-2]+' '+leader
     z= cmndstring.split(' ')
     msg={'req': 'Pumpthis', 'reply':z}
-    sendhost(evacip, str(msg),'recvreply',myhost)
+    try:
+        sendhost(evacip, str(msg),'recvreply',myhost)
+    except:
+        pass
     setall(leaderip, myhost,args[-2],evacip,args[-1])
     put(leaderip, 'sync/evacuatehost/syncfn_setall_'+args[-2]+'_'+args[-1]+'/request', 'evacuatehost_'+str(stamp))
     #put(leaderip, 'sync/evacuatehost/syncfn_setall_'+args[-2]+'_'+args[-1]+'/request/'+myhost, 'evacuatehost_'+str(stamp))
