@@ -24,10 +24,10 @@ Difa6:0: : from :: Failed attaching Disk : to group : in pool : in system :
 Dist7:0: : from :: Start Automatic Re-Attach of disk : to pool :
 Difa7:0: : from :: Failed Automatic Re-Attach of disk : to pool :
 Disu7:1: : from :: Success Automatic Re-Attach of disk : to pool :
-Dist8:0 : : from :: Start offlining disk : Please add a spare disk urgently.
-Dist9:0 : : from :: Offlining disk : failed. : 
-Dist10:0 : : from :: Start onlining disk :
-Dist11:0 : : from :: Onlining disk : failed. : 
+Dist8:0: : from :: Start offlining disk : Please add a spare disk urgently.
+Dist9:0: : from :: Offlining disk : failed
+Dist10:0: : from :: Start onlining disk :.
+Dist11:0: : from :: Onlining disk : failed. 
 Sys01:0: : from :: the host : is registered in the system.
 Sys02:0: : from :: the host : is removed from the system.
 Sys03:0: : from :: the pool : is registered in the system.

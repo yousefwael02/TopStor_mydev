@@ -1208,10 +1208,10 @@ def offlineOrOnlineDisk(data):
     disk = data['name']
     owner = allinfo['pools'][pool]['host']
     ownerip = allinfo['hosts'][owner]['ipaddress']
-    datastr = myhost + ' ' + data['user'] + ' ' + data['user'] + ' ' + leaderip + ' ' + action + ' ' + pool + ' ' + disk
-    cmdstring = 'python /TopStor/actionOnDisk.py ' + datastr
-    z= cmdstring.split(' ')
-    msg={'req': 'Pumpthis', 'reply':z}
+    datastr = myhost + ' ' + data['user'] + ' ' + leaderip + ' ' + action + ' ' + pool + ' ' + disk
+    cmdline = 'python /TopStor/actionOnDisk.py ' + datastr
+    z = cmdline.split(' ')
+    msg = {'req': 'Pumpthis', 'reply':z}
     sendhost(ownerip, str(msg),'recvreply',myhost)
     return data
 
