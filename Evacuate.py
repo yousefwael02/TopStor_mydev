@@ -64,7 +64,7 @@ def do(leaderip,myhost, *args):
         pass
     setall(leaderip, myhost,args[-2],evacip,args[-1])
     put(leaderip, 'sync/evacuatehost/syncfn_setall_'+args[-2]+'_'+args[-1]+'/request', 'evacuatehost_'+str(stamp))
-    #put(leaderip, 'sync/evacuatehost/syncfn_setall_'+args[-2]+'_'+args[-1]+'/request/'+myhost, 'evacuatehost_'+str(stamp))
+    put(leaderip, 'sync/evacuatehost/syncfn_setall_'+args[-2]+'_'+args[-1]+'/request/'+myhost, 'evacuatehost_'+str(stamp))
     dels(discip,'possible', args[-2])
 
         
