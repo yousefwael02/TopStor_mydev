@@ -8,7 +8,7 @@ def syncpls(*args):
  leaderip=args[0]
  discip=args[1]
  donemembers = get(leaderip,'Active','--prefix')
- excepts = get(discip,'excepts','--prefix')
+ excepts = get(leaderip,'excepts','--prefix')
  poses = get(discip,'possible','--prefix')
  for pos in poses:
     host=pos[0].split('/')[1]
