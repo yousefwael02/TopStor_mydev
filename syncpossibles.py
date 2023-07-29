@@ -8,10 +8,11 @@ def syncpls(*args):
  leaderip=args[0]
  discip=args[1]
  donemembers = get(leaderip,'Active','--prefix')
+ excepts = get(discip,'excepts','--prefix')
  poses = get(discip,'possible','--prefix')
  for pos in poses:
     host=pos[0].split('/')[1]
-    if host not in str(donemembers):
+    if host not in str(donemembers) and host not in str(excepts):
         dels(leaderip,pos[0])
         hostip = pos[1]
         put(leaderip,pos[0],pos[1])
