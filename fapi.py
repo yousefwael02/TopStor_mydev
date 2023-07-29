@@ -89,7 +89,7 @@ def uploadUsers(data):
       filename =  uploaded_file.filename.replace(' ', '')
       filePath = os.path.join(dirPath, filename)
       uploaded_file.save(filePath)
-      cmdline = 'python /TopStor/UsersMassAddition.py '+ leaderip +' '+ data['user'] + ' ' + filePath
+      cmdline = 'python /TopStor/UsersMassAddition.py '+ leaderip +' '+ data['user'] + ' ' + "'" + filePath + "'"
       postchange(cmdline)
       return 'File uploaded successfully!'
     else:

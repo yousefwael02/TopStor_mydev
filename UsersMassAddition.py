@@ -126,7 +126,7 @@ def checker(user, usersNames, poolNames, groupNames):
     if (not (pd.isnull(user['groups']) or user['groups'] == '')):
         # Checks that each group selected is valid.
         for group in user['groups'].split(','): 
-            if (not (group in groupNames) and group):
+            if (not (group.strip() in groupNames) and group):
                 flag = True
         
     # Checks if the user selected a HomeAddress.
