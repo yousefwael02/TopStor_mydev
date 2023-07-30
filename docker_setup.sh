@@ -464,6 +464,7 @@ stamp=`date +%s%N`
 /TopStor/etcdput.py $myclusterip sync/ActivePartners/Add_${myhost}_$mynodeip/request/$leader ready_$stamp
 /TopStor/etcdput.py $myclusterip sync/ActivePartners/Add_${myhost}_$mynodeip/request ActivePartners_$stamp
 echo running iscsi watchdog daemon
+/TopStor/etcddel.py $myclusterip rebootme $myhost
 if [ $isprimary -ne 0 ];
 then
  /pace/etcddel.py $myclusterip sync/ready/Add_${myhost} --prefix
@@ -472,6 +473,7 @@ then
  /pace/etcddel.py $myclusterip vol  --prefix
  /pace/etcddel.py $myclusterip list --prefix
 else
+ /TopStor/etcddel.py $etcd rebootme $myhost
  /TopStor/etcdput.py $myclusterip nextlead/er $myhost
  /TopStor/etcddel.py $myclusterip sync/nextlead/Add_er_ --prefix
  /TopStor/etcdput.py $myclusterip sync/nextlead/Add_er_${myhost}/request nextlead_$stamp
