@@ -1,0 +1,16 @@
+raid: raid5
+group: 3
+parity: 1
+base: 21.4
+raid: raid6
+group: 4
+parity: 2
+base: 21.4
+raid: volset
+group: 1
+parity: 0
+base: 10.7
+raid: raid6plus
+group: 5
+parity: 3
+base: 21.4
