@@ -402,7 +402,8 @@ done
 /TopStor/etcdput.py $etcd mynode $myhost 
 /TopStor/etcdput.py $etcd leaderip $myclusterip 
 /TopStor/etcdput.py $etcd isprimary $isprimary 
-python /TopStor/getEthernetPorts.py leaderip  $myhost
+/TopStor/getEthernetInterfaces.py $myclusterip $myhost
+
 isreset=`cat /root/nodestatus`
 echo ${isreset}$isprimary | grep reset1
 if [ $? -eq 0 ];
