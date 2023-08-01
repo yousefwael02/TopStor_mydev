@@ -1,6 +1,6 @@
 import os
 import subprocess
-
+from etcdput import etcdput as put
 def convertToDicts(data):
     keys = data[0].split()
     interfaces = []
@@ -9,18 +9,18 @@ def convertToDicts(data):
             interface = dict(zip(keys,values.split()))
             interfaces.append(interface)
     return interfaces
-def getInterfaces():
+def setInterfaces():
     cmdline = ['nmcli', 'device', 'status']
     result = subprocess.run(cmdline, stdout=subprocess.PIPE)
     availableInterfaces = str(result.stdout.decode()).replace('\n\n','n').split('\n')
     ethernetInterfaces = []
     for interface in convertToDicts(availableInterfaces):
-        if (interface["TYPE"] == "ethernet" and not interface["DEVICE"].startswith('veth')):
+        #if (interface["TYPE"] == "ethernet" and not interface["DEVICE"].startswith('veth')):
+        if (interface["TYPE"] == "ethernet"):
             ethernetInterfaces.append(interface["DEVICE"])
-    with open("/TopStor/hi.txt",'w') as f:
-        for interface in ethernetInterfaces:
-            f.write(interface)
-            f.write(" HEHE")
-    print(ethernetInterfaces)
+    counter = 0
+    for interface in ethernetInterfaces:
+        put(argv[0], 'port/' + argv[1] + '/' + interface, 'eth' + str(counter))
+        counter += 1
 if __name__=='__main__':
-    getInterfaces()
+    setInterfaces(*sys.argv[1:])
