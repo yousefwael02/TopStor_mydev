@@ -19,6 +19,7 @@ def convertToDicts(data):
             interface = dict(zip(keys,values.split()))
             interfaces.append(interface)
     return interfaces
+
 def setInterfaces(*argv):
     cmdline = ['nmcli', 'device', 'status']
     result = subprocess.run(cmdline, stdout=subprocess.PIPE)
@@ -33,5 +34,6 @@ def setInterfaces(*argv):
         counter += 1
     stampit = str(stamp())
     dosync('ports_', 'sync/ports/add/request','ports_'+stampit)
+
 if __name__=='__main__':
     setInterfaces(*sys.argv[1:])
