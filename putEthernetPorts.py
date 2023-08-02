@@ -3,6 +3,8 @@ import os,sys
 import subprocess
 from time import time as stamp
 from etcdput import etcdput as put
+from etcdput import etcdput as put
+from etcddel import etcddel as dels
 
 def dosync(sync,  *args):
   global leaderip, leader
@@ -30,10 +32,13 @@ def setInterfaces(*argv):
             ethernetInterfaces.append(interface["DEVICE"])
     counter = 0
     for interface in ethernetInterfaces:
-        put(argv[0], 'ports/' + argv[1] + '/' + interface, 'eth' + str(counter))
+        put(argv[0], 'ports/' + argv[2] + '/' + interface, 'eth' + str(counter))
         counter += 1
     stampit = str(stamp())
     dosync('ports_', 'sync/ports/add/request','ports_'+stampit)
 
 if __name__=='__main__':
+    global leaderip
+    leaderip = sys.argv[1]
+    leader = sys.argv[2]
     setInterfaces(*sys.argv[1:])
