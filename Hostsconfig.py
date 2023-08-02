@@ -25,11 +25,7 @@ def getall(*bargs):
   dnsname = get('dnsname/'+hostname)[0]
   dnssearch = get('dnssearch/'+hostname)[0]
   alias = get('alias/'+hostname)[0]
-  interfaces = get2(leaderip,'port/'+hostname,'--prefix')
-  for interface in interfaces:
-    with open('/TopStor/asd.txt','w') as f:
-        f.write(interface[0])
-        f.write(" "+interface[1])
+  ports = get2(leaderip,'ports/'+hostname,'--prefix')
   try:
      ipaddrsubnet = get('ipaddr/'+hostname)[0].split('/')[1]
   except:
@@ -40,8 +36,11 @@ def getall(*bargs):
   if configured == '_1':
    configured = 'yes' 
   mgmt = get('namespace/mgmtip')[0] 
-  allhosts.append({'interfaces':interfaces,'name':hostname, 'configured':configured, 'alias':alias, 'ipaddr': hostip,'ipaddrsubnet':ipaddrsubnet, 'ntp':ntp, 'tz':tz, 'gw': gw,'dnsname':dnsname, 'dnssearch':dnssearch, 'cluster':mgmt})
-  hostsdict[hostname] = {'interfaces':interfaces, 'configured':configured, 'alias':alias, 'ipaddr': hostip, 'ipaddrsubnet':ipaddrsubnet, 'ntp':ntp, 'tz':tz, 'gw': gw, 'dnsname':dnsname, 'dnssearch':dnssearch, 'cluster':mgmt }
+  isLeader = False
+  if (hostname == leader):
+    isLeader = True
+  allhosts.append({"isLeader":isLeader, 'ports':ports,'name':hostname, 'configured':configured, 'alias':alias, 'ipaddr': hostip,'ipaddrsubnet':ipaddrsubnet, 'ntp':ntp, 'tz':tz, 'gw': gw,'dnsname':dnsname, 'dnssearch':dnssearch, 'cluster':mgmt})
+  hostsdict[hostname] = {"isLeader":isLeader, 'ports':ports, 'configured':configured, 'alias':alias, 'ipaddr': hostip, 'ipaddrsubnet':ipaddrsubnet, 'ntp':ntp, 'tz':tz, 'gw': gw, 'dnsname':dnsname, 'dnssearch':dnssearch, 'cluster':mgmt }
 
  print(allhosts)
  return hostsdict 
