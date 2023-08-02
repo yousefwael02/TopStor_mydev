@@ -25,8 +25,7 @@ def setInterfaces(*argv):
     availableInterfaces = str(result.stdout.decode()).replace('\n\n','n').split('\n')
     ethernetInterfaces = []
     for interface in convertToDicts(availableInterfaces):
-        #if (interface["TYPE"] == "ethernet" and not interface["DEVICE"].startswith('veth')):
-        if (interface["TYPE"] == "ethernet"):
+        if (interface["TYPE"] == "ethernet" and not interface["DEVICE"].startswith('veth')):
             ethernetInterfaces.append(interface["DEVICE"])
     counter = 0
     for interface in ethernetInterfaces:
@@ -35,8 +34,4 @@ def setInterfaces(*argv):
     stampit = str(stamp())
     dosync('ports_', 'sync/ports/add/request','ports_'+stampit)
 if __name__=='__main__':
-    with open("/TopStor/a.txt",'w') as f:
-        f.write(sys.argv[1])
-        f.write(" " + sys.argv[2])
-        
     setInterfaces(*sys.argv[1:])
