@@ -33,7 +33,7 @@ then
 	exit
 fi 
 developerc=`echo y$developer | wc -c`
-if [ $developer -lt 3 ];
+if [ $developerc -lt 3 ];
 then
 	echo no valid developer is supplied .... exiting
 	exit
