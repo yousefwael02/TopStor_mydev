@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import subprocess,sys, datetime,socket
 from etcdgetlocalpy import etcdget as get
+from etcdget import etcdget as get2
 from ast import literal_eval as mtuple
 
 def getall(*bargs):
@@ -11,6 +12,7 @@ def getall(*bargs):
  with open('/root/tmp','w') as f:
    f.write('bargs'+str(bargs)+'\n')
  leader = get('leader')[0]
+ leaderip = get('leaderip')[0]
  hosts = get('ready', '--prefix')
  allhosts= [] 
  hostsdict = dict()
@@ -23,6 +25,7 @@ def getall(*bargs):
   dnsname = get('dnsname/'+hostname)[0]
   dnssearch = get('dnssearch/'+hostname)[0]
   alias = get('alias/'+hostname)[0]
+  ports = get2(leaderip,'ports/'+hostname,'--prefix')
   try:
      ipaddrsubnet = get('ipaddr/'+hostname)[0].split('/')[1]
   except:
@@ -33,8 +36,11 @@ def getall(*bargs):
   if configured == '_1':
    configured = 'yes' 
   mgmt = get('namespace/mgmtip')[0] 
-  allhosts.append({'name':hostname, 'configured':configured, 'alias':alias, 'ipaddr': hostip,'ipaddrsubnet':ipaddrsubnet, 'ntp':ntp, 'tz':tz, 'gw': gw,'dnsname':dnsname, 'dnssearch':dnssearch, 'cluster':mgmt})
-  hostsdict[hostname] = { 'configured':configured, 'alias':alias, 'ipaddr': hostip, 'ipaddrsubnet':ipaddrsubnet, 'ntp':ntp, 'tz':tz, 'gw': gw, 'dnsname':dnsname, 'dnssearch':dnssearch, 'cluster':mgmt }
+  isLeader = False
+  if (hostname == leader):
+    isLeader = True
+  allhosts.append({"isLeader":isLeader, 'ports':ports,'name':hostname, 'configured':configured, 'alias':alias, 'ipaddr': hostip,'ipaddrsubnet':ipaddrsubnet, 'ntp':ntp, 'tz':tz, 'gw': gw,'dnsname':dnsname, 'dnssearch':dnssearch, 'cluster':mgmt})
+  hostsdict[hostname] = {"isLeader":isLeader, 'ports':ports, 'configured':configured, 'alias':alias, 'ipaddr': hostip, 'ipaddrsubnet':ipaddrsubnet, 'ntp':ntp, 'tz':tz, 'gw': gw, 'dnsname':dnsname, 'dnssearch':dnssearch, 'cluster':mgmt }
 
  print(allhosts)
  return hostsdict 
