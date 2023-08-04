@@ -114,7 +114,7 @@ def getraid(single,group,parity,diskdict):
    count += 1
  return theraid
 
-allraids ={'raid5':{'parity':1, 'group':3 } , 'raid6':{ 'parity':2, 'group':4}, 'volset':{ 'parity':0, 'group':2},
+allraids ={'raid5':{'parity':1, 'group':3 } , 'raid6':{ 'parity':2, 'group':4}, 'volset':{ 'parity':0, 'group':1},
            'raid6plus':{'parity':3, 'group':5} }
 
 def newraids(diskdict):
