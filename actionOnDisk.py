@@ -24,7 +24,7 @@ def control(*argv):
     pool = argv[4]
     disk = argv[5]
     exception = get(leaderip, 'offlinethis','--prefix')
-    if pool in str(exception):
+    if pool in str(exception) and 'offline' in action:
         return
     stampit = str(stamp())
     cmdline='docker exec etcdclient /TopStor/etcdgetlocal.py leader'
