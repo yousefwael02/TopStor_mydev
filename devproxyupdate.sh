@@ -1,20 +1,20 @@
 #!/usr/bin/sh
 fnupdate () {
-	git checkout -b $1
-	git checkout $1
-	git reset --hard
-	git clean -f
-	git config --replace-all pull.rebase false
-	git checkout -- *
-	git rm -rf __py*
 	origin=`git remote -v | grep 252 | head -1 | awk '{print $1}'`
 	remote=`git remote -v | grep github | head -1 | awk '{print $1}'`
-	git pull $remote $1
+	git fetch $remote $1
 	if [ $? -ne 0 ];
 	then
 		echo something went wrong while pulling from remote $remote, branch: $1, dir:`pwd` .... consult the devleloper
 		exit
 	fi
+	git checkout $1
+	git reset --hard $1
+	#git clean -f
+	#git config --replace-all pull.rebase false
+	#git checkout -- *
+	#git rm -rf __py*
+	#git pull $remote $1
 	git push $origin $1
 	if [ $? -ne 0 ];
 	then
