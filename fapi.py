@@ -1201,20 +1201,20 @@ def api_filter():
 @app.route('/api/v1/pools/actionOnDisk', methods=['GET','POST'])
 @login_required
 def offlineOrOnlineDisk(data):
-    global allinfo, myhost
+    global allinfo, myhost, leaderip
     getalltime()
-    owner = allinfo['pools'][data['pool']]['host']
-    ownerip = allinfo['hosts'][owner]['ipaddress']
     action = data['action']
     pool = data['pool']
-    disk = data['disk']
-    datastr = data['action'] + ' ' + data['pool'] + ' ' + data['disk'] 
-    cmndstring = 'python /TopStor/actionOnDisk.py ' + datastr + ' >> v.txt'
-    z= cmndstring.split(' ')
-    msg={'req': 'Pumpthis', 'reply':z}
+    disk = data['name'] # "scsi-*" format. 
+    #disk = data['actualdisk'] # "sd*" format.
+    owner = allinfo['pools'][pool]['host']
+    ownerip = allinfo['hosts'][owner]['ipaddress']
+    datastr = myhost + ' ' + data['user'] + ' ' + leaderip + ' ' + action + ' ' + pool + ' ' + disk
+    cmdline = 'python /TopStor/actionOnDisk.py ' + datastr
+    z = cmdline.split(' ')
+    msg = {'req': 'Pumpthis', 'reply':z}
     sendhost(ownerip, str(msg),'recvreply',myhost)
     return data
-    #return {'action': action, 'pool': pool, 'disk': disk}
 
 leaderip =0 
 myhost=0
