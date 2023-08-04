@@ -1205,7 +1205,7 @@ def offlineOrOnlineDisk(data):
     getalltime()
     action = data['action']
     pool = data['pool']
-    disk = data['name'] # "scsi-*" format. 
+    disk = data['actualdisk'] # "scsi-*" format. 
     #disk = data['actualdisk'] # "sd*" format.
     owner = allinfo['pools'][pool]['host']
     ownerip = allinfo['hosts'][owner]['ipaddress']
