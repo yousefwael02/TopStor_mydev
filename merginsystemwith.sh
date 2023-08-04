@@ -1,0 +1,59 @@
+#!/usr/bin/sh
+fnupdate () {
+	echo '###########################################' $1
+	git add --all
+	git rm -rf __py*
+	git commit -am 'fixing' --allow-empty
+	git branch -D $1
+	git checkout -b $1
+	git clean -f
+	git config --replace-all pull.rebase false
+	git pull origin $1
+	if [ $? -ne 0 ];
+	then
+		echo something went wrong while updating $1 .... consult the devleloper
+		exit
+	fi
+	sync
+	sync
+	sync
+}
+cjobs=(`echo TopStor pace topstorweb`)
+branch=$1
+branchc=`echo $branch | wc -c`
+if [ $branchc -le 3 ];
+then
+	echo no valid branch is supplied .... exiting
+	exit
+fi 
+echo $branch | grep samebranch
+if [ $? -eq 0 ];
+then
+	branch=`git branch | grep '*' | awk '{print $2}'`
+fi
+flag=1
+while [ $flag -ne 0 ];
+do
+	rjobs=(`echo "${cjobs[@]}"`)
+	echo rjobs=${rjobs[@]}
+	for job in "${rjobs[@]}";
+	do
+ 		echo $job
+		cd /$job
+		if [ $? -ne 0 ];
+		then
+			echo the directory $job is not found... exiting
+			exit
+		fi
+		fnupdate $branch 
+		cjobs=(`echo "${cjobs[@]}" | sed "s/$job//g" `)
+  	done
+	lencjobs=`echo $cjobs | wc -c`
+	if [ $lencjobs -le 3 ];
+	then
+		flag=0
+	fi
+done
+cd /TopStor
+git show | grep commit
+echo finished

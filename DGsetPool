@@ -108,8 +108,6 @@ else
    disk=`echo ${params[$i]} | awk -F':' '{print $1}'`
    diskn=`echo ${params[$i]} | awk -F':' '{print $2}'`
    disk=`ls /dev/disk/by-id/ | grep -v part | grep $disk`
-   echo /sbin/zpool labelclear /dev/disk/by-id/$disk;
-   #/sbin/zpool labelclear /dev/disk/by-id/$disk;
    disk1=${disk1}$disk" "
    diskns=${diskns}$diskn","
   done;
@@ -134,7 +132,6 @@ else
   diskn2=` echo $@ | awk '{print $8}'`;
   docker exec etcdclient /TopStor/logmsg.py DGst7 info $userreq $diskn2 $grpn
   /pace/diskchange.sh dgsetpool dgsetpool dgsetpool
-  #/sbin/zpool labelclear /dev/disk/by-id/${disk2};
   echo /sbin/zpool attach -f ${nextpool} ${disk1} ${disk2} > /root/tmp
   /sbin/zpool attach -f ${nextpool} ${disk1} ${disk2}
   if [ $? -ne 0 ]; then
@@ -164,7 +161,6 @@ else
  if [[ $raid == "addcache" ]]; then
    docker exec etcdclient /TopStor/logmsg.py DGst10 info $userreq $diskn1 
   /pace/diskchange.sh dgsetpool dgsetpool dgsetpool
-  #/sbin/zpool labelclear /dev/disk/by-id/${disk1};
   echo /sbin/zpool add -f ${nextpool} cache ${disk1} 
   /sbin/zpool add -f ${nextpool} cache ${disk1} 
   if [ $? -eq 0 ]; then
@@ -180,7 +176,6 @@ else
  if [[ $raid == "addlog" ]]; then
    docker exec etcdclient /TopStor/logmsg.py DGst11 info $userreq $diskn1 
   /pace/diskchange.sh dgsetpool dgsetpool dgsetpool
-  #/sbin/zpool labelclear /dev/disk/by-id/${disk1};
   /sbin/zpool add -f ${nextpool} log ${disk1}
   if [ $? -eq 0 ]; then
      ETCDCTL_API=3 /pace/etcdput.py $leaderip 'pools/'$nextpool $myhost
@@ -196,7 +191,6 @@ else
   #diskn=`grep -nr $disk1 $iscsimapping | awk -F':' '{print $1}'`
    docker exec etcdclient /TopStor/logmsg.py DGst8 info $userreq $diskn1 
   /pace/diskchange.sh dgsetpool dgsetpool dgsetpool
-  #/sbin/zpool labelclear /dev/disk/by-id/${disk1};
   echo /sbin/zpool add -f ${nextpool} spare ${disk1}
 
   /sbin/zpool add -f ${nextpool} spare ${disk1}
@@ -214,7 +208,6 @@ else
    nextpool='dhcp'${RANDOM}$RANDOM;
    docker exec etcdclient /TopStor/logmsg.py DG1st6 info $userreq ${nextpool} $diskn1
   /pace/diskchange.sh dgsetpool dgsetpool dgsetpool
-  #/sbin/zpool labelclear /dev/disk/by-id/${disk1};
   /sbin/zpool create -o cachefile=/TopStordata/p${nextpool} -o ashift=12 -o autoexpand=on -o autoreplace=on -f p${nextpool} ${disk1}
   if [ $? -ne 0 ]; then
     docker exec etcdclient /TopStor/logmsg.py DG1fa6 error $userreq ${nextpool} $diskn1 
@@ -252,7 +245,6 @@ else
    disk=`echo ${params[$i]} | awk -F':' '{print $1}'`
    diskn=`echo ${params[$i]} | awk -F':' '{print $2}'`
    disk=`ls /dev/disk/by-id/ | grep -v part | grep $disk`
-   #/sbin/zpool labelclear /dev/disk/by-id/$disk;
    disk1=${disk1}$disk" "
    diskns=${diskns}$diskn","
   done;
@@ -280,7 +272,6 @@ else
    disk=`echo ${params[$i]} | awk -F':' '{print $1}'`
    diskn=`echo ${params[$i]} | awk -F':' '{print $2}'`
    disk=`ls /dev/disk/by-id/ | grep -v part | grep $disk`
-   #/sbin/zpool labelclear /dev/disk/by-id/$disk;
    disk1=${disk1}$disk" "
    diskns=${diskns}$diskn","
   done;
@@ -325,7 +316,6 @@ else
    i=$((i+1));
    disk=`echo ${params[$i]} | awk -F':' '{print $1}'`
    diskn=`echo ${params[$i]} | awk -F':' '{print $2}'`
-   #/sbin/zpool labelclear /dev/disk/by-id/$disk;
    disk1=${disk1}$disk" "
    diskns=${diskns}$diskn","
   done;
@@ -353,7 +343,6 @@ else
    disk=`echo ${params[$i]} | awk -F':' '{print $1}'`
    diskn=`echo ${params[$i]} | awk -F':' '{print $2}'`
    disk=`ls /dev/disk/by-id/ | grep -v part | grep $disk`
-   #/sbin/zpool labelclear /dev/disk/by-id/$disk;
    disk1=${disk1}$disk" "
    diskns=${diskns}$diskn","
   done;
@@ -394,7 +383,6 @@ else
    i=$((i+1));
    disk=`echo ${params[$i]} | awk -F':' '{print $1}'`
    diskn=`echo ${params[$i]} | awk -F':' '{print $2}'`
-   #/sbin/zpool labelclear /dev/disk/by-id/$disk;
    disk1=${disk1}$disk" "
    diskns=${diskns}$diskn","
   done;
@@ -424,8 +412,6 @@ else
    i=$((i+1));
    disk=`echo ${params[$i]} | awk -F':' '{print $1}'`
    diskn=`echo ${params[$i]} | awk -F':' '{print $2}'`
-   #/sbin/zpool labelclear /dev/disk/by-id/$disk;
-   echo /sbin/zpool labelclear /dev/disk/by-id/$disk;
    disk1=${disk1}$disk" "
    diskns=${diskns}$diskn","
   done;
@@ -480,7 +466,6 @@ else
    disk=`echo ${params[$i]} | awk -F':' '{print $1}'`
    diskn=`echo ${params[$i]} | awk -F':' '{print $2}'`
    disk=`ls /dev/disk/by-id/ | grep -v part | grep $disk`
-   #/sbin/zpool labelclear -f /dev/disk/by-id/$disk
    /sbin/zpool add  -f ${nextpool} ${disk}
    if [ $? -eq 0 ];
    then
@@ -512,12 +497,12 @@ else
    disk=`echo ${params[$i]} | awk -F':' '{print $1}'`
    diskn=`echo ${params[$i]} | awk -F':' '{print $2}'`
    disk=`ls /dev/disk/by-id/ | grep -v part | grep $disk`
-   #/sbin/zpool labelclear -f /dev/disk/by-id/$disk
    disk1=${disk1}$disk" "
    diskns=${diskns}$diskn","
   done;
   nextpool='dhcp'${RANDOM}$RANDOM;
    docker exec etcdclient /TopStor/logmsg.py DGst21 info $userreq p${nextpool} $diskns
+  echo /sbin/zpool create -o cachefile=/TopStordata/p${nextpool} -o ashift=12 -o autoexpand=on -o autoreplace=on -f p${nextpool} ${disk1} > /root/dgsetzpool
   /sbin/zpool create -o cachefile=/TopStordata/p${nextpool} -o ashift=12 -o autoexpand=on -o autoreplace=on -f p${nextpool} ${disk1}
   if [ $? -eq 0 ]; then
      echo zfs set acltype=posixacl p$nextpool
@@ -553,7 +538,6 @@ else
    disk=`echo ${params[$i]} | awk -F':' '{print $1}'`
    diskn=`echo ${params[$i]} | awk -F':' '{print $2}'`
    disk=`ls /dev/disk/by-id/ | grep -v part | grep $disk`
-   #/sbin/zpool labelclear /dev/disk/by-id/$disk;
    disk1=${disk1}$disk" "
    diskns=${diskns}$diskn","
   done;
