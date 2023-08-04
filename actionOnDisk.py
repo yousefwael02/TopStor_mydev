@@ -2,6 +2,7 @@
 import sys, subprocess
 from logmsg import sendlog, initlog
 from etcdput import etcdput as put
+from etcdget import etcdget as get 
 from etcddel import etcddel as dels
 from time import time as stamp
 
@@ -22,6 +23,9 @@ def control(*argv):
     action = argv[3]
     pool = argv[4]
     disk = argv[5]
+    exception = get(leaderip, 'offlinethis','--prefix')
+    if pool in str(exception):
+        return
     stampit = str(stamp())
     cmdline='docker exec etcdclient /TopStor/etcdgetlocal.py leader'
     leader=subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','').replace(' ','')
