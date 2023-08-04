@@ -3,7 +3,6 @@ cd /pace/
 lsscsi=0
 #dmesg -n 1
 iscrashed=`echo $@ | awk '{print $3}'`
-echo param $rabbitip , $myhost, $iscrashed
 echo start >> /root/iscsiwatch
 targetn=0
 leader=`docker exec etcdclient /TopStor/etcdgetlocal.py leader`
@@ -113,7 +112,7 @@ do
 		stamp=$((stamp+300))
 		nmcli conn mod cmynode +ipv4.addresses 10.11.11.254/24
 		nmcli conn up cmynode
-		/TopStor/httpdflask.sh $rabbitip yes
+		/TopStor/httpdflask.sh $leaderip yes
 		initip=2
 	fi
 	if [ $initip -eq 2 ];
@@ -129,7 +128,7 @@ do
 	fi
 	if [ $initip -eq 3 ];
 	then
-			/TopStor/httpdflask.sh $rabbitip no 
+			/TopStor/httpdflask.sh $leaderip no 
 			initip=4
 	fi
 
