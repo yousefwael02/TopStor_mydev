@@ -10,8 +10,8 @@ fnupdate () {
 	git rm -rf __py*
 	rm -rf __py*
         git remote add $2 $3
-	#git add --all
-	#git commit -am 'fixing' 
+	git add --all
+	git commit -am 'fixing' 
 	git pull $2 $1
 	if [ $? -ne 0 ];
 	then

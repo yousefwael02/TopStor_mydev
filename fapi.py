@@ -47,6 +47,8 @@ for log in logcatalog:
  logdict[msgcode] = log.replace(msgcode+':','').split(' ')
 allinfo = 0
 
+
+
 def getalltime():
  global allinfo,alldsks, getalltimestamp, leaderip
  if (getalltimestamp+30) < timestamp():
@@ -71,6 +73,27 @@ def login_required(f):
    logmsg.sendlog('Lognno0','warning','system',data['token'])
   return f({'response':'baduser'})
  return decorated_function
+
+@app.route('/api/v1/users/uploadUsers', methods=['GET','POST'])
+@login_required
+def uploadUsers(data):
+    global allgroups, leaderip
+    if 'baduser' in data['response']:
+      return {'response': 'baduser'}
+    uploaded_file = request.files['file']
+    if uploaded_file.filename != '':
+      dirPath = '/TopStor/TopStordata'
+      isExist = os.path.exists(dirPath)
+      if not isExist:
+        os.makedirs(dirPath)
+      filename =  uploaded_file.filename.replace(' ', '')
+      filePath = os.path.join(dirPath, filename)
+      uploaded_file.save(filePath)
+      cmdline = 'python /TopStor/UsersMassAddition.py '+ leaderip +' '+ data['user'] + ' ' + filePath
+      postchange(cmdline)
+      return 'File uploaded successfully!'
+    else:
+      return 'Error while uploading file!'
 
 
 def postchange(cmndstring,host='myhost'):
