@@ -445,15 +445,15 @@ shttpdf='/TopStordata/httpd.conf'
 docker rm -f httpd
 docker rm -f flask
 rm -rf $httpdf
-if [ $isprimary -ne 0 ];
-then
-	cp $templhttp $shttpdf
-	sed -i "s/MYCLUSTERH/$myclusterip/g" $shttpdf
-	sed -i "s/MYCLUSTER/$myclusterip/g" $shttpdf
-	echo running httpd fowrarder as I am not primary
-	docker run --rm --name httpd --hostname shttpd --net bridge0 -v /etc/localtime:/etc/localtime:ro -v /root/gitrepo/resolv.conf:/etc/resolv.conf -p $myclusterip:19999:19999 -p $myclusterip:80:80 -p $myclusterip:443:443 -v $shttpdf:/usr/local/apache2/conf/httpd.conf -v /root/topstorwebetc:/usr/local/apache2/topstorwebetc -v /topstorweb:/usr/local/apache2/htdocs/ -itd moataznegm/quickstor:git
-	docker run -itd --rm --name flask --hostname apisrv -v /etc/localtime:/etc/localtime:ro -v /pace/:/pace -v /pacedata/:/pacedata/ -v /root/gitrepo/resolv.conf:/etc/resolv.conf --net bridge0 -p $myclusterip:5001:5001 -v /TopStor/:/TopStor -v /TopStordata/:/TopStordata moataznegm/quickstor:flask
-fi
+#if [ $isprimary -ne 0 ];
+#then
+#	cp $templhttp $shttpdf
+#	sed -i "s/MYCLUSTERH/$myclusterip/g" $shttpdf
+#	sed -i "s/MYCLUSTER/$myclusterip/g" $shttpdf
+#	echo running httpd fowrarder as I am not primary
+#	docker run --rm --name httpd --hostname shttpd --net bridge0 -v /etc/localtime:/etc/localtime:ro -v /root/gitrepo/resolv.conf:/etc/resolv.conf -p $myclusterip:19999:19999 -p $myclusterip:80:80 -p $myclusterip:443:443 -v $shttpdf:/usr/local/apache2/conf/httpd.conf -v /root/topstorwebetc:/usr/local/apache2/topstorwebetc -v /topstorweb:/usr/local/apache2/htdocs/ -itd moataznegm/quickstor:git
+#	docker run -itd --rm --name flask --hostname apisrv -v /etc/localtime:/etc/localtime:ro -v /pace/:/pace -v /pacedata/:/pacedata/ -v /root/gitrepo/resolv.conf:/etc/resolv.conf --net bridge0 -p $myclusterip:5001:5001 -v /TopStor/:/TopStor -v /TopStordata/:/TopStordata moataznegm/quickstor:flask
+#fi
 /TopStor/ioperf.py $etcd $myhost
 echo docker exec etcdclient /TopStor/etcdput.py $myclusterip ready/$myhost $mynodeip 
 /TopStor/etcdput.py $myclusterip ready/$myhost $mynodeip 
@@ -499,7 +499,6 @@ fi
  #/TopStor/receivereplylooper.sh & disown
  #/TopStor/iscsiwatchdoglooper.sh $mynodeip $myhost & disown 
  /pace/heartbeatlooper.sh & disown
- /pace/fapilooper.sh & disown
  stamp=`date +%s%N`
 /TopStor/etcddel.py $myclusterip rebootwait/$myhost
 /TopStor/etcddel.py $myclusterip sync/ready $myhost 
@@ -513,3 +512,13 @@ fi
 /pace/diskchange.sh add initial disk
 
 /TopStor/getcversion.sh $myclusterip $leader $myhost
+if [ $isprimary -ne 0 ];
+then
+	cp $templhttp $shttpdf
+	sed -i "s/MYCLUSTERH/$myclusterip/g" $shttpdf
+	sed -i "s/MYCLUSTER/$myclusterip/g" $shttpdf
+	echo running httpd fowrarder as I am not primary
+	docker run --rm --name httpd --hostname shttpd --net bridge0 -v /etc/localtime:/etc/localtime:ro -v /root/gitrepo/resolv.conf:/etc/resolv.conf -p $myclusterip:19999:19999 -p $myclusterip:80:80 -p $myclusterip:443:443 -v $shttpdf:/usr/local/apache2/conf/httpd.conf -v /root/topstorwebetc:/usr/local/apache2/topstorwebetc -v /topstorweb:/usr/local/apache2/htdocs/ -itd moataznegm/quickstor:git
+	docker run -itd --rm --name flask --hostname apisrv -v /etc/localtime:/etc/localtime:ro -v /pace/:/pace -v /pacedata/:/pacedata/ -v /root/gitrepo/resolv.conf:/etc/resolv.conf --net bridge0 -p $myclusterip:5001:5001 -v /TopStor/:/TopStor -v /TopStordata/:/TopStordata moataznegm/quickstor:flask
+fi
+ /pace/fapilooper.sh & disown
