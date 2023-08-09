@@ -1,4 +1,5 @@
 import subprocess, pandas as pd, sys, os
+from logmsg import sendlog, initlog
 # Replacement for etcdgetjson
 def cleaner(result):
     mylist=str(result.stdout.decode()).replace('\n\n','\n').split('\n')
@@ -181,7 +182,7 @@ def excelParser(filePath):
 
 # Takes in leaderip, user and Excel file. Creates a list of goodusers and addes them using UnixAddUser script.
 def addUsers(*argv):
-    users, newGroups = excelParser(argv[2])
+    users, newGroups = excelParser(argv[3])
     pools = poolsinfo()['results']
     groups = api_groups_userlist()['results']
     poolNames = [pool['text'].lower() for pool in pools]
@@ -215,7 +216,9 @@ def addUsers(*argv):
             size = user['Volsize']
         cmdline = '/TopStor/UnixAddUser {} {} {} groups{} {} {}G {} {} hoststub {}'.format(argv[0], user['name'], pool, groups, user['Password'],size, address, subnet, argv[1])
         subprocess.run(cmdline.split(' '))
-    os.remove(argv[2])   
+    initlog(argv[0], argv[2])
+    sendlog('Unlin1027', 'info', argv[1])
+    os.remove(argv[3])   
 
 
 if __name__=='__main__':
