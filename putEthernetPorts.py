@@ -1,10 +1,20 @@
 #!/bin/python
-import os,sys
-import subprocess
+import os, sys, subprocess, re
 from time import time as stamp
 from etcdput import etcdput as put
 from etcdput import etcdput as put
 from etcddel import etcddel as dels
+
+def atoi(text):
+    return int(text) if text.isdigit() else text
+
+def natural_keys(text):
+    '''
+    alist.sort(key=natural_keys) sorts in human order
+    http://nedbatchelder.com/blog/200712/human_sorting.html
+    (See Toothy's implementation in the comments)
+    '''
+    return [ atoi(c) for c in re.split(r'(\d+)', text) ]
 
 def dosync(sync,  *args):
   global leaderip, leader
@@ -31,6 +41,8 @@ def setInterfaces(*argv):
         if (interface["TYPE"] == "ethernet" and not interface["DEVICE"].startswith('veth')):
             ethernetInterfaces.append(interface["DEVICE"])
     counter = 0
+    ethernetInterfaces.sort(key=natural_keys)
+    print(ethernetInterfaces)
     for interface in ethernetInterfaces:
         put(argv[0], 'ports/' + argv[2] + '/' + interface, 'eth' + str(counter))
         counter += 1

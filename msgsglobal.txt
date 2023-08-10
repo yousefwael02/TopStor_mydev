@@ -104,6 +104,9 @@ Unlin10222:0: : from :: Success adding user : (syncing)
 Unlin11222:0: : from :: Success adding group : (syncing)
 Unlin1023:2: : from :: user : will not have a home directory
 Unlin1024:2: : from :: user : will have a home directory in pool :
+Unlin1025:0: : from :: File uploaded successfully! Adding users started
+Unlin1026:0: : from :: Failed uploading file
+Unlin1027:0: : from :: Finished adding users
 Unst1024:1: : from :: Changing profile of user :
 Unsu1024:1: : from :: Success changing profile of user :
 Unfa1024:1: : from :: failed changing profile of user :

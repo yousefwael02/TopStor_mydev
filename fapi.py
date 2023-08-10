@@ -77,7 +77,7 @@ def login_required(f):
 @app.route('/api/v1/users/uploadUsers', methods=['GET','POST'])
 @login_required
 def uploadUsers(data):
-    global allgroups, leaderip
+    global allgroups, leaderip, myhost
     if 'baduser' in data['response']:
       return {'response': 'baduser'}
     uploaded_file = request.files['file']
@@ -89,10 +89,12 @@ def uploadUsers(data):
       filename =  uploaded_file.filename.replace(' ', '')
       filePath = os.path.join(dirPath, filename)
       uploaded_file.save(filePath)
-      cmdline = 'python /TopStor/UsersMassAddition.py '+ leaderip +' '+ data['user'] + ' ' + filePath
+      cmdline = 'python /TopStor/UsersMassAddition.py '+ leaderip +' '+ data['user'] + ' ' + myhost + ' ' + filePath
       postchange(cmdline)
-      return 'File uploaded successfully!'
+      logmsg.sendlog('Unlin1025', 'info', data["user"])
+      return {"data":data}
     else:
+      logmsg.sendlog('Unlin1026', 'error', data["user"])
       return 'Error while uploading file!'
 
 
