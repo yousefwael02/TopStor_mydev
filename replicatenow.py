@@ -252,7 +252,7 @@ def repliparam(snapshot, receiver, userreq='system'):
 def getusershash():
  global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip
  usershash = get(leaderip, 'usershash','--prefix')
- usershash = [ x for x in usershash if 'admin' not in x[0] ]
+ #usershash = [ x for x in usershash if 'admin' not in x[0] ]
  return usershash
 
 def getusersinfo():
