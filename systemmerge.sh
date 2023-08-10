@@ -7,11 +7,13 @@ fnupdate () {
 		echo something went wrong while updating $1 .... consult the devleloper
 		exit
 	fi
-	git checkout -- *
+	
 	git rm -rf __py*
 	rm -rf __py*
 	git checkout -b $1 
 	git checkout $1 
+	git add --all
+	git commit -am 'fixing'
 	git pull origin $1
 	sync
 	sync
