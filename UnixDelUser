@@ -5,6 +5,7 @@ export ETCDCTL_API=3
 
 leaderip=`echo $@  | awk '{print $1}'`;
 username=`echo $@ | awk '{print $2}'`;
+issync=`echo $@ | awk '{print $3}'`;
 echo $username | grep -w Everyone
 if [ $? -eq 0 ];
 then
@@ -31,7 +32,7 @@ then
 	myhost=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternode`
 	myhostip=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternodeip`
 	leader=`docker exec etcdclient /TopStor/etcdgetlocal.py leader`
-  docker exec etcdclient /TopStor/logmsg.py Unlin1004 info $userreq $username
+  	docker exec etcdclient /TopStor/logmsg.py Unlin1004 info $userreq $username
 	echo $leader | grep $myhost
 	if [ $? -ne 0 ];
 	then

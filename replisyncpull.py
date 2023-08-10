@@ -1,5 +1,6 @@
-#!/usr/bin/python3
-import sys, subprocess
+#!/usr/bin/python
+import sys, subprocess,os
+os.chdir("/TopStor")
 from etcdgetpy import etcdget as get
 from etcdput import etcdput as put 
 
