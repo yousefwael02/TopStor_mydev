@@ -18,4 +18,6 @@ def inflatekeys(*keys):
 if __name__=='__main__':
  cmdline='docker exec etcdclient /TopStor/etcdgetlocal.py leaderip'
  leaderip=subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','').replace(' ','')
+ with open('/root/replipul','w') as f:
+    f.write(' '.join(sys.argv))
  inflatekeys(*sys.argv[1:])
