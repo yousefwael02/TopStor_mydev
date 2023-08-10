@@ -1,22 +1,21 @@
 #!/usr/bin/sh
 fnupdate () {
 	echo '###########################################' $1
-	git checkout -b $1
-	git checkout $1
-	git reset --hard
-	git clean -f
-	git config --replace-all pull.rebase false
-	git checkout -- *
-	git rm -rf __py*
-	rm -rf __py*
-	#git add --all
-	#git commit -am 'fixing' 
-	git pull origin $1
+	git checkout QSD3.15
+	git branch -D $1
+	git fetch origin $1
 	if [ $? -ne 0 ];
 	then
 		echo something went wrong while updating $1 .... consult the devleloper
 		exit
 	fi
+	git checkout -b $1 origin/$1
+	git reset --hard
+	git checkout -- *
+	git rm -rf __py*
+	rm -rf __py*
+	#git add --all
+	#git commit -am 'fixing' 
 	sync
 	sync
 	sync
