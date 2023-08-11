@@ -76,6 +76,6 @@ do
 		flag=0
 	fi
 done
-cd /TopStor
+cd /TopStor_$developer
 git show | grep commit
 echo finished
