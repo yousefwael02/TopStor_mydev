@@ -1,4 +1,5 @@
 import subprocess, pandas as pd, sys, os
+from logmsg import sendlog, initlog
 # Replacement for etcdgetjson
 def cleaner(result):
     mylist=str(result.stdout.decode()).replace('\n\n','\n').split('\n')
@@ -109,7 +110,7 @@ def api_groups_userlist():
     return {'results':grp}
 
 # Checks if the User is valid or not.
-def checker(user, usersNames, poolNames, groupNames):
+def checker(user, usersNames, poolNames, groupNames, newGroups):
     flag = False
     if (user['name'] in usersNames or  pd.isnull(user['name']) or user['name'] == ''):
         flag = True
@@ -125,9 +126,12 @@ def checker(user, usersNames, poolNames, groupNames):
     # Checks if the user selected a group.
     if (not (pd.isnull(user['groups']) or user['groups'] == '')):
         # Checks that each group selected is valid.
-        for group in user['groups'].split(','): 
-            if (not (group.strip() in groupNames) and group):
-                flag = True
+        for group in user['groups'].split(','):
+            if (group): 
+                if (not (group.strip() in groupNames) and len(group.strip()) < 3):
+                    flag = True
+                elif (not (group.strip() in groupNames) and group.strip() != "NoGroup"):
+                    newGroups.add(group.strip())
         
     # Checks if the user selected a HomeAddress.
     if (not(pd.isnull(user['HomeAddress']) or user['HomeAddress'] == '' or user['HomeAddress'].lower()  == 'NoAddress'.lower() or user['HomeAddress'].lower()  == 'No Address'.lower())):
@@ -166,22 +170,28 @@ def excelParser(filePath):
     
     goodUsers = []
     badUsers = []
+    newGroups = set()
     for index, user in df.iterrows():
-        flag = checker(user, usersNames, poolNames, groupNames)
+        flag = checker(user, usersNames, poolNames, groupNames, newGroups)
         if flag:
             badUsers.append(user)
         else:
             goodUsers.append(user)
             usersNames.append(user['name']);
-    return goodUsers
+    return goodUsers, newGroups
 
 # Takes in leaderip, user and Excel file. Creates a list of goodusers and addes them using UnixAddUser script.
 def addUsers(*argv):
-    users = excelParser(argv[2])
+    users, newGroups = excelParser(argv[3])
     pools = poolsinfo()['results']
     groups = api_groups_userlist()['results']
     poolNames = [pool['text'].lower() for pool in pools]
     groupNames = [group['text'] for group in groups]
+    
+    for newGroup in newGroups:
+        cmdline = '/TopStor/UnixAddGroup {} {} usersNoUser {}'.format(argv[0], newGroup, argv[1])
+        subprocess.run(cmdline.split(' '))
+    
     for user in users:
         pool = 'NoHome'
         groups = []
@@ -192,7 +202,7 @@ def addUsers(*argv):
             pool = user['Volpool']
         if (not (user['groups'] == '')):
             for g in user['groups'].split(','):
-                if (g in groupNames):
+                if (g in groupNames or len(g) > 3):
                     groups.append(g)
             groups = ','.join(groups)
         else:
@@ -206,7 +216,9 @@ def addUsers(*argv):
             size = user['Volsize']
         cmdline = '/TopStor/UnixAddUser {} {} {} groups{} {} {}G {} {} hoststub {}'.format(argv[0], user['name'], pool, groups, user['Password'],size, address, subnet, argv[1])
         subprocess.run(cmdline.split(' '))
-    os.remove(argv[2])   
+    initlog(argv[0], argv[2])
+    sendlog('Unlin1027', 'info', argv[1])
+    os.remove(argv[3])   
 
 
 if __name__=='__main__':

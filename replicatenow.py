@@ -252,19 +252,19 @@ def repliparam(snapshot, receiver, userreq='system'):
 def getusershash():
  global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip
  usershash = get(leaderip, 'usershash','--prefix')
- usershash = [ x for x in usershash if 'admin' not in x[0] ]
+ #usershash = [ x for x in usershash if 'admin' not in x[0] ]
  return usershash
 
 def getusersinfo():
  global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip
  usersinfo = get(leaderip, 'usersinfo','--prefix')
- usersinfo = [ x for x in usersinfo if 'admin' not in x[0] ]
+ #usersinfo = [ x for x in usersinfo if 'admin' not in x[0] ]
  return usersinfo
 
 def getgroups():
  global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip
  groups = get(leaderip, 'usersigroup','--prefix')
- groups = [ x for x in groups if 'admin' not in x[0] ]
+ #groups = [ x for x in groups if 'admin' not in x[0] ]
  return groups 
 
 def packagekeys(key,exception):
@@ -286,9 +286,9 @@ def syncpush(receiver, userreq):
  usershash = getusershash()
  usersinfo = getusersinfo()
  groups = getgroups()
- usershash = packagekeys('usershash','admin')
- usersinfo = packagekeys('usersinfo','admin')
- groups = packagekeys('usersigroup','admin')
+ usershash = packagekeys('usershash','xxadmin')
+ usersinfo = packagekeys('usersinfo','xxadmin')
+ groups = packagekeys('usersigroup','xxadmin')
  stampit = str(stamp())
  put(leaderip, 'pushsync/sync/user/initial/request','user_'+stampit)
  dosync('user_', 'pushsync/sync/user/initial/request','user_'+stampit)

@@ -1,17 +1,18 @@
 #!/usr/bin/sh
 fnupdate () {
 	echo '###########################################' $1
-	git branch -D $1
-	git checkout -b $1
 	#git reset --hard
 	git clean -f
 	git config --replace-all pull.rebase false
 	git checkout -- *
 	git rm -rf __py*
 	rm -rf __py*
-        git remote add $2 $3
 	git add --all
-	git commit -am 'fixing' 
+	git commit -am 'fixing'
+	git checkout -b $1
+	git checkout $1
+	git remote remove $2
+        git remote add $2 $3
 	git pull $2 $1
 	if [ $? -ne 0 ];
 	then

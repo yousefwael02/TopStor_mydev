@@ -65,6 +65,7 @@ def addpartner(*bargs):
 if __name__=='__main__':
  initpartner('init')
  with open('/root/PartnerAdd','w') as f:
-    import json
-    json.dump(sys.argv[1:], f)
+    #import json
+    #json.dump(sys.argv[1:], f)
+    f.write(' '.join(sys.argv))
  addpartner(*sys.argv[1:])
