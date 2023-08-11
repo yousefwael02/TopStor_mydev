@@ -36,6 +36,7 @@ ps -ef | egrep 'zfsping|loop|iscsiswatch'
 echo '############################################################################################################################################'
 echo Running system services
 systemctl status --no-pager
+systemctl list-units --state=failed
 echo '############################################################################################################################################'
 echo admin statu in registry:
 ./etcdget.py $leaderip user admin
