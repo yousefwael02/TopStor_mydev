@@ -90,6 +90,9 @@ def createnodeloc(receiver, cmd):
         partnerinfo = response.split('_')
         pumpkeys(partnerinfo[3], replitype, pport, phrase)
         put(etcdip,'repliPartner/'+receiver+'/'+partnerinfo[3], partnerinfo[2])
+        #if etcdip == leaderip:
+        cmdline = '/TopStor/remotetunneladd.sh '+receiver+' '+remoteCluster+' '+leaderip+' '+partnerinfo[3]+' '+pport
+        subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8')
 
  if nodeip == remoteCluster and isopen != 'open' :
    finalresponse = 'result_failresult_ connection to all the nodes in the remote cluster '+nodeip

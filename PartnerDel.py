@@ -53,6 +53,8 @@ def delpartner(*bargs):
  if 'yes' in issync:
   cmdline = '/TopStor/SnapShotPeriodDelete '+leaderip+' '+partner+' '+'system'
   result = subprocess.run(cmdline.split(),stdout=subprocess.PIPE)
+  cmdline = '/TopStor/remotetunnelremove.sh  '+partner
+  result = subprocess.run(cmdline.split(),stdout=subprocess.PIPE)
   stampit = str(stamp())
   dels(etcdip,'sync',partner.replace('_',':::'))
   dels(etcdip,'pullsync',partner.replace('_',':::'))
