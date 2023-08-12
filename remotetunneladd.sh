@@ -1,4 +1,5 @@
 #!/bin/sh
+echo $@ > /root/remotetunneladd
 receiver=`echo $@ | awk '{print $1}'`
 remotecluster=`echo $@ | awk '{print $2}'`
 leaderip=`echo $@ | awk '{print $3}'`
@@ -8,6 +9,7 @@ rm -rf /TopStordata/Lremote_${receiver}${remotenode}*
 cp /TopStor/LREMOTE.sh /TopStordata/Lremote_${receiver}${remotenode}
 rem='/TopStordata/Lremote_'${receiver}$remotenode
 sed -i "s/secureport/$remoteport/g" ${rem}
+sed -i "s/receiver/ssh$receiver/g" ${rem}
 sed -i "s/remotenode/$remotenode/g" ${rem}
 sed -i "s/newport/2381/g" ${rem}
 sed -i "s/remotecluster/$remotecluster/g" ${rem}
@@ -20,6 +22,7 @@ rm -rf /TopStordata/Rremote_${receiver}${remotenode}*
 cp /TopStor/RREMOTE.sh /TopStordata/Rremote_${receiver}${remotenode}
 rem='/TopStordata/Rremote_'${receiver}$remotenode
 sed -i "s/secureport/$remoteport/g" ${rem}
+sed -i "s/receiver/ssh$receiver/g" ${rem}
 sed -i "s/remotenode/$remotenode/g" ${rem}
 sed -i "s/newport/2381/g" ${rem}
 sed -i "s/mycluster/$leaderip/g" ${rem}

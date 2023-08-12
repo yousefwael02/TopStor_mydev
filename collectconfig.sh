@@ -44,7 +44,7 @@ echo Running system services
 systemctl status --no-pager
 systemctl list-units --state=failed
 echo '############################################################################################################################################'
-echo admin statu in registry:
+echo admin status in registry:
 ./etcdget.py $leaderip user admin
 echo '--------'
 ./etcdget.py $etcdip user admin 
@@ -83,6 +83,9 @@ echo Replication partners
 echo '############################################################################################################################################'
 echo Known Replication Partners
 ./etcdget.py $etcdip repliPartner --prefix
+echo '############################################################################################################################################'
+echo Active Tunnels
+/TopStor/activatetunnels.sh
 echo '############################################################################################################################################'
 echo sync request status
 /pace/checksyncs.py syncrequest $leaderip `hostname`

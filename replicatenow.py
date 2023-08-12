@@ -79,6 +79,7 @@ def createnodeloc(receiver, cmd):
     print(nodeip)
     print(nodeloccmd)
     print('################################################333')
+    print('sending checkpartner')
     isopen, response = checkpartner(nodeloccmd)
     print('response',response)
     if isopen != 'open':
@@ -91,6 +92,7 @@ def createnodeloc(receiver, cmd):
         pumpkeys(partnerinfo[3], replitype, pport, phrase)
         put(etcdip,'repliPartner/'+receiver+'/'+partnerinfo[3], partnerinfo[2])
         #if etcdip == leaderip:
+        print('/TopStor/remotetunneladd.sh '+receiver+' '+remoteCluster+' '+leaderip+' '+partnerinfo[3]+' '+pport)
         cmdline = '/TopStor/remotetunneladd.sh '+receiver+' '+remoteCluster+' '+leaderip+' '+partnerinfo[3]+' '+pport
         subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8')
 
