@@ -134,12 +134,12 @@ do
 	fi
 	/TopStor/activatetunnels.sh
 	replipartners=`/TopStor/etcdget.py $etcdip Partner --prefix`
-	echo $replipartners | grep dhcp
+	echo $replipartners | grep Partner 
 	if [ $? -ne 0 ];
 	then
 		if [ $repliflag -eq 0 ];
 		then
-			/TopStor/etcdput.py $leaderip replinextport 2380
+			/TopStor/etcdput.py $etcdip replinextport 2380
 			repliflag=1
 		fi
 	else
