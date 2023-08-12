@@ -59,6 +59,8 @@ def addpartner(*bargs):
   dosync(myhost,'Partnr_str_', 'sync/Partnr/Add_'+partneralias+':::'+replitype+'_'+partnerip+'::'+replitype+'::'+str(repliport)+'::'+phrase+'/request','Partnr_str_'+str(stamp())) 
  if 'Sender' not in replitype:
   syncpush(partneralias+'_'+replitype,userreq) 
+ if 'init' in init and 'Sender' not in replitype:
+    put('127.0.0.1','2381','repliActives','Actives')
  sendlog('Partner1002','info',userreq,partneralias,replitype)
  
 

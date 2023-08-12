@@ -89,9 +89,19 @@ def createnodeloc(receiver, cmd):
         print(response)
         print('################################################333')
         partnerinfo = response.split('_')
+        try: 
+            remotenextport = int(partnerinfo[4])
+        except:
+            remotenextport = 2380
+        try:
+            mynextport = int(get(etcdip,'replinextport')[0])
+        except:
+            mynextport = 2380
+        tunnelport = [ remotenextport ,mynextport ].sorted()[-1]+1 
         pumpkeys(partnerinfo[3], replitype, pport, phrase)
         put(etcdip,'repliPartner/'+receiver+'/'+partnerinfo[3], partnerinfo[2])
         #if etcdip == leaderip:
+        put(etcdip, 'replinextport',str(tunnelport))
         print('/TopStor/remotetunneladd.sh '+receiver+' '+remoteCluster+' '+leaderip+' '+partnerinfo[3]+' '+pport)
         cmdline = '/TopStor/remotetunneladd.sh '+receiver+' '+remoteCluster+' '+leaderip+' '+partnerinfo[3]+' '+pport
         subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8')
