@@ -20,4 +20,5 @@ do
 	res=$(echo $replinextport | wc -c)
 	
 done
-echo _result_${noden}_${nodei}_${replinextport}_
+leader=`/TopStor/etcdget.py $leaderip leader`
+echo _result_${noden}_${nodei}_${replinextport}_$leader_

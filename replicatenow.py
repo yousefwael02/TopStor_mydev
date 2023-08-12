@@ -52,12 +52,12 @@ def createnodeloc(receiver, cmd):
  nodesinfo = get(etcdip, 'repliPartner/'+receiver,'--prefix')
  isopen = 'closed'
  print('hi',nodesinfo)
- nodesinfo.append(('hi/hi/'+partnerinfo[0],'hi')) 
+ #nodesinfo.append(('hi/hi/'+partnerinfo[0],'hi')) 
  isopen = 'close'
  for node in nodesinfo:
   print(node)
   nodeip = node[0].split('/')[2]
-  if nodeip == remoteCluster :
+  if len(nodesinfo) == 1:
     pumpkeys(nodeip, replitype, pport, phrase)
   nodeloc = 'ssh -oBatchmode=yes -i /TopStordata/'+nodeip+'_keys/'+nodeip+' -p '+pport+' -oStrictHostKeyChecking=no ' + nodeip 
   nodeloccmd = nodeloc+' '+ cmd
@@ -69,11 +69,16 @@ def createnodeloc(receiver, cmd):
   print(response)
   print('################################################333')
   if isopen == 'open':
-    break
+    return nodeip, nodeloc, response
+ nodeip = remoteCluster
+ pumpkeys(nodeip, replitype, pport, phrase)
+ nodeloc = 'ssh -oBatchmode=yes -i /TopStordata/'+nodeip+'_keys/'+nodeip+' -p '+pport+' -oStrictHostKeyChecking=no ' + nodeip 
+ nodeloccmd = nodeloc+' '+ cmd
+ isopen, response = checkpartner(nodeloccmd)
  finalresponse = response
  if isopen != 'open':
     finalresponse = 'result_failresult_ connection to all the nodes  cluster '+nodeip
- if nodeip == remoteCluster and isopen == 'open' :
+ else:
     nodeloccmd = nodeloc +' '+ '/TopStor/nodeinfo.sh '+remoteCluster 
     print('################################################333')
     print(nodeip)
@@ -97,13 +102,14 @@ def createnodeloc(receiver, cmd):
             mynextport = int(get(etcdip,'replinextport')[0])
         except:
             mynextport = 2380
+        leader = partnerinfo[5]
         tunnelport = [ remotenextport ,mynextport ]
         print(tunnelport)
         tunnelport.sort()
         tunnelport = tunnelport[-1]+1 
         print(tunnelport)
         pumpkeys(partnerinfo[3], replitype, pport, phrase)
-        put(etcdip,'repliPartner/'+receiver+'/'+partnerinfo[3], partnerinfo[2])
+        put(etcdip,'repliPartner/'+receiver+'/'+partnerinfo[3], partnerinfo[2]+'/'+str(tunnelport))
         #if etcdip == leaderip:
         put(etcdip, 'replinextport',str(tunnelport))
         print('/TopStor/remotetunneladd.sh '+receiver+' '+remoteCluster+' '+leaderip+' '+partnerinfo[3]+' '+pport+' '+str(tunnelport))
