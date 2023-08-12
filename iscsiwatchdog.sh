@@ -9,6 +9,7 @@ leader=`docker exec etcdclient /TopStor/etcdgetlocal.py leader`
 leaderip=`docker exec etcdclient /TopStor/etcdgetlocal.py leaderip`
 myhost=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternode`
 myhostip=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternodeip`
+repliflag=0
 echo $leader | grep $myhost
 if [ $? -eq 0 ];
 then
@@ -132,6 +133,18 @@ do
 			initip=4
 	fi
 	/TopStor/activatetunnels.sh
+	replipartners=`/TopStor/etcdget.py $etcdip Partner --prefix`
+	echo $replipartners | grep dhcp
+	if [ $? -ne 0 ];
+	then
+		if [ $repliflag -eq 0 ];
+		then
+			/TopStor/etcdput.py $leaderip replinextport 2380
+			repliflag=1
+		fi
+	else
+		repliflag=0
+	fi
 	echo sleeeeeeeeeeeeeping
 	sleep 2
 	echo cyclingggggggggggggg
