@@ -74,7 +74,7 @@ def createnodeloc(receiver, cmd):
  if isopen != 'open':
     finalresponse = 'result_failresult_ connection to all the nodes  cluster '+nodeip
  if nodeip == remoteCluster and isopen == 'open' :
-    nodeloccmd = nodeloc +' '+ '/TopStor/nodeinfo.sh' 
+    nodeloccmd = nodeloc +' '+ '/TopStor/nodeinfo.sh '+remoteCluster 
     print('################################################333')
     print(nodeip)
     print(nodeloccmd)
@@ -97,13 +97,17 @@ def createnodeloc(receiver, cmd):
             mynextport = int(get(etcdip,'replinextport')[0])
         except:
             mynextport = 2380
-        tunnelport = [ remotenextport ,mynextport ].sorted()[-1]+1 
+        tunnelport = [ remotenextport ,mynextport ]
+        print(tunnelport)
+        tunnelport.sort()
+        tunnelport = tunnelport[-1]+1 
+        print(tunnelport)
         pumpkeys(partnerinfo[3], replitype, pport, phrase)
         put(etcdip,'repliPartner/'+receiver+'/'+partnerinfo[3], partnerinfo[2])
         #if etcdip == leaderip:
         put(etcdip, 'replinextport',str(tunnelport))
-        print('/TopStor/remotetunneladd.sh '+receiver+' '+remoteCluster+' '+leaderip+' '+partnerinfo[3]+' '+pport)
-        cmdline = '/TopStor/remotetunneladd.sh '+receiver+' '+remoteCluster+' '+leaderip+' '+partnerinfo[3]+' '+pport
+        print('/TopStor/remotetunneladd.sh '+receiver+' '+remoteCluster+' '+leaderip+' '+partnerinfo[3]+' '+pport+' '+str(tunnelport))
+        cmdline = '/TopStor/remotetunneladd.sh '+receiver+' '+remoteCluster+' '+leaderip+' '+partnerinfo[3]+' '+pport+' '+str(tunnelport)
         subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8')
 
  if nodeip == remoteCluster and isopen != 'open' :
@@ -298,19 +302,20 @@ def packagekeys(key,exception):
 def syncpush(receiver, userreq):
  global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip, leader
  logmsg.sendlog('Partnerst01','info',userreq, receiver.split('_')[0])
- usershash = getusershash()
- usersinfo = getusersinfo()
- groups = getgroups()
- usershash = packagekeys('usershash','xxadmin')
- usersinfo = packagekeys('usersinfo','xxadmin')
- groups = packagekeys('usersigroup','xxadmin')
+ #usershash = getusershash()
+ #usersinfo = getusersinfo()
+ #groups = getgroups()
+ #usershash = packagekeys('usershash','xxadmin')
+ #usersinfo = packagekeys('usersinfo','xxadmin')
+ #groups = packagekeys('usersigroup','xxadmin')
  stampit = str(stamp())
- put(leaderip, 'pushsync/sync/user/initial/request','user_'+stampit)
- dosync('user_', 'pushsync/sync/user/initial/request','user_'+stampit)
- put(leaderip, 'pushsync/sync/group/initial/request','group_'+stampit)
- dosync('group_','pushsync/sync/group/initial/request','group_'+stampit)
- syncinfo = packagekeys('pushsync/sync', '/dhcp')
- cmd = '/TopStor/replisyncpull.py '+usershash+' '+usersinfo+' '+groups+' '+syncinfo
+ #put(leaderip, 'pushsync/sync/user/initial/request','user_'+stampit)
+ #dosync('user_', 'pushsync/sync/user/initial/request','user_'+stampit)
+ #put(leaderip, 'pushsync/sync/group/initial/request','group_'+stampit)
+ #dosync('group_','pushsync/sync/group/initial/request','group_'+stampit)
+ #syncinfo = packagekeys('pushsync/sync', '/dhcp')
+ #cmd = '/TopStor/replisyncpull.py '+usershash+' '+usersinfo+' '+groups+' '+syncinfo
+ cmd = 'pwd'
  nodeip, nodeloc, finalresponse = createnodeloc(receiver, cmd)
  print('finalresponse', finalresponse)
  if 'fail' in finalresponse:
