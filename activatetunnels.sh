@@ -18,11 +18,17 @@ for file in $files; do
 		if [ $? -ne 0 ];
 		then
 			echo Somthing went wrong, removing active links to this remote node
-			node=` echo $file | awk -F'_' '{print $2}'`
+			cluster=` echo $file | awk -F'_' '{print $2}'`
 			ttype=`echo $file | awk -F'/' '{print $NF}' | awk -F'_' '{print $1}'`
-			kill -9 `pgrep $ttype -a | grep $node | awk '{print $1}'`
+			kill -9 `pgrep $ttype -a | grep $cluster | awk '{print $1}'`
 		fi
 	fi
 
 done
 
+for file in $files; do
+	cluster=` echo $file | awk -F'_' '{print $2}'`
+	ttype=`echo $file | awk -F'/' '{print $NF}' | awk -F'_' '{print $1}'`
+	node=`echo $file | awk -F"$cluster" '{print $NF}'`
+	echo $node $ttype $node 
+done

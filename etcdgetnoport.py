@@ -7,9 +7,9 @@ from checkleader import checkleader
 dev = 'enp0s8'
 os.environ['ETCDCTL_API']= '3'
 
-def etcdctl(etcd,port, key,prefix):
- cmdline=['etcdctl','--user=root:YN-Password_123','--endpoints=http://'+etcd+':'+port,'get',key,prefix]
- cmdline=['etcdctl','--endpoints=http://'+etcd+':'+port,'get',key,prefix]
+def etcdctl(pport, key,prefix):
+ cmdline=['etcdctl','--user=root:YN-Password_123','--endpoints=http://127.0.0.1:'+pport,'get',key,prefix]
+ cmdline=['etcdctl','--endpoints=http://127.0.0.1:'+pport,'get',key,prefix]
  #print(' '.join(cmdline))
  try:
     result=subprocess.run(cmdline,stdout=subprocess.PIPE, timeout=2)
@@ -17,8 +17,8 @@ def etcdctl(etcd,port, key,prefix):
  except:
     print('not reachable')
     return '_1' 
-def etcdget(etcd,port,  key, prefix=''):
- result = etcdctl(etcd,port, key,prefix)
+def etcdget(pport,  key, prefix=''):
+ result = etcdctl(pport, key,prefix)
  z=[]
  try:
   if(prefix =='--prefix'):
@@ -34,7 +34,7 @@ def etcdget(etcd,port,  key, prefix=''):
     z.append((str(result.stdout).split(key)[1][2:][:-3]))
    print(z[0])
   else:
-   result = etcdctl(etcd,port,key,'--prefix')
+   result = etcdctl(pport,key,'--prefix')
    mylist=str(result.stdout.decode()).replace('\n\n','\n').split('\n')
    zipped=zip(mylist[0::2],mylist[1::2])
    for x in zipped:
