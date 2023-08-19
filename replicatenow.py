@@ -128,6 +128,11 @@ def createnodeloc(receiver, cmd):
         print('/TopStor/remotetunneladd.sh '+receiver+' '+remoteCluster+' '+leaderip+' '+partnerinfo[3]+' '+pport+' '+str(tunnelport))
         cmdline = '/TopStor/remotetunneladd.sh '+receiver+' '+remoteCluster+' '+leaderip+' '+partnerinfo[3]+' '+pport+' '+str(tunnelport)
         subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8')
+        cmdline='docker exec etcdclient /TopStor/etcdgetlocal.py clusternode'
+        myhost=subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','').replace(' ','')
+        cmdline='docker exec etcdclient /TopStor/etcdgetlocal.py clusternodeip'
+        myip=subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','').replace(' ','')
+        putnoport(str(tunnelport),'replireverse/'+myhost+'/'+myip, str(tunnelport)+'/'+pport)
 
  if nodeip == remoteCluster and isopen != 'open' :
    finalresponse = 'result_failresult_ connection to all the nodes in the remote cluster '+nodeip
