@@ -12,6 +12,7 @@ rem='/TopStordata/Lremote_'${receiver}_${remotenode}_
 sed -i "s/secureport/$remoteport/g" ${rem}
 sed -i "s/receiver/ssh$receiver/g" ${rem}
 sed -i "s/remotenode/$remotenode/g" ${rem}
+sed -i "s/mycluster/$leaderip/g" ${rem}
 sed -i "s/remotecluster/$remotecluster/g" ${rem}
 sed -i "s/tunnelport/$tunnelport/g" ${rem}
 mv $rem ${rem}.sh
@@ -26,6 +27,7 @@ sed -i "s/secureport/$remoteport/g" ${rem}
 sed -i "s/receiver/ssh$receiver/g" ${rem}
 sed -i "s/remotenode/$remotenode/g" ${rem}
 sed -i "s/mycluster/$leaderip/g" ${rem}
+sed -i "s/remotecluster/$remotecluster/g" ${rem}
 sed -i "s/tunnelport/$tunnelport/g" ${rem}
 mv $rem ${rem}.sh
 chmod +x ${rem}.sh 

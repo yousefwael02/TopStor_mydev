@@ -18,6 +18,8 @@ firewall-cmd --permanent --add-port=389/tcp
 firewall-cmd --permanent --add-port=389/udp
 firewall-cmd --permanent --add-port=88/tcp
 firewall-cmd --permanent --add-port=88/udp
+firewall-cmd  --permanent --add-port=2381-2481/tcp
+firewall-cmd  --permanent --add-port=2381-2481/udp
 firewall-cmd --reload
 cmdline=$@
 order=`cat /root/nodeconfigured`
