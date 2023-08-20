@@ -22,6 +22,7 @@ from secrets import token_hex
 from ioperf import ioperf
 from time import time as timestamp
 import logmsg
+from collectNodeConfig import getConfig
 
 getalltimestamp = 0
 os.environ['ETCDCTL_API'] = '3'
@@ -1240,6 +1241,13 @@ def offlineOrOnlineDisk(data):
     msg = {'req': 'Pumpthis', 'reply':z}
     sendhost(ownerip, str(msg),'recvreply',myhost)
     return data
+
+@app.route('/api/v1/hosts/getConfig', methods=['GET','POST'])
+def getNodeConfigFile(data):
+    global leaderip
+    nodeName = data["nodeName"]
+    nodeConfig = getConfig(leaderip, nodeName + "Config")
+    return nodeConfig
 
 leaderip =0 
 myhost=0
