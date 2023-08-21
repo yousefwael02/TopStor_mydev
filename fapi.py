@@ -1243,12 +1243,12 @@ def offlineOrOnlineDisk(data):
     return data
 
 @app.route('/api/v1/hosts/getConfig', methods=['GET','POST'])
-def getNodeConfigFile():
+@login_required
+def getNodeConfigFile(data):
     global leaderip
-    #nodeName = data["nodeName"]
-    nodeName = "dhcp256332"
+    nodeName = data["nodeName"]
     nodeConfig = getConfig(leaderip, nodeName)
-    file_path = "/TopStor/TopStordata/" + nodeName + "_config.txt" 
+    file_path = "/TopStor/TopStordata/" + nodeName + "_config.txt"
     return send_file(file_path, mimetype='text/plain', as_attachment=True)
 
 leaderip =0 
