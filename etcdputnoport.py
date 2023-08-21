@@ -3,9 +3,9 @@ import subprocess,sys, os
 import json
 from time import sleep
 
-def etcdctl(pport, key,prefix):
+def etcdctl(ipaddr, pport, key,prefix):
  cmdline=['/usr/local/bin/etcdctl','--user=root:YN-Password_123','--endpoints=http://127.0.0.1:'+pport,'put',key,prefix]
- cmdline=['/usr/local/bin/etcdctl','--endpoints=http://127.0.0.1:'+pport,'put',key,prefix]
+ cmdline=['/usr/local/bin/etcdctl','--endpoints=http://'+ipaddr+':'+pport,'put',key,prefix]
  try:
     result=subprocess.run(cmdline,stdout=subprocess.PIPE, timeout=2)
     return result 
@@ -16,9 +16,9 @@ def etcdctl(pport, key,prefix):
 
 
 
-def etcdput(pport, key,val):
+def etcdput(ipaddr, pport, key,val):
  os.environ['ETCDCTL_API']= '3'
- etcdctl(pport, key,val)
+ etcdctl(ipaddr, pport, key,val)
  return 1 
 
 

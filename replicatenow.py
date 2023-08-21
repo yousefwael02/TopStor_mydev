@@ -132,7 +132,7 @@ def createnodeloc(receiver, cmd):
         myhost=subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','').replace(' ','')
         cmdline='docker exec etcdclient /TopStor/etcdgetlocal.py clusternodeip'
         myip=subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','').replace(' ','')
-        putnoport(str(tunnelport),'replireverse/'+myhost+'/'+myip, str(tunnelport)+'/'+pport)
+        putnoport(leaderip, str(tunnelport),'replireverse/'+leaderip, str(tunnelport))
 
  if nodeip == remoteCluster and isopen != 'open' :
    finalresponse = 'result_failresult_ connection to all the nodes in the remote cluster '+nodeip
@@ -341,7 +341,7 @@ def syncpush(receiver, userreq):
  #cmd = '/TopStor/replisyncpull.py '+usershash+' '+usersinfo+' '+groups+' '+syncinfo
  cmd = 'pwd'
  nodeip, nodeloc, finalresponse = createnodeloc(receiver, cmd)
- cmd = 'putnoport TUNNELPORT tempkey  32322'+leader
+ cmd = 'putnoport '+leaderip+' TUNNELPORT tempkey  32322'+leader
  usetunnelport(receiver,cmd)
  print('finalresponse', finalresponse)
  if 'fail' in finalresponse:
