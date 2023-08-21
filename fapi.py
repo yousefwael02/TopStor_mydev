@@ -3,7 +3,7 @@ import flask, os, Evacuate, subprocess, Joincluster, sys
 from getversions import getversions
 from functools import wraps
 from copy import deepcopy
-from flask import request, jsonify, render_template, redirect, url_for, g
+from flask import request, jsonify, render_template, redirect, url_for, g, send_file
 import Hostsconfig
 from Hostconfig import config
 from allphysicalinfo import getall 
@@ -1243,11 +1243,13 @@ def offlineOrOnlineDisk(data):
     return data
 
 @app.route('/api/v1/hosts/getConfig', methods=['GET','POST'])
-def getNodeConfigFile(data):
+def getNodeConfigFile():
     global leaderip
-    nodeName = data["nodeName"]
-    nodeConfig = getConfig(leaderip, nodeName + "Config")
-    return nodeConfig
+    #nodeName = data["nodeName"]
+    nodeName = "dhcp256332"
+    nodeConfig = getConfig(leaderip, nodeName)
+    file_path = "/TopStor/TopStordata/" + nodeName + "_config.txt" 
+    return send_file(file_path, mimetype='text/plain', as_attachment=True)
 
 leaderip =0 
 myhost=0

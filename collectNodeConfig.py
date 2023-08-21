@@ -25,21 +25,20 @@ def json_unzip(j, insist=True):
 
     return j
 
-def updateConfig(leaderip, JSONCONFIG_KEY):
+def updateConfig(leaderip, nodeName):
     cmdline = '/TopStor/collectconfig.sh'.split()
     content = subprocess.run(cmdline,stdout=subprocess.PIPE, text=True).stdout
     zipped = json_zip(content)
-    put(leaderip, JSONCONFIG_KEY, zipped)
+    put(leaderip, nodeName + "_config", zipped)
 
-def getConfig(leaderip, JSONCONFIG_KEY):
-    zipped = get(leaderip, JSONCONFIG_KEY)[0]
+def getConfig(leaderip, nodeName):
+    zipped = get(leaderip, nodeName + "_config")[0]
     unzipped = json_unzip(zipped)
+    with open("/TopStor/TopStordata/" + nodeName + "_config.txt", "w") as file:
+        file.write(unzipped)
     return unzipped
 
 if __name__=='__main__':
-    global leaderip, nodeName, JSONCONFIG_KEY
     leaderip = sys.argv[1]
     nodeName = sys.argv[2]
-    JSONCONFIG_KEY = nodeName + "Config"
-    updateConfig(leaderip, JSONCONFIG_KEY)
-    print(getConfig(leaderip, JSONCONFIG_KEY))
+    updateConfig(leaderip, nodeName)
