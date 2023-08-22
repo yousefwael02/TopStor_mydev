@@ -39,17 +39,18 @@ else
 fi
 cp /TopStor/smbuserfix.sh /etc/
 useradd -c"TopStor"$userpass $homebase -g $usergd -u $userid -p $userpass -s /usr/sbin/nologin $username
-currentcifs=`docker ps | awk '{print $NF}' | grep CIFS`
+echo useradd \-c"TopStor"$userpass $homebase \-g $usergd \-u $userid \-p $userpass \-s /usr/sbin/nologin $username
+currentcifs=`docker ps | awk '{print $NF}' | grep CIFS | grep -v 'CIFS_'`
 echo "$currentcifs" | while read y
 do 
  echo $y | grep CIFS
  if [ $? -eq 0 ];
  then
  	echo dock=$y
+ 	echo docker exec $y  sh /hostetc/smbuserfix.sh x $username $pas 
  	docker exec $y  sh /hostetc/smbuserfix.sh x $username $pas 
  fi
 done 
-echo useradd \-c"TopStor"$userpass $homebase \-g $usergd \-u $userid \-p $userpass \-s /usr/sbin/nologin $username 
 #(echo $userpass; echo $userpass) | /usr/bin/smbpasswd -s -a $username 2>> $txtres
 #cat $txtres
  #echo $userpass > key/${username}fixed
@@ -60,4 +61,16 @@ echo useradd \-c"TopStor"$userpass $homebase \-g $usergd \-u $userid \-p $userpa
  #/pace/etcdsync.py $myip usershash/$username usershash/$username 
  #/TopStor/logmsg.py Unlin10222 info $userreq $username
 fi
+echo $leader | grep $myhost
+if [ $? -eq 0 ];
+then
+	echo hi2
+	stamp=`date +%s%N`
+	myscript=`basename "$0"`
+	params=`echo $myscript $@ $stamp | sed 's\ \\_\g'`
+	/pace/etcddel.py $leaderip sync/user _${username}_
+	/pace/etcdput.py $leaderip sync/user/$params/request/$myhost user_${username}_$stamp
+	/pace/etcdput.py $leaderip sync/user/$params/request user_${username}_$stamp
+fi
+
 cd /pace
