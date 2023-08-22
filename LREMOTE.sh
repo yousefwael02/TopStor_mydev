@@ -5,3 +5,4 @@ then
 	echo Somthing went wrong, removing active links to this remote node
 	kill -9 `pgrep Lremote  -a | grep remotenode | awk '{print $1}'`
 fi
+#_REMOTE_ssh -p secureport -i /TopStordata/remotenode_keys/remotenode remotenode ls

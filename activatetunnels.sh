@@ -1,5 +1,4 @@
 #!/bin/bash
-#!/bin/bash
 
 # Get the current directory
 current_dir='/TopStordata'
@@ -10,17 +9,32 @@ tasks=`ps -ef | egrep 'Lremote|Rremote'`
 # Loop through the files
 for file in $files; do
 	echo file=$file
+	cluster=` echo $file | awk -F'_' '{print $2}'`
+	ttype=`echo $file | awk -F'/' '{print $NF}' | awk -F'_' '{print $1}'`
+	echo cluster $ttype $cluster
 	echo tasks$tasks | grep $file  >/dev/null
 	if [ $? -ne 0 ];
 	then
 		echo running $file
+		kill -9 ` ps -eo pid,args |grep $ttype | grep $cluster | awk '{print $1}'`
 		$current_dir/$file & disown
 		if [ $? -ne 0 ];
 		then
 			echo Somthing went wrong, removing active links to this remote node
-			cluster=` echo $file | awk -F'_' '{print $2}'`
-			ttype=`echo $file | awk -F'/' '{print $NF}' | awk -F'_' '{print $1}'`
-			kill -9 `pgrep $ttype -a | grep $cluster | awk '{print $1}'`
+			kill -9 ` ps -eo pid,args |grep $ttype | grep $cluster | awk '{print $1}'`
+		fi
+	else
+		cmd=`cat $current_dir/$file | grep '_REMOTE_' | awk -F'_REMOTE_' '{print $2}'`
+		#cmd=`cat $current_dir/$file `
+		echo cmd=$cmd
+		$cmd > /dev/null
+		if [ $? -ne 0 ];
+		then
+			#kill -9 `pgrep -f $file | awk '{print $1}'`
+			echo killing $ttype  $cluster
+			kill -9 ` ps -eo pid,args |grep $ttype | grep $cluster | awk '{print $1}'`
+		else
+			echo it is working
 		fi
 	fi
 
