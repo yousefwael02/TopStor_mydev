@@ -1251,6 +1251,23 @@ def getNodeConfigFile(data):
     file_path = "/TopStor/TopStordata/" + nodeName + "_config.txt"
     return send_file(file_path, mimetype='text/plain', as_attachment=True)
 
+@app.route('/api/v1/hosts/getAllConfig', methods=['GET','POST'])
+@login_required
+def getAllConfigFiles():
+    global leaderip, readyhosts
+    hostsready()
+    configFiles = []
+    zipfilePath = "/TopStor/TopStordata/All_Configs.zip"
+    for host in readyhosts:
+        nodeName = host["name"]
+        getConfig(leaderip, nodeName)
+        filePath = "/TopStor/TopStordata/" + nodeName + "_config.txt"
+        configFiles.append((filePath, nodeName + "_config.txt"))
+    with zipfile.ZipFile(zipfilePath, "w") as zipF:
+        for file in configFiles:
+            zipF.write(file[0], file[1] ,compress_type = zipfile.ZIP_DEFLATED)
+    return send_file(zipfilePath, as_attachment=True)
+
 leaderip =0 
 myhost=0
 if __name__=='__main__':
