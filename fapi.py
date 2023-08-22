@@ -23,6 +23,7 @@ from ioperf import ioperf
 from time import time as timestamp
 import logmsg
 from collectNodeConfig import getConfig
+import zipfile
 
 getalltimestamp = 0
 os.environ['ETCDCTL_API'] = '3'
@@ -1253,7 +1254,7 @@ def getNodeConfigFile(data):
 
 @app.route('/api/v1/hosts/getAllConfig', methods=['GET','POST'])
 @login_required
-def getAllConfigFiles():
+def getAllConfigFiles(data):
     global leaderip, readyhosts
     hostsready()
     configFiles = []
