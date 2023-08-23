@@ -132,7 +132,11 @@ def createnodeloc(receiver, cmd):
         myhost=subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','').replace(' ','')
         cmdline='docker exec etcdclient /TopStor/etcdgetlocal.py clusternodeip'
         myip=subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','').replace(' ','')
-        putnoport(leaderip, str(tunnelport),'replireverse/'+receiver+'/'+leaderip, str(tunnelport))
+        remotepartner = getnoport(leaderip, str(tunnelport),'Partner',leaderip)
+        if leaderip not in remotepartner:
+            dels(leaderip,'Partner',receiver)
+        myalias = remotepartner[0][0].split('/')[1]
+        putnoport(leaderip, str(tunnelport),'replireverse/'+myalias+'/'+receiver+'/'+leaderip, str(tunnelport))
         putnoport(leaderip, str(tunnelport),'replinextport', str(tunnelport))
 
  if nodeip == remoteCluster and isopen != 'open' :
