@@ -132,7 +132,11 @@ do
 			/TopStor/httpdflask.sh $leaderip no 
 			initip=4
 	fi
-	/TopStor/activatetunnels.sh
+	echo $etcdip | grep $leaderip
+	if [ $? -eq 0 ];
+	then
+		/TopStor/activatetunnels.sh $leaderip
+	fi
 	replipartners=`/TopStor/etcdget.py $etcdip Partner --prefix`
 	echo $replipartners | grep Partner 
 	if [ $? -ne 0 ];

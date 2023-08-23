@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Get the current directory
+leaderip=`echo $@ | awk '{print $1}'`
 current_dir='/TopStordata'
 
 # List the files in the directory
@@ -45,4 +46,22 @@ for file in $files; do
 	ttype=`echo $file | awk -F'/' '{print $NF}' | awk -F'_' '{print $1}'`
 	node=`echo $file | awk -F"$cluster" '{print $NF}'`
 	echo $node $ttype $node 
+done
+revports=`/TopStor/etcdget.py $leaderip replirev --prefix | awk -F',' '{print $2}' | awk -F"'" '{print $2}'`
+for revport in $revports; do
+	echo revport $revport
+	netstat -ant | awk '{print $4}' | grep -w $revport
+	if [ $? -eq 0 ];
+	then
+		echo $revport is open
+		/TopStor/etcdgetnoport.py $leaderip $revport ready --prefix | grep 'not reachable'
+		if [ $? -eq 0 ];
+		then
+			echo the reverse remote host is not running
+			kill -9 $(lsof -t -i:$revport)
+		fi
+		
+	else
+		echo $revport is already closed
+	fi
 done
