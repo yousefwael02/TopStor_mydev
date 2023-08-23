@@ -57,9 +57,9 @@ def delpartner(*bargs):
   cmdline = '/TopStor/SnapShotPeriodDelete '+leaderip+' '+partner+' '+'system'
   result = subprocess.run(cmdline.split(),stdout=subprocess.PIPE)
   stampit = str(stamp())
+  dels(etcdip,'sync',partner)
+  dels(etcdip,'repli',partner)
   dels(etcdip,'sync',partner.replace('_',':::'))
-  dels(etcdip,'pullsync',partner.replace('_',':::'))
-  dels(etcdip,'pushsync',partner.replace('_',':::'))
   put(leaderip, 'sync/Partnr/Del_'+partner.replace('_',':::')+':no:'+userreq+'/request','Partnr_'+stampit)
   dosync(myhost,'Partnr_', 'sync/Partnr/Del_'+partner.replace('_',':::')+':no:'+userreq+'/request','Partnr_'+stampit) 
  
