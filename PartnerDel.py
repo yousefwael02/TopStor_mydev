@@ -50,6 +50,7 @@ def delpartner(*bargs):
  sendlog('Partner1003','info',userreq,partner)
  dels(etcdip,'Partner',partner)
  dels(etcdip,'repli',partner)
+ dels(leaderip,'sync', partner)
  cmdline = '/TopStor/remotetunnelremove.sh  '+partner
  result = subprocess.run(cmdline.split(),stdout=subprocess.PIPE)
  if 'yes' in issync:
