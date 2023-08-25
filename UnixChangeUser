@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 echo $@ > /root/unixchangeuser
 export ETCDCTL_API=3
 cd /TopStor
@@ -145,14 +145,17 @@ then
   docker exec etcdclient /TopStor/logmsg.py Unsu1024 info $userreq $username
  fi
 fi 
-echo ${ischange}$leader | grep change$myhost
+echo dddddddddddddddddddddddddd $leader, $myhost
+echo $leader | grep $myhost
 if [ $? -eq 0 ];
 then
- stamp=`date +%s`;
- myscript=`basename "$0"`
- params=`echo $myscript $@ $stamp | sed 's\ \\_\g'`
- echo params=$params
- /pace/etcdput.py $etcd sync/user/$params/request/$myhost UsrChange_$stamp
- /pace/etcdput.py $etcd sync/user/$params/request UsrChange_$stamp
+	stamp=`date +%s`;
+	stamp=$((stamp+10))
+	myscript=`basename "$0"`
+	params=`echo $myscript $@ $stamp | sed 's\ \\_\g'`
+	echo params=$params
+	echo /pace/etcdput.py $etcd sync/UsrChange/$params/request/$myhost UsrChange_$stamp
+	/TopStor/etcdput.py $etcd sync/UsrChange/$params/request/$myhost UsrChange_$stamp
+	/TopStor/etcdput.py $etcd sync/UsrChange/$params/request UsrChange_$stamp
 fi
 docker exec etcdclient /TopStor/logqueue.py `basename "$0"` finish $userreq 
