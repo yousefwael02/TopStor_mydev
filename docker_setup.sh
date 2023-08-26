@@ -1,5 +1,6 @@
 #!/usr/bin/sh
 modprobe bnx2
+modprobe hpsa 
 systemctl restart NetworkManager
 myclusterf='/topstorwebetc/mycluster'
 mynodef='/topstorwebetc/mynode'
