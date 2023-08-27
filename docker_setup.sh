@@ -33,6 +33,7 @@ echo l$order | grep  reset
 if [ $? -eq 0 ];
 then 
   cmdline='reset'
+  rm -rf /TopStordata/*
   echo no > /root/nodeconfigured
 fi
 
