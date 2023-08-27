@@ -274,7 +274,7 @@ def repliparam(snapshot, receiver, userreq='system'):
  volused = str(allinfo['volumes'][volume]['referenced'])
  snapused = '0' 
  cmd = ' /TopStor/repliSelection.py '+volume+' '+volused+' '+snapshot
- nodeip, nodeloc, finalresponse = createnodeloc(receiver, cmd)
+ nodeip, nodeloc, finalresponse = createnodeloc(receiver, cmd, userreq)
  if 'fail' in finalresponse:
   print('(fail) no node is open for replication in the '+receiver)
   return 'closed'
