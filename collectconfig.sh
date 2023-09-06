@@ -82,7 +82,7 @@ echo Replication partners
 ./etcdget.py $leaderip Partner --prefix
 echo '############################################################################################################################################'
 echo Known Replication Partners
-./etcdget.py $etcdip repliPartner --prefix
+./etcdget.py $etcdip repli --prefix
 echo '############################################################################################################################################'
 echo Active Tunnels
 /TopStor/activatetunnels.sh

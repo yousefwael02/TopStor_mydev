@@ -2,6 +2,8 @@
 import sys, subprocess, logmsg
 from allphysicalinfo import getall 
 from etcdgetpy import etcdget as get
+from etcdgetnoport import etcdget as getnoport
+from etcdputnoport import etcdput as putnoport 
 from etcdput import etcdput as put 
 from etcddel import etcddel as dels 
 from pumpkeys import pumpkeys, initpumpkeys
@@ -40,7 +42,19 @@ def checkpartner(nodeloccmd):
     resultdecod = 0
  return isitopen , resultdecod
 
-def createnodeloc(receiver, cmd):
+
+def usetunnelport(receiver,cmd):
+ global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip
+ nodesinfo = get(etcdip, 'repliPartner/'+receiver,'--prefix')
+ #cmddic = { 'getnoport',getnoport, 'putnoport':putnoport }
+ for node in nodesinfo:
+    tunnelport = node[1].split('/')[-1]
+    newcmd = cmd.replace('TUNNELPORT',tunnelport)
+    cmdlst = newcmd.split()
+    print(cmdlst)
+    globals()[cmdlst[0]](*cmdlst[1:]) 
+
+def createnodeloc(receiver, cmd, userreq):
  global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip
  partnerinfo = get(etcdip, 'Partner/'+receiver)[0].split('/')
  remoteCluster = partnerinfo[0]
@@ -52,13 +66,12 @@ def createnodeloc(receiver, cmd):
  nodesinfo = get(etcdip, 'repliPartner/'+receiver,'--prefix')
  isopen = 'closed'
  print('hi',nodesinfo)
- nodesinfo.append(('hi/hi/'+partnerinfo[0],'hi')) 
+ #nodesinfo.append(('hi/hi/'+partnerinfo[0],'hi')) 
  isopen = 'close'
+ print(nodesinfo)
  for node in nodesinfo:
   print(node)
   nodeip = node[0].split('/')[2]
-  if nodeip == remoteCluster :
-    pumpkeys(nodeip, replitype, pport, phrase)
   nodeloc = 'ssh -oBatchmode=yes -i /TopStordata/'+nodeip+'_keys/'+nodeip+' -p '+pport+' -oStrictHostKeyChecking=no ' + nodeip 
   nodeloccmd = nodeloc+' '+ cmd
   print('################################################333')
@@ -69,12 +82,18 @@ def createnodeloc(receiver, cmd):
   print(response)
   print('################################################333')
   if isopen == 'open':
-    break
+    return nodeip, nodeloc, response
+ nodeip = remoteCluster
+ pumpkeys(nodeip, replitype, pport, phrase)
+ nodeloc = 'ssh -oBatchmode=yes -i /TopStordata/'+nodeip+'_keys/'+nodeip+' -p '+pport+' -oStrictHostKeyChecking=no ' + nodeip 
+ nodeloccmd = nodeloc+' '+ cmd
+ isopen, response = checkpartner(nodeloccmd)
  finalresponse = response
  if isopen != 'open':
+    print('port is not open')
     finalresponse = 'result_failresult_ connection to all the nodes  cluster '+nodeip
- if nodeip == remoteCluster and isopen == 'open' :
-    nodeloccmd = nodeloc +' '+ '/TopStor/nodeinfo.sh' 
+ else:
+    nodeloccmd = nodeloc +' '+ '/TopStor/nodeinfo.sh '+remoteCluster 
     print('################################################333')
     print(nodeip)
     print(nodeloccmd)
@@ -89,18 +108,51 @@ def createnodeloc(receiver, cmd):
         print(response)
         print('################################################333')
         partnerinfo = response.split('_')
+        try: 
+            remotenextport = int(partnerinfo[4])
+        except:
+            remotenextport = 2380
+        try:
+            mynextport = int(get(etcdip,'replinextport')[0])
+        except:
+            mynextport = 2380
+        replileader = partnerinfo[5]
+        tunnelport = [ remotenextport ,mynextport ]
+        print(tunnelport)
+        tunnelport.sort()
+        tunnelport = tunnelport[-1]+1 
+        print(tunnelport)
         pumpkeys(partnerinfo[3], replitype, pport, phrase)
-        put(etcdip,'repliPartner/'+receiver+'/'+partnerinfo[3], partnerinfo[2])
+        put(etcdip,'repliPartner/'+receiver+'/'+partnerinfo[3], partnerinfo[2]+'/'+str(tunnelport))
         #if etcdip == leaderip:
-        print('/TopStor/remotetunneladd.sh '+receiver+' '+remoteCluster+' '+leaderip+' '+partnerinfo[3]+' '+pport)
-        cmdline = '/TopStor/remotetunneladd.sh '+receiver+' '+remoteCluster+' '+leaderip+' '+partnerinfo[3]+' '+pport
+        put(etcdip, 'replinextport',str(tunnelport))
+        print('/TopStor/remotetunneladd.sh '+receiver+' '+remoteCluster+' '+leaderip+' '+partnerinfo[3]+' '+pport+' '+str(tunnelport))
+        cmdline = '/TopStor/remotetunneladd.sh '+receiver+' '+remoteCluster+' '+leaderip+' '+partnerinfo[3]+' '+pport+' '+str(tunnelport)
         subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8')
+        cmdline='docker exec etcdclient /TopStor/etcdgetlocal.py clusternode'
+        myhost=subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','').replace(' ','')
+        cmdline='docker exec etcdclient /TopStor/etcdgetlocal.py clusternodeip'
+        myip=subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','').replace(' ','')
+        remotepartner = getnoport(leaderip, str(tunnelport),'Partner',leaderip)
+        if leaderip not in remotepartner:
+            dels(leaderip,'Partner',receiver)
+            logmsg.sendlog('Partnerfa01','info',userreq, receiver.split('_')[0])
+        dels(leaderip,'sync','request/'+receiver)
+        myalias = remotepartner[0][0].split('/')[1]
+        putnoport(leaderip, str(tunnelport),'replireverse/'+myalias+'/'+receiver+'/'+leaderip, str(tunnelport))
+        checkifok = getnoport(leaderip, str(tunnelport),'replireverse/'+myalias+'/'+receiver+'/'+leaderip)[0]
+        if str(tunnelport) in checkifok:
+            putnoport(leaderip, str(tunnelport),'replinextport', str(tunnelport))
+            logmsg.sendlog('Partnersu01','info',userreq, receiver.split('_')[0])
+        else:
+            dels(leaderip,'Partner',receiver)
+            logmsg.sendlog('Partnerfa01','error',userreq, receiver.split('_')[0])
 
  if nodeip == remoteCluster and isopen != 'open' :
    finalresponse = 'result_failresult_ connection to all the nodes in the remote cluster '+nodeip
     
  return nodeip, nodeloc, finalresponse
-
+ 
 
 def replistream(receiver, nodeip, snapshot, nodeowner, poolvol, pool, volume, csnaps):
  global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip
@@ -222,7 +274,7 @@ def repliparam(snapshot, receiver, userreq='system'):
  volused = str(allinfo['volumes'][volume]['referenced'])
  snapused = '0' 
  cmd = ' /TopStor/repliSelection.py '+volume+' '+volused+' '+snapshot
- nodeip, nodeloc, finalresponse = createnodeloc(receiver, cmd)
+ nodeip, nodeloc, finalresponse = createnodeloc(receiver, cmd, userreq)
  if 'fail' in finalresponse:
   print('(fail) no node is open for replication in the '+receiver)
   return 'closed'
@@ -288,25 +340,26 @@ def packagekeys(key,exception):
 def syncpush(receiver, userreq):
  global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip, leader
  logmsg.sendlog('Partnerst01','info',userreq, receiver.split('_')[0])
- usershash = getusershash()
- usersinfo = getusersinfo()
- groups = getgroups()
- usershash = packagekeys('usershash','xxadmin')
- usersinfo = packagekeys('usersinfo','xxadmin')
- groups = packagekeys('usersigroup','xxadmin')
+ #usershash = getusershash()
+ #usersinfo = getusersinfo()
+ #groups = getgroups()
+ #usershash = packagekeys('usershash','xxadmin')
+ #usersinfo = packagekeys('usersinfo','xxadmin')
+ #groups = packagekeys('usersigroup','xxadmin')
  stampit = str(stamp())
- put(leaderip, 'pushsync/sync/user/initial/request','user_'+stampit)
- dosync('user_', 'pushsync/sync/user/initial/request','user_'+stampit)
- put(leaderip, 'pushsync/sync/group/initial/request','group_'+stampit)
- dosync('group_','pushsync/sync/group/initial/request','group_'+stampit)
- syncinfo = packagekeys('pushsync/sync', '/dhcp')
- cmd = '/TopStor/replisyncpull.py '+usershash+' '+usersinfo+' '+groups+' '+syncinfo
- nodeip, nodeloc, finalresponse = createnodeloc(receiver, cmd)
+ #put(leaderip, 'pushsync/sync/user/initial/request','user_'+stampit)
+ #dosync('user_', 'pushsync/sync/user/initial/request','user_'+stampit)
+ #put(leaderip, 'pushsync/sync/group/initial/request','group_'+stampit)
+ #dosync('group_','pushsync/sync/group/initial/request','group_'+stampit)
+ #syncinfo = packagekeys('pushsync/sync', '/dhcp')
+ #cmd = '/TopStor/replisyncpull.py '+usershash+' '+usersinfo+' '+groups+' '+syncinfo
+ cmd = 'pwd'
+ nodeip, nodeloc, finalresponse = createnodeloc(receiver, cmd,userreq)
+ cmd = 'putnoport '+leaderip+' TUNNELPORT tempkey  32322'+leader
+ usetunnelport(receiver,cmd)
  print('finalresponse', finalresponse)
  if 'fail' in finalresponse:
     logmsg.sendlog('Partnerfa01','error',userreq, receiver.split('_')[0])
- else:
-    logmsg.sendlog('Partnersu01','info',userreq, receiver.split('_')[0])
  return finalresponse
 
 def repliinit(ldrip, ldr, etip):

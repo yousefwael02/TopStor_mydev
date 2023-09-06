@@ -50,17 +50,18 @@ def delpartner(*bargs):
  sendlog('Partner1003','info',userreq,partner)
  dels(etcdip,'Partner',partner)
  dels(etcdip,'repli',partner)
+ dels(leaderip,'sync', partner)
  cmdline = '/TopStor/remotetunnelremove.sh  '+partner
  result = subprocess.run(cmdline.split(),stdout=subprocess.PIPE)
- if 'yes' in issync:
+ if 'yes' not in issync:
   cmdline = '/TopStor/SnapShotPeriodDelete '+leaderip+' '+partner+' '+'system'
   result = subprocess.run(cmdline.split(),stdout=subprocess.PIPE)
   stampit = str(stamp())
+  dels(etcdip,'sync',partner)
+  dels(etcdip,'repli',partner)
   dels(etcdip,'sync',partner.replace('_',':::'))
-  dels(etcdip,'pullsync',partner.replace('_',':::'))
-  dels(etcdip,'pushsync',partner.replace('_',':::'))
-  put(leaderip, 'sync/Partnr/Del_'+partner.replace('_',':::')+':no:'+userreq+'/request','Partnr_'+stampit)
-  dosync(myhost,'Partnr_', 'sync/Partnr/Del_'+partner.replace('_',':::')+':no:'+userreq+'/request','Partnr_'+stampit) 
+  put(leaderip, 'sync/Partnr/Del_'+partner.replace('_',':::')+':yes:'+userreq+'/request','Partnr_'+stampit)
+  dosync(myhost,'Partnr_', 'sync/Partnr/Del_'+partner.replace('_',':::')+':yes:'+userreq+'/request','Partnr_'+stampit) 
  
  sendlog('Partner1004','info',userreq,partner)
 
