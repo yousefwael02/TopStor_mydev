@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 echo $@ > /root/unixadduser
 export ETCDCTL_API=3
 cd /TopStor
@@ -67,7 +67,7 @@ then
   docker exec etcdclient /TopStor/logmsg.py Unlin1023 warning $userreq $username
  fi
 echo useradd \-c"TopStor"$pas $homebase \-p $userpass \-s /usr/sbin/nologin $username
- currentcifs=`docker ps | egrep 'CIFS|HOM' | awk '{print $1}'`
+ currentcifs=`docker ps | egrep 'CIFS|HOM' | awk '{print $1}' | grep -v 'CIFS_'`
  echo "$currentcifs" | while read y; do docker exec $y  sh /hostetc/smbuserfix.sh x $username $userpass;  done; 
  #/bin/smbpasswd -x $username
  docker exec intsmb /root/smbuser.sh $username $userpass
@@ -110,6 +110,10 @@ then
 	/pace/etcddel.py $leaderip sync/user _${username}_
 	/pace/etcdput.py $leaderip sync/user/$params/request/$myhost user_${username}_$stamp
 	/pace/etcdput.py $leaderip sync/user/$params/request user_${username}_$stamp
+	stamp=$((stamp+10))
+	params=`echo UnixChangeUser $@ $stamp | sed 's\ \\_\g'`
+	/pace/etcdput.py $leaderip sync/UsrChange/$params/request/$myhost UsrChange_$stamp
+	/pace/etcdput.py $leaderip sync/UsrChange/$params/request UsrChange_$stamp
 fi
 echo hi3
 docker exec etcdclient /TopStor/logqueue.py `basename "$0"` finish $userreq 

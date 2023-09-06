@@ -5,7 +5,7 @@ export ETCDCTL_API=3
 
 leaderip=`echo $@  | awk '{print $1}'`;
 username=`echo $@ | awk '{print $2}'`;
-issync=`echo $@ | awk '{print $3}'`;
+userreq=`echo $@ | awk '{print $3}'`;
 echo $username | grep -w Everyone
 if [ $? -eq 0 ];
 then
@@ -17,7 +17,6 @@ then
 exit
 fi
 
-userreq=`echo $@ | awk '{print $3}'`;
 echo NoUser | grep $username
 if [ $? -eq 0 ];
 then

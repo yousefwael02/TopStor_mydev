@@ -3,7 +3,7 @@ import flask, os, Evacuate, subprocess, Joincluster, sys
 from getversions import getversions
 from functools import wraps
 from copy import deepcopy
-from flask import request, jsonify, render_template, redirect, url_for, g
+from flask import request, jsonify, render_template, redirect, url_for, g, send_file
 import Hostsconfig
 from Hostconfig import config
 from allphysicalinfo import getall 
@@ -23,6 +23,7 @@ from ioperf import ioperf
 from time import time as timestamp
 import logmsg
 from collectNodeConfig import getConfig
+import zipfile
 
 getalltimestamp = 0
 os.environ['ETCDCTL_API'] = '3'
@@ -83,7 +84,7 @@ def uploadUsers(data):
       return {'response': 'baduser'}
     uploaded_file = request.files['file']
     if uploaded_file.filename != '':
-      dirPath = '/TopStor/TopStordata'
+      dirPath = '/TopStordata'
       isExist = os.path.exists(dirPath)
       if not isExist:
         os.makedirs(dirPath)
@@ -1243,11 +1244,30 @@ def offlineOrOnlineDisk(data):
     return data
 
 @app.route('/api/v1/hosts/getConfig', methods=['GET','POST'])
+@login_required
 def getNodeConfigFile(data):
     global leaderip
     nodeName = data["nodeName"]
-    nodeConfig = getConfig(leaderip, nodeName + "Config")
-    return nodeConfig
+    nodeConfig = getConfig(leaderip, nodeName)
+    file_path = "/TopStordata/" + nodeName + "_config.txt"
+    return send_file(file_path, mimetype='text/plain', as_attachment=True)
+
+@app.route('/api/v1/hosts/getAllConfig', methods=['GET','POST'])
+@login_required
+def getAllConfigFiles(data):
+    global leaderip, readyhosts
+    hostsready()
+    configFiles = []
+    zipfilePath = "/TopStordata/All_Configs.zip"
+    for host in readyhosts:
+        nodeName = host["name"]
+        getConfig(leaderip, nodeName)
+        filePath = "/TopStordata/" + nodeName + "_config.txt"
+        configFiles.append((filePath, nodeName + "_config.txt"))
+    with zipfile.ZipFile(zipfilePath, "w") as zipF:
+        for file in configFiles:
+            zipF.write(file[0], file[1] ,compress_type = zipfile.ZIP_DEFLATED)
+    return send_file(zipfilePath, as_attachment=True)
 
 leaderip =0 
 myhost=0
