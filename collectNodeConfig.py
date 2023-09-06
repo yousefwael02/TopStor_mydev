@@ -34,7 +34,7 @@ def updateConfig(leaderip, nodeName):
 def getConfig(leaderip, nodeName):
     zipped = get(leaderip, nodeName + "_config")[0]
     unzipped = json_unzip(zipped)
-    with open("/TopStor/TopStordata/" + nodeName + "_config.txt", "w") as file:
+    with open("/TopStordata/" + nodeName + "_config.txt", "w") as file:
         file.write(unzipped)
     return unzipped
 

@@ -84,7 +84,7 @@ def uploadUsers(data):
       return {'response': 'baduser'}
     uploaded_file = request.files['file']
     if uploaded_file.filename != '':
-      dirPath = '/TopStor/TopStordata'
+      dirPath = '/TopStordata'
       isExist = os.path.exists(dirPath)
       if not isExist:
         os.makedirs(dirPath)
@@ -1249,7 +1249,7 @@ def getNodeConfigFile(data):
     global leaderip
     nodeName = data["nodeName"]
     nodeConfig = getConfig(leaderip, nodeName)
-    file_path = "/TopStor/TopStordata/" + nodeName + "_config.txt"
+    file_path = "/TopStordata/" + nodeName + "_config.txt"
     return send_file(file_path, mimetype='text/plain', as_attachment=True)
 
 @app.route('/api/v1/hosts/getAllConfig', methods=['GET','POST'])
@@ -1258,11 +1258,11 @@ def getAllConfigFiles(data):
     global leaderip, readyhosts
     hostsready()
     configFiles = []
-    zipfilePath = "/TopStor/TopStordata/All_Configs.zip"
+    zipfilePath = "/TopStordata/All_Configs.zip"
     for host in readyhosts:
         nodeName = host["name"]
         getConfig(leaderip, nodeName)
-        filePath = "/TopStor/TopStordata/" + nodeName + "_config.txt"
+        filePath = "/TopStordata/" + nodeName + "_config.txt"
         configFiles.append((filePath, nodeName + "_config.txt"))
     with zipfile.ZipFile(zipfilePath, "w") as zipF:
         for file in configFiles:
