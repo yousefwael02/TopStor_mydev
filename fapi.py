@@ -63,6 +63,8 @@ def login_required(f):
  @wraps(f)
  def decorated_function(*args, **kwargs):
   data = request.args.to_dict()
+  for dat in data:
+    data[dat] = data[dat].replace(' ','')
   data['response'] = 'baduser'
   if data['token'] in loggedusers:
    if loggedusers[data['token']]['timestamp'] > timestamp():
@@ -1261,7 +1263,16 @@ def getAllConfigFiles(data):
     zipfilePath = "/TopStordata/All_Configs.zip"
     for host in readyhosts:
         nodeName = host["name"]
-        getConfig(leaderip, nodeName)
+        nodeip = host['ip']
+        cmdline = '/TopStor/collectconfig.sh' 
+        z = cmdline.split(' ')
+        msg = {'req': 'Pumpthis', 'reply':z}
+        sendhost(nodeip, str(msg),'recvreply',myhost)
+
+    for host in readyhosts:
+        nodeName = host["name"]
+        nodeip = host['ip']
+        getConfig(leaderip, nodeName, nodeip)
         filePath = "/TopStordata/" + nodeName + "_config.txt"
         configFiles.append((filePath, nodeName + "_config.txt"))
     with zipfile.ZipFile(zipfilePath, "w") as zipF:

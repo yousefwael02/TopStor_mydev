@@ -1,6 +1,7 @@
 #!/bin/bash
 cd /TopStor
-leader=`docker exec etcdclient /TopStor/etcdgetlocal.py leader`
+rm -rf /TopStordata/*.zip
+leader=$(/usr/bin/docker exec etcdclient /TopStor/etcdgetlocal.py leader)
 leaderip=`docker exec etcdclient /TopStor/etcdgetlocal.py leaderip`
 myhost=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternode`
 myhostip=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternodeip`
@@ -34,7 +35,7 @@ echo '##########################################################################
 echo Running local pools
 zpool status
 echo '############################################################################################################################################'
-running local Volumes
+echo Running local Volumes
 zfs list
 echo '############################################################################################################################################'
 echo Running important services
