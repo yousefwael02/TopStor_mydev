@@ -135,7 +135,7 @@ def createnodeloc(receiver, cmd, userreq):
         myip=subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','').replace(' ','')
         remotepartner = getnoport(leaderip, str(tunnelport),'Partner',leaderip)
         if leaderip not in remotepartner:
-            dels(leaderip,'Partner',receiver)
+            #dels(leaderip,'Partner',receiver)
             logmsg.sendlog('Partnerfa01','info',userreq, receiver.split('_')[0])
         dels(leaderip,'sync','request/'+receiver)
         myalias = remotepartner[0][0].split('/')[1]
@@ -145,7 +145,7 @@ def createnodeloc(receiver, cmd, userreq):
             putnoport(leaderip, str(tunnelport),'replinextport', str(tunnelport))
             logmsg.sendlog('Partnersu01','info',userreq, receiver.split('_')[0])
         else:
-            dels(leaderip,'Partner',receiver)
+            #dels(leaderip,'Partner',receiver)
             logmsg.sendlog('Partnerfa01','error',userreq, receiver.split('_')[0])
 
  if nodeip == remoteCluster and isopen != 'open' :
