@@ -239,10 +239,12 @@ def hostsactive():
 
 
 @app.route('/api/v1/hosts/discover', methods=['GET','POST'])
-def discover():
+@login_required
+def discover(data):
     cmndstring = '/TopStor/getdiscovery.sh '
     postchange(cmndstring)
-    return
+    return data 
+
 @app.route('/api/v1/hosts/possible', methods=['GET','POST'])
 def hostspossible():
  global allhosts, readyhosts, activehosts, losthosts, possiblehosts, leaderip
@@ -1254,7 +1256,7 @@ def getNodeConfigFile(data):
     file_path = "/TopStordata/" + nodeName + "_config.txt"
     return send_file(file_path, mimetype='text/plain', as_attachment=True)
 
-@app.route('/api/v1/hosts/getAllConfig', methods=['GET','POST'])
+@app.route('/api/v1/hosts/netAllConfig', methods=['GET','POST'])
 @login_required
 def getAllConfigFiles(data):
     global leaderip, readyhosts
