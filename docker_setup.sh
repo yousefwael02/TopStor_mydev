@@ -17,21 +17,12 @@ else
 	while read -r line; do
     		eth_list+=("$line")
 	done < "$ports"
-	eth1="${eth_list[0]}"
-	eth2="${eth_list[1]}"
 fi
 
 # Print the list
-echo "${eth_list[@]}"
-echo  $eth2
+eth1="${eth_list[0]}"
+eth2="${eth_list[1]}"
 
-exit
-if [ -f /TopStordata/ports ];
-then
- 
-else
- echo no
-fi
 modprobe bnx2
 modprobe hpsa 
 systemctl restart NetworkManager
@@ -101,8 +92,6 @@ then
 	echo $myhost > /root/hostname
 	reboot
 fi
-eth1='enp0s8'
-eth2='enp0s8'
 echo l$cmdline | grep restart
 if [ $? -eq 0 ];
 then
