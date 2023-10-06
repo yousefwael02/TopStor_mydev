@@ -534,7 +534,7 @@ fi
  #/TopStor/receivereplylooper.sh & disown
  #/TopStor/iscsiwatchdoglooper.sh $mynodeip $myhost & disown 
  /pace/heartbeatlooper.sh & disown
- /pace/updateconfiglooper.sh $myclusterip $myhost & disown
+ #/pace/updateconfiglooper.sh $myclusterip $myhost & disown
  stamp=`date +%s%N`
 /TopStor/etcddel.py $myclusterip rebootwait/$myhost
 /TopStor/etcddel.py $myclusterip sync/ready $myhost 

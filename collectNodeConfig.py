@@ -2,6 +2,8 @@
 import sys, subprocess, re, zlib, json, base64
 from etcdgetpy import etcdget as get 
 from etcdput import etcdput as put
+from time import time , sleep
+
 
 def json_zip(j):
     j = base64.b64encode(
@@ -30,15 +32,32 @@ def updateConfig(leaderip, nodeName):
     content = subprocess.run(cmdline,stdout=subprocess.PIPE, text=True).stdout
     print(content)
     zipped = json_zip(content)
-    put(leaderip, nodeName + "_config", zipped)
+    put(leaderip, 'getconfig/'+nodeName, zipped)
 
-def getConfig(leaderip, nodeName):
+def getConfig(ldrip, nodeName):
+    global leaderip
+    leaderip = ldrip
     with open('/root/collectconfig','w') as f:
         f.write(leaderip+' '+nodeName)
-    zipped = get(leaderip, nodeName + "_config")[0]
-    unzipped = json_unzip(zipped)
-    with open("/TopStordata/" + nodeName + "_config.txt", "w") as file:
-        file.write(unzipped)
+    stamp=str(time())
+    put(leaderip,'sync/getconfig/__/request/','getconfig_'+stamp)
+    counter = 0
+    while counter < 10:
+        counter += 1
+        sleep(1)
+        if '_1' in str(get(leaderip,'sync','getconfig')):
+            counter = 20
+    
+    print('counter',counter)
+    readies=get(leaderip,'ready','--prefix')
+    cmdline = 'rm -rf /TopStordata/config*'.split()
+    content = subprocess.run(cmdline,stdout=subprocess.PIPE, text=True).stdout
+    for ready in readies:
+        noden = ready[0].split('/')[1]
+        zipped = get(leaderip, 'getconfig/'+noden )[0]
+        unzipped = json_unzip(zipped)
+        with open("/TopStordata/" + 'config_'+ noden + ".txt", "w") as file:
+            file.write(unzipped)
     return unzipped
 
 if __name__=='__main__':

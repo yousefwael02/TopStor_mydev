@@ -1256,27 +1256,19 @@ def getNodeConfigFile(data):
     file_path = "/TopStordata/" + nodeName + "_config.txt"
     return send_file(file_path, mimetype='text/plain', as_attachment=True)
 
-@app.route('/api/v1/hosts/netAllConfig', methods=['GET','POST'])
+@app.route('/api/v1/hosts/getAllConfig', methods=['GET','POST'])
 @login_required
 def getAllConfigFiles(data):
     global leaderip, readyhosts
     hostsready()
     configFiles = []
     zipfilePath = "/TopStordata/All_Configs.zip"
+    getConfig(leaderip, myhost)
     for host in readyhosts:
         nodeName = host["name"]
         nodeip = host['ip']
-        cmdline = '/TopStor/collectconfig.sh' 
-        z = cmdline.split(' ')
-        msg = {'req': 'Pumpthis', 'reply':z}
-        sendhost(nodeip, str(msg),'recvreply',myhost)
-
-    for host in readyhosts:
-        nodeName = host["name"]
-        nodeip = host['ip']
-        getConfig(leaderip, nodeName, nodeip)
-        filePath = "/TopStordata/" + nodeName + "_config.txt"
-        configFiles.append((filePath, nodeName + "_config.txt"))
+        filePath = "/TopStordata/config_" + nodeName + ".txt"
+        configFiles.append((filePath, 'config_'+nodeName + ".txt"))
     with zipfile.ZipFile(zipfilePath, "w") as zipF:
         for file in configFiles:
             zipF.write(file[0], file[1] ,compress_type = zipfile.ZIP_DEFLATED)
