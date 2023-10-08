@@ -558,9 +558,11 @@ then
 	docker run -itd --rm --name flask --hostname apisrv -v /etc/localtime:/etc/localtime:ro -v /pace/:/pace -v /pacedata/:/pacedata/ -v /root/gitrepo/resolv.conf:/etc/resolv.conf --net bridge0 -p $myclusterip:5001:5001 -v /TopStor/:/TopStor -v /TopStordata/:/TopStordata moataznegm/quickstor:flask
  #docker run -d -p $myclusterip:9090:9090 -v /TopStordata/prom/:/prometheus -v /etc/passwd:/etc/passwd -v /etc/group:/etc/group --name promserver prom/prometheus
  docker start promserver
+ #docker run -d -p $myclusterip:4000:3000 -v /TopStordata/promgraf:/var/lib/grafana --name promgraf grafana/grafana 
+ docker start promgraf
 fi
 #docker run -d -p $mynodeip:9100:9100 -v /proc:/proc -v /sys:/sys --name promexport prom/node-exporter
 docker start promexport
-#docker run -d -p $myclusterip:4000:3000 -v /TopStordata/promgraf:/var/lib/grafana --name promgraf grafana/grafana 
-docker start promgraf
+#docker run   --volume=/:/rootfs:ro   --volume=/var/run:/var/run:ro   --volume=/sys:/sys:ro   --volume=/var/lib/docker/:/var/lib/docker:ro   --volume=/dev/disk/:/dev/disk:ro   --publish=10.11.11.101:9101:8080   --detach=true   --name=promcadvisor   --privileged   --device=/dev/kmsg   gcr.io/cadvisor/cadvisor
+docker start promcadvisor
  /pace/fapilooper.sh & disown
