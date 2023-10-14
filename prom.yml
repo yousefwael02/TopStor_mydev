@@ -7,10 +7,10 @@ global:
 scrape_configs:
   - job_name: node 
     static_configs:
-      - targets: ["MYNODEIP:9100"]
+      - targets: [PORTSTR1]
   - job_name: "cadvisor"
     static_configs:
-      - targets: ["MYNODEIP:9101"]
+      - targets: [PORTSTR2]
   - job_name: "netdata"
     static_configs:
-      - targets: ["MYNODEIP:19916"]
+      - targets: [PORTSTR3]

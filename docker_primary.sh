@@ -49,6 +49,14 @@ do
 done
 
 echo /pace/etcddel.py $leaderip sync/leader/Add_ --prefix
+/TopStor/promserver.sh $leaderip 
+docker rm -f promserver
+ docker run -d -p $leaderip:9090:9090 -v /TopStordata/prom/prom.yml:/etc/prometheus/prometheus.yml -v /TopStordata/prom/:/prometheus -v /etc/passwd:/etc/passwd -v /etc/group:/etc/group --name promserver prom/prometheus
+
+ cp /ToStor/promgrafhosts /TopStordata/hosts
+ sed -i "s/MYCLUSTER/$leaderip/g" /TopStordata/hosts 
+ docker rm -f promgraf
+ docker run -d -p $leaderip:4000:3000 -v /TopStordata/promgraf/grafana.ini:/etc/grafana/grafana.ini -v /TopStordata/promgraf:/var/lib/grafana -v /TopStordata/promgraf/hosts:/etc/hosts --name promgraf grafana/grafana
 stamp=`date +%s%N`
 /pace/etcddel.py $leaderip sync/leader/Add_ --prefix
 echo /pace/etcdput.py $leaderip sync/leader/Add_${myhost}_$myhostip/request leader_$stamp

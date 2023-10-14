@@ -1,15 +1,19 @@
 #!/bin/bash
 
-declare -a actives=`/TopStor/etcdget.py $@ Active --prefix | awk '{print $2}' | awk -F"'" '{print $2}'`
-
-echo $actives
-# Loop over the array of lines
-rm -rf /TopStordata/promgraf/prom.yml
-for line in "${actives[@]}"; do
-  # Process each line in the loop
-  echo "$line"
-  sed "s/MYNODEIP/$line/g" /TopStor/prom.yml > /TopStordata/promyaml
-  cat /TopStordata/promyaml >> /TopStordata/promgraf/prom.yml
-  rm -rf /TopStordata/promyaml
+declare -a actives=(`/TopStor/etcdget.py $@ Active --prefix | awk '{print $2}' | awk -F"'" '{print $2}'`)
+declare -a ports=(`echo -e ":9100\n:9101\n:19916"`)
+rm -rf /TopStordata/prom/prom.yml
+cp /TopStor/prom.yml  /TopStordata/promyaml
+counter=1
+for port in "${ports[@]}"; do
+	portstr=''
+	for line in "${actives[@]}"; do
+  	# Process each line in the loop
+		portstr=${portstr}${line}${port}','
+	done
+	echo portstr="$portstr"
+  	sed -i "s/PORTSTR${counter}/$portstr/g" /TopStordata/promyaml
+	counter=$((counter+1))
 done
-
+cat /TopStordata/promyaml >> /TopStordata/prom/prom.yml
+rm -rf /TopStordata/promyaml
