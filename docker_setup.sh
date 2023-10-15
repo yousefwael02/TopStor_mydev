@@ -559,9 +559,10 @@ then
 /TopStor/promserver.sh $myclusterip 
 docker rm -f promserver
  docker run -d -p $myclusterip:9090:9090 -v /TopStordata/prom/prom.yml:/etc/prometheus/prometheus.yml -v /TopStordata/prom/:/prometheus -v /etc/passwd:/etc/passwd -v /etc/group:/etc/group --name promserver prom/prometheus
-
- cp /ToStor/promgrafhosts /TopStordata/hosts
- sed -i "s/MYCLUSTER/$myclusterip/g" /TopStordata/hosts 
+ 
+ rm -rf /TopStordata/promgraf/hosts
+ cp /TopStor/promgrafhosts /TopStordata/promgraf/hosts
+ sed -i "s/MYCLUSTER/$myclusterip/g" /TopStordata/promgraf/hosts 
  docker rm -f promgraf
  docker run -d -p $myclusterip:4000:3000 -v /TopStordata/promgraf/grafana.ini:/etc/grafana/grafana.ini -v /TopStordata/promgraf:/var/lib/grafana -v /TopStordata/promgraf/hosts:/etc/hosts --name promgraf grafana/grafana
 fi
