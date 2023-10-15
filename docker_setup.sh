@@ -558,13 +558,13 @@ then
 	docker run -itd --rm --name flask --hostname apisrv -v /etc/localtime:/etc/localtime:ro -v /pace/:/pace -v /pacedata/:/pacedata/ -v /root/gitrepo/resolv.conf:/etc/resolv.conf --net bridge0 -p $myclusterip:5001:5001 -v /TopStor/:/TopStor -v /TopStordata/:/TopStordata moataznegm/quickstor:flask
 /TopStor/promserver.sh $myclusterip 
 docker rm -f promserver
- docker run -d -p $myclusterip:9090:9090 -v /TopStordata/prom/prom.yml:/etc/prometheus/prometheus.yml -v /TopStordata/prom/:/prometheus -v /etc/passwd:/etc/passwd -v /etc/group:/etc/group --name promserver prom/prometheus
+ docker run -d -p $myclusterip:9090:9090 -v /prom/prom.yml:/etc/prometheus/prometheus.yml -v /prom/:/prometheus -v /etc/passwd:/etc/passwd -v /etc/group:/etc/group --name promserver prom/prometheus
  
- rm -rf /TopStordata/promgraf/hosts
- cp /TopStor/promgrafhosts /TopStordata/promgraf/hosts
- sed -i "s/MYCLUSTER/$myclusterip/g" /TopStordata/promgraf/hosts 
+ rm -rf /promgraf/hosts
+ cp /TopStor/promgrafhosts /promgraf/hosts
+ sed -i "s/MYCLUSTER/$myclusterip/g" /promgraf/hosts 
  docker rm -f promgraf
- docker run -d -p $myclusterip:4000:3000 -v /TopStordata/promgraf/grafana.ini:/etc/grafana/grafana.ini -v /TopStordata/promgraf:/var/lib/grafana -v /TopStordata/promgraf/hosts:/etc/hosts --name promgraf grafana/grafana
+ docker run -d -p $myclusterip:4000:3000 -v /promgraf/grafana.ini:/etc/grafana/grafana.ini -v /promgraf:/var/lib/grafana -v /promgraf/hosts:/etc/hosts --name promgraf grafana/grafana
 fi
 docker rm -f promexport
 docker run -d -p $mynodeip:9100:9100 -v /proc:/proc -v /sys:/sys --name promexport prom/node-exporter
