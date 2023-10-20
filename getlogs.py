@@ -14,9 +14,9 @@ for log in logcatalog:
 def onedaylog():
  severity = ('info','warning','error')
  unsuclogon = 'Lognfa0'
- onedaylog = {'failedlogon': []} 
+ onedaylogdic = {'failedlogon': []} 
  for sev in severity:
-  onedaylog[sev] = []
+  onedaylogdic[sev] = []
   nowis = int(time())
   nowfixed = str(nowis)[:4]
   cmdline='/TopStor/grepthis.sh '+nowfixed+' '+sev+' /TopStordata/TopStorglobal.log'
@@ -25,10 +25,11 @@ def onedaylog():
    if len(res.split()) < 4:
     continue
    if int(res.split()[-1]) > (nowis-(60*60*24*7)):
-    onedaylog[sev].append(res)
+    onedaylogdic[sev].append(res)
     if 'Lognfa0' in res:
-     onedaylog['failedlogon'].append(res)
- return onedaylog
+     onedaylogdic['failedlogon'].append(res)
+ print(onedaylogdic)
+ return onedaylogdic
 
 def notifthis(notifbody,loc=3):
  msg = logdict[notifbody[loc]]
@@ -67,4 +68,5 @@ def getlogs(lines=100, *args):
 
  
 if __name__=='__main__':
- getlogs(*sys.argv[1:])
+ onedaylog()
+ #getlogs(*sys.argv[1:])

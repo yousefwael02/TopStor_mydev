@@ -145,6 +145,8 @@ def config(leader, leaderip, myhost, *bargs):
   put(leaderip, 'ipaddr/'+arglist['name'],arglist['ipaddr']+'/'+arglist['ipaddrsubnet'])
   dels(leaderip, 'sync', 'ActivePartners_'+arglist['name'])
   dels(leaderip, 'ActivePartners/'+arglist['name'])
+  cmdline = '/TopStor/promserver.sh '+leaderip
+  subprocess.run(cmdline.split(),stdout=subprocess.PIPE)
   put(leaderip, 'ActivePartners/'+arglist['name'],arglist['ipaddr'])
   dels(leaderip, 'sync', 'ipaddr_'+arglist['name'])
   put(leaderip, 'sync/ipaddr/HostManualconfigIPADDR_'+'_'+arglist['name']+'/request','ipaddr_'+arglist['name']+'_'+stampi)

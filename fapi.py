@@ -857,6 +857,8 @@ def hostjoincluster(data):
  data['leaderip'] = leaderip
  data ['myhost'] = myhost
  Joincluster.do(data) 
+ cmndstring = '/TopStor/promserver.sh '+leaderip+' from fapi'
+ postchange(cmndstring)
  return data
 
 
