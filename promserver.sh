@@ -19,8 +19,8 @@ for port in "${ports[@]}"; do
 done
 cat /prom/promyaml >> /prom/prom.yml
 rm -rf /prom/promyaml
-docker rm -rf promserver
-docker rm -rf promgraf
+docker rm -f promserver
+docker rm -f promgraf
 	docker run -d -p $leaderip:9090:9090 -v /prom/prom.yml:/etc/prometheus/prometheus.yml -v /prom/:/prometheus -v /etc/passwd:/etc/passwd -v /etc/group:/etc/group --name promserver prom/prometheus
  	rm -rf /promgraf/hosts
  	cp /TopStor/promgrafhosts /promgraf/hosts
