@@ -40,7 +40,7 @@ def getConfig(ldrip, nodeName):
     with open('/root/collectconfig','w') as f:
         f.write(leaderip+' '+nodeName)
     stamp=str(time())
-    put(leaderip,'sync/getconfig/__/request/','getconfig_'+stamp)
+    put(leaderip,'sync/getconfig/__/request','getconfig_'+stamp)
     counter = 0
     while counter < 10:
         counter += 1
