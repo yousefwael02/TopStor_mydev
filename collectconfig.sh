@@ -89,5 +89,5 @@ echo Active Tunnels
 /TopStor/activatetunnels.sh
 echo '############################################################################################################################################'
 echo sync request status
-#/pace/checksyncs.py syncrequest $leaderip `hostname`
+/pace/etcdget.py sync --prefix | grep -v initial 
 echo '############################################################################################################################################'
