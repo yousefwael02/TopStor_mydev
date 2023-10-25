@@ -22,8 +22,9 @@ from secrets import token_hex
 from ioperf import ioperf
 from time import time as timestamp
 import logmsg
-from collectNodeConfig import getConfig
+from collectNodeConfig import getConfig, downloadConfig
 import zipfile
+from time import sleep
 
 getalltimestamp = 0
 os.environ['ETCDCTL_API'] = '3'
@@ -1259,13 +1260,14 @@ def getNodeConfigFile(data):
     return send_file(file_path, mimetype='text/plain', as_attachment=True)
 
 @app.route('/api/v1/hosts/getAllConfig', methods=['GET','POST'])
-@login_required
-def getAllConfigFiles(data):
+#@login_required
+def getAllConfigFiles():
     global leaderip, readyhosts
     hostsready()
     configFiles = []
     zipfilePath = "/TopStordata/All_Configs.zip"
     getConfig(leaderip, myhost)
+    downloadConfig(leaderip, myhost)
     for host in readyhosts:
         nodeName = host["name"]
         nodeip = host['ip']

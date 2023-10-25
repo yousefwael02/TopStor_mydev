@@ -2,6 +2,7 @@
 import sys, subprocess, re, zlib, json, base64
 from etcdgetpy import etcdget as get 
 from etcdput import etcdput as put
+from etcddel import etcddel as dels 
 from time import time , sleep
 
 
@@ -40,15 +41,18 @@ def getConfig(ldrip, nodeName):
     with open('/root/collectconfig','w') as f:
         f.write(leaderip+' '+nodeName)
     stamp=str(time())
+    dels(leaderip,'getconfig/dhcp','--prefix')
     put(leaderip,'sync/getconfig/__/request','getconfig_'+stamp)
     counter = 0
-    while counter < 10:
+    while counter < 60:
         counter += 1
         sleep(1)
-        if '_1' in str(get(leaderip,'sync','getconfig')):
-            counter = 20
+        if stamp not in str(get(leaderip,'sync/getconfig',stamp)):
+            counter = 100
     
-    print('counter',counter)
+def downloadConfig(ldrip,nodeName):
+    global leaderip
+    leaderip = ldrip
     readies=get(leaderip,'ready','--prefix')
     cmdline = 'rm -rf /TopStordata/config*'.split()
     content = subprocess.run(cmdline,stdout=subprocess.PIPE, text=True).stdout
@@ -66,3 +70,4 @@ if __name__=='__main__':
     with open('/root/collectconfig','w') as f:
         f.write(leaderip+' '+nodeName)
     getConfig(leaderip, nodeName)
+    downloadConfig(leaderip, nodeName)
