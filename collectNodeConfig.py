@@ -4,6 +4,17 @@ from etcdgetpy import etcdget as get
 from etcdput import etcdput as put
 from etcddel import etcddel as dels 
 from time import time , sleep
+from collectconfig import collectConfig
+
+
+readies = 0 
+
+def postchange(ready,myhost):
+ global leaderip
+ cmndstring = '/TopStor/collectconfig.py '+leaderip+' '+ready 
+ z= cmndstring.split(' ')
+ msg={'req': 'Pumpthis', 'reply':z}
+ sendhost(ready, str(msg),'recvreply',myhost)
 
 
 def json_zip(j):
@@ -36,24 +47,30 @@ def updateConfig(leaderip, nodeName):
     put(leaderip, 'getconfig/'+nodeName, zipped)
 
 def getConfig(ldrip, nodeName):
-    global leaderip
+    global leaderip,readies
     leaderip = ldrip
     with open('/root/collectconfig','w') as f:
         f.write(leaderip+' '+nodeName)
     stamp=str(time())
     dels(leaderip,'getconfig/dhcp','--prefix')
-    put(leaderip,'sync/getconfig/__/request','getconfig_'+stamp)
+    if readies == 0:
+     readies=get(leaderip,'ready','--prefix')
+    for ready in readies:
+        thishost=ready[0].split('/')[1]
+        postchange(ready,nodeName)
+    #put(leaderip,'sycgetconfig/__/request','getconfig_'+stamp)
     counter = 0
     while counter < 60:
         counter += 1
         sleep(1)
-        if stamp not in str(get(leaderip,'sync/getconfig',stamp)):
+        if len(get(leaderip,'getconfig','--prefix')) == len(readies):
             counter = 100
     
 def downloadConfig(ldrip,nodeName):
-    global leaderip
+    global leaderip, readies
     leaderip = ldrip
-    readies=get(leaderip,'ready','--prefix')
+    if readies == 0:
+     readies=get(leaderip,'ready','--prefix')
     cmdline = 'rm -rf /TopStordata/config*'.split()
     content = subprocess.run(cmdline,stdout=subprocess.PIPE, text=True).stdout
     for ready in readies:
