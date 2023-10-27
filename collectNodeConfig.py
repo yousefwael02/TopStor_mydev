@@ -5,16 +5,16 @@ from etcdput import etcdput as put
 from etcddel import etcddel as dels 
 from time import time , sleep
 from collectconfig import collectConfig
-
+from sendhost import sendhost
 
 readies = 0 
 
-def postchange(ready,myhost):
+def postchange(thishost,myhost):
  global leaderip
- cmndstring = '/TopStor/collectconfig.py '+leaderip+' '+ready 
+ cmndstring = '/TopStor/collectconfig.py '+leaderip+' '+thishost
  z= cmndstring.split(' ')
  msg={'req': 'Pumpthis', 'reply':z}
- sendhost(ready, str(msg),'recvreply',myhost)
+ sendhost(thishost, str(msg),'recvreply',myhost)
 
 
 def json_zip(j):
@@ -52,12 +52,12 @@ def getConfig(ldrip, nodeName):
     with open('/root/collectconfig','w') as f:
         f.write(leaderip+' '+nodeName)
     stamp=str(time())
-    dels(leaderip,'getconfig/dhcp','--prefix')
+    dels(leaderip,'getconfig','--prefix')
     if readies == 0:
      readies=get(leaderip,'ready','--prefix')
     for ready in readies:
-        thishost=ready[0].split('/')[1]
-        postchange(ready,nodeName)
+        thishost=ready[1]
+        postchange(thishost,nodeName)
     #put(leaderip,'sycgetconfig/__/request','getconfig_'+stamp)
     counter = 0
     while counter < 60:
@@ -75,7 +75,8 @@ def downloadConfig(ldrip,nodeName):
     content = subprocess.run(cmdline,stdout=subprocess.PIPE, text=True).stdout
     for ready in readies:
         noden = ready[0].split('/')[1]
-        zipped = get(leaderip, 'getconfig/'+noden )[0]
+        nodeip = ready[1]
+        zipped = get(leaderip, 'getconfig/'+nodeip )[0]
         unzipped = json_unzip(zipped)
         with open("/TopStordata/" + 'config_'+ noden + ".txt", "w") as file:
             file.write(unzipped)
