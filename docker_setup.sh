@@ -57,7 +57,10 @@ echo l$order | grep  reset
 if [ $? -eq 0 ];
 then 
   cmdline='reset'
+  cp /TopStordata/ports /root/
   rm -rf /TopStordata/*
+  cp /root/ports /TopStordata/
+  rm -rf /root/ports
   echo no > /root/nodeconfigured
 fi
 
