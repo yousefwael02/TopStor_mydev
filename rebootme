@@ -45,7 +45,7 @@ then
  oldipsubnet=`echo $@ | awk '{ print $3 }'`;
  newips=`echo $@ | awk '{ print $4 }'`;
  newipsubnet=`echo $@ | awk '{ print $5 }'`;
- /TopStor/HostManualconfigCC $@
+# /TopStor/HostManualconfigCC $@
  echo shuttingdown 8 >> /root/HostCC2
  targetcli iscsi/iqn.2016-03.com.$myhost:t1/tpg1/portals delete 0.0.0.0 3260
  targetcli iscsi/iqn.2016-03.com.$myhost:t1/tpg1/portals delete $oldip 3266
