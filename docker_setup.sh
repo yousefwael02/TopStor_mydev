@@ -58,9 +58,12 @@ if [ $? -eq 0 ];
 then 
   cmdline='reset'
   cp /TopStordata/ports /root/
+  cp /TopStordata/bootdiskf /root/
   rm -rf /TopStordata/*
   cp /root/ports /TopStordata/
   rm -rf /root/ports
+  cp /root/bootdiskf /TopStordata/
+  rm -rf /root/bootdiskf
   echo no > /root/nodeconfigured
 fi
 
