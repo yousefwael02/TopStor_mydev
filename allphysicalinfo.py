@@ -66,15 +66,19 @@ def getall(leadip, alldsks='0'):
   voldict = dict()
   if len(vol[1].split('/')) < 7:
    continue
-  voldict = {'name': vol[1].split('/')[1], 'pool': vol[1].split('/')[0], 'groups': '', 'ipaddress': '', 'Subnet': '', 'prot': '', 'fullname': '', 'host': '', 'creation': '', 'time': '', 'used': 0, 'quota': 0, 'usedbysnapshots': 0, 'refcompressratio': '1.0x', 'snapperiod': [], 'snapshots': []}
+  voldict = {'name': vol[1].split('/')[1], 'pool': vol[1].split('/')[0], 'groups': '', 'ipaddress': '', 'Subnet': '', 'prot': '', 'fullname': '', 'host': '', 'creation': '', 'time': '', 'used': 0, 'quota': 0, 'usedbysnapshots': 0, 'refcompressratio': '1.0x', 'runtime': '', 'snapperiod': [], 'snapshots': []}
   if 'CIFS' in vol[0].split('/')[1] or 'HOME' in vol[0].split('/')[1] :
    voldict['groups'] = vol[1].split('/')[4]
    if 'DOMAIN' in voldict['groups']:
     voldict['groups']= 'DOMAIN'
     voldict['type']='DOMAIN'
+    voldict['ipaddress'] = vol[1].split('/')[7] 
+    cmdline = '/TopStor/getdomvolstatus.sh '+voldict['ipaddress']
+    runtime=subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').split('_result')[1]
+    voldict['runtime'] = runtime
    else:
     voldict['type']='WorkGroup'
-   voldict['ipaddress'] = vol[1].split('/')[7] 
+    voldict['ipaddress'] = vol[1].split('/')[7] 
    voldict['Subnet'] = vol[1].split('/')[8]
    voldict['prot'] = vol[0].split('/')[1]
    volumesdict[voldict['name']] = voldict.copy()
@@ -214,7 +218,7 @@ def getall(leadip, alldsks='0'):
  print('#############')
  print('snapperiods',snapperiodsdict) 
  '''
- print('disks',disksdict)
+ print('volumes',volumesdict)
  return {'hosts':hostsdict, 'pools':poolsdict, 'raids':raidsdict, 'disks':disksdict, 'volumes':volumesdict, 'snapshots':snapshotsdict, 'snapperiods':snapperiodsdict}
 
  
