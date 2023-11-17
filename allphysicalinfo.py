@@ -73,9 +73,6 @@ def getall(leadip, alldsks='0'):
     voldict['groups']= 'DOMAIN'
     voldict['type']='DOMAIN'
     voldict['ipaddress'] = vol[1].split('/')[7] 
-    cmdline = '/TopStor/getdomvolstatus.sh '+voldict['ipaddress']
-    runtime=subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').split('_result')[1]
-    voldict['runtime'] = runtime
    else:
     voldict['type']='WorkGroup'
     voldict['ipaddress'] = vol[1].split('/')[7] 
