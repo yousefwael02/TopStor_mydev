@@ -42,6 +42,18 @@ then
 	echo _resultADservererror_result
 	exit
 fi
+echo $dockerlogs | grep "realm: Couldn't join realm: Operation was cancelled" >/dev/null
+if [ $? -eq 0 ];
+then
+	echo _resultADservererror_result
+	exit
+fi
+echo $dockerlogs | grep 'Realm not local to KDC ' >/dev/null
+if [ $? -eq 0 ];
+then
+	echo _resultADservererror_result
+	exit
+fi
 echo $dockerlogs | grep 'sssd is running' >/dev/null
 if [ $? -eq 0 ];
 then
