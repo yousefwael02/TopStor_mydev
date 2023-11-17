@@ -35,6 +35,13 @@ then
 		exit
 	fi
 fi
+
+echo $dockerlogs | grep 'Cannot contact any KDC for realm' >/dev/null
+if [ $? -eq 0 ];
+then
+	echo _resultADservererror_result
+	exit
+fi
 echo $dockerlogs | grep 'sssd is running' >/dev/null
 if [ $? -eq 0 ];
 then
