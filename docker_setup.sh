@@ -224,15 +224,35 @@ else
 		mycluster=`nmcli conn show mycluster | grep ipv4.addresses | awk '{print $2}'`
 	fi
 	myclusterip=`echo $mycluster | awk -F'/' '{print $1}'`
+	mynodeip=`echo $mynode | awk -F'/' '{print $1}'`
+	ping -w 3 $mynodeip
+      	while [ $? -ne 0 ];
+	do
+		sleep 1
+		ping -w 3 $mynodeip
+	done
+	
+	isconf_prim='yesno'
+	isprimary=0
 	ping -w 3 $myclusterip 
-	if [ $? -ne 0 ];
-	then 
-		isconf_prim='yesyes'
-		isprimary=1
-	else
-		isconf_prim='yesno'
-		isprimary=0
-	fi
+	counter=`echo $RANDOM | cut -c -1`
+	counter=$((counter+5))
+	while [ $counter -ne 0 ];
+	do
+		echo counter=$counter
+		ping -w 1 $myclusterip 
+		if [ $? -eq 0 ];
+		then
+			counter=0
+		else
+			counter=$((counter-1))
+		fi
+		if [ $counter -eq 0 ];
+		then
+			isconf_prim='yesyes'
+			isprimary=1
+		fi
+	done		
 fi
 myclusterip=`echo $mycluster | awk -F'/' '{print $1}'`
 mynodeip=`echo $mynode | awk -F'/' '{print $1}'`
