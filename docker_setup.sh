@@ -225,12 +225,15 @@ else
 	fi
 	myclusterip=`echo $mycluster | awk -F'/' '{print $1}'`
 	mynodeip=`echo $mynode | awk -F'/' '{print $1}'`
+# wait till the port is up
 	ping -w 3 $mynodeip
       	while [ $? -ne 0 ];
 	do
 		sleep 1
 		ping -w 3 $mynodeip
 	done
+# now the port should be up--- or other wise comment out all the above block and uncomment the below sleep
+	#sleep 20
 	
 	isconf_prim='yesno'
 	isprimary=0
