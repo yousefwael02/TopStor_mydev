@@ -249,11 +249,11 @@ else
 			counter=0
 		else
 			counter=$((counter-1))
-		fi
-		if [ $counter -eq 0 ];
-		then
-			isconf_prim='yesyes'
-			isprimary=1
+			if [ $counter -eq 0 ];
+			then
+				isconf_prim='yesyes'
+				isprimary=1
+			fi
 		fi
 	done		
 fi
