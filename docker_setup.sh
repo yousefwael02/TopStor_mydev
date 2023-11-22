@@ -210,6 +210,8 @@ else
 	then
 		mynode=$ipaddr
 		nmcli conn mod mynode ipv4.addresses $ipaddr
+		nmcli conn up mynode 
+	
 	else
 		mynode=`nmcli conn show mynode | grep ipv4.addresses | awk '{print $2}'`
 	fi
