@@ -24,7 +24,7 @@ def setlogin(leaderip,myhost, user,passw,token=0):
     oldpass = str(get(leaderip, 'usershashadm/'+user)[0]).replace('\n','')
     cmdline='/TopStor/decthis.sh '+user+' '+oldpass
     pass1=subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode().split('_result')[1]
-   if passw != pass1:
+  if passw != pass1:
         return ({},0)
   token = token_hex(16)
  stamp = int(timestamp() + 3600)
