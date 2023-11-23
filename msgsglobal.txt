@@ -80,6 +80,7 @@ Unlin1005:0: : from :: syncing users
 Unlin1105:0: : from :: syncing groups 
 Unlin1011: Changing user password for :
 Unlin1012:1: : from :: Changing password for user :
+Unlinfa12:1: : from :: Failed chaning password for user : it is too small
 Unlin1013:2: : from :: problem occurred while changing password for user :
 Unlin1015:2: : from :: Success changing password for user :
 Unlin1017: Adding user : ......

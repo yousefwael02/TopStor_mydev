@@ -56,18 +56,21 @@ def config(leader, leaderip, myhost, *bargs):
 
 ############ changing user password ###############
  if 'password' in arglist:
-  print('changing password')
-  queuethis('ChangeUserPass','running',arglist['user'])
-  #broadcasttolocal('userhash/'+arglist['username'],arglist['password'])
-  logmsg.sendlog('Unlin1012','info',arglist['user'],arglist['username'])
-  cmdlinep=['/TopStor/encthis.sh',arglist['username'],arglist['password']]
-  encthis=subprocess.run(cmdlinep,stdout=subprocess.PIPE).stdout.decode('utf-8').split('_result')[1]
-  put(leaderip, 'usershash/'+arglist['username'], encthis)
-  dels(leaderip, 'sync', 'passwd_')
-  put(leaderip, 'sync/passwd/UnixChangePass_'+arglist['username']+'_'+arglist['user']+'/request','passwd_'+stampi)
-  #put(leaderip, 'sync/passwd/UnixChangePass_'+arglist['username']+'_'+arglist['user']+'/request/'+myhost,'passwd_'+stampi)
-#  broadcast('UserPassChange','/TopStor/pump.sh','UnixChangePass',arglist['password'],arglist['username'],arglist['user'])
-  queuethis('ChangeUserPass','finish',arglist['user'])
+  if len(arglist['password']) < 3:
+   logmsg.sendlog('Unlinfa12','error',arglist['user'],arglist['username'])
+  else:
+   print('changing password')
+   queuethis('ChangeUserPass','running',arglist['user'])
+   #broadcasttolocal('userhash/'+arglist['username'],arglist['password'])
+   logmsg.sendlog('Unlin1012','info',arglist['user'],arglist['username'])
+   cmdlinep=['/TopStor/encthis.sh',arglist['username'],arglist['password']]
+   encthis=subprocess.run(cmdlinep,stdout=subprocess.PIPE).stdout.decode('utf-8').split('_result')[1]
+   put(leaderip, 'usershash/'+arglist['username'], encthis)
+   dels(leaderip, 'sync', 'passwd_')
+   put(leaderip, 'sync/passwd/UnixChangePass_'+arglist['username']+'_'+arglist['user']+'/request','passwd_'+stampi)
+   #put(leaderip, 'sync/passwd/UnixChangePass_'+arglist['username']+'_'+arglist['user']+'/request/'+myhost,'passwd_'+stampi)
+#   broadcast('UserPassChange','/TopStor/pump.sh','UnixChangePass',arglist['password'],arglist['username'],arglist['user'])
+   queuethis('ChangeUserPass','finish',arglist['user'])
 ############ changing time zone ###############
  if 'tz' in arglist:
   queuethis('Hostconfig_tzone','running',arglist['user'])
@@ -176,6 +179,7 @@ if __name__=='__main__':
  arg={'ipaddr': '10.11.11.241', 'ipaddrsubnet': '24', 'id': '0', 'user': 'admin', 'name': 'dhcp250171', 'token': '869927c8ed2149878087f60124fe148a', 'response': 'admin'}
  arg={'username': 'rezo', 'password': '111', 'user': 'admin'}
  arg={'alias': 'node_2', 'ipaddr': '10.11.11.102', 'ipaddrsubnet': '24', 'cluster': '10.11.11.100/24', 'tz': 'Kuwait%(GMT+03!00)_Kuwait^_Riyadh^_Baghdad', 'id': '0', 'user': 'admin', 'name': 'dhcp142412', 'token': '19cafd4f6fac19f9dfe4ef8f03ee8375', 'response': 'admin'}
+ arg={'username': 'user1', 'password': '15dlksdkdj34', 'user': 'admin'}
  config(leader, leaderip, myhost, arg)
 
 #{'cluster': '10.11.11.250/24', 'tz': 'Kuwait%(GMT+03!00)_Kuwait^_Riyadh^_Baghdad', 'id': '0', 'user': 'admin', 'name': 'dhcp32570', 'token': '501ef1257322d1814125b1e16af95aa9', 'response': 'admin'}
