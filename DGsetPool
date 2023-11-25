@@ -214,6 +214,7 @@ else
   else 
      zfs set acltype=posixacl p$nextpool
      zfs set avail:type=single p$nextpool
+     zfs set expand:yes=no  p$nextpool
      zfs export p$nextpool
      sleep 1
      zfs import p$nextpool
@@ -281,6 +282,7 @@ else
   if [ $? -eq 0 ]; then
      zfs set acltype=posixacl p$nextpool
      zfs set avail:type=Availbility p$nextpool
+     zfs set expand:yes=no  p$nextpool
      zfs export p$nextpool
      sleep 1
      zfs import p$nextpool
@@ -352,6 +354,7 @@ else
   if [ $? -eq 0 ]; then
      zfs set acltype=posixacl p$nextpool
      zfs set avail:type=Availbility p$nextpool
+     zfs set expand:yes=no  p$nextpool
      zfs export p$nextpool
      sleep 1
      zfs import p$nextpool
@@ -426,6 +429,7 @@ else
      echo itisdone >> /root/tmp2
      zfs set acltype=posixacl p$nextpool
      zfs set avail:type=Availbility p$nextpool
+     zfs set expand:yes=no  p$nextpool
      zfs export p$nextpool
      sleep 1
      zfs import p$nextpool
@@ -508,6 +512,7 @@ else
      echo zfs set acltype=posixacl p$nextpool
      zfs set acltype=posixacl p$nextpool
      zfs set avail:type=volset p$nextpool
+     zfs set expand:yes=no  p$nextpool
      ETCDCTL_API=3 /pace/etcdput.py $leaderip pools/p$nextpool $myhost
      stamp=`date +%s`
      guid=`zpool get guid p$nextpool -H | awk '{print $3}'`
@@ -547,6 +552,7 @@ else
   if [ $? -eq 0 ]; then
      zfs set acltype=posixacl p$nextpool
      zfs set avail:type=Availability p$nextpool
+     zfs set expand:yes=no  p$nextpool
      ETCDCTL_API=3 /pace/etcdput.py $leaderip pools/p$nextpool $myhost
      stamp=`date +%s`
      guid=`zpool get guid p$nextpool -H | awk '{print $3}'`

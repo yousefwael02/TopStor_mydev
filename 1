@@ -1,0 +1,42 @@
+#!/usr/bin/python3
+import pandas as pd
+
+def feature_calc(i,j,row_element, df2_element):
+    print(row_element)
+    if i < j:
+        print(row_element,df2_element,i,j)
+        return row_element + df2_element
+    else:
+        print('else',row_element,df2_element,i,j)
+        return 'inf' 
+# Define the 10 element
+elements = []
+result_df = pd.DataFrame()
+val1 = []
+val2 = []
+val3 = []
+for x in range(0,4):
+  val1.append('x'+str(x))
+  val2.append('y'+str(x))
+  val3.append('z'+str(x))
+elements.append(val1)
+elements.append(val2)
+elements.append(val3)
+print(elements)
+column_names=['d0','d1','d2','d3']
+df = pd.DataFrame(elements,columns=column_names)
+# Enumerate over rows of df1
+for i, row in df.iterrows():
+    # Add each element of the current row to each element of the corresponding row in df2
+    for j in range(0,len(df)):
+        # Apply specific functions based on element location
+        new_row_element = feature_calc( i, j, row[j], df.iloc[i, j])
+
+        # Create a new row with the new element and append it to the result DataFrame
+        new_row = row.copy()
+        new_row[j] = new_row_element
+        result_df = result_df.append(new_row, ignore_index=True)
+
+# Print the result DataFrame
+print(df)
+print(result_df)

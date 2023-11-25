@@ -140,6 +140,25 @@ def newraids(diskdict):
 
 def selectdisks(disks,singles, disksinfo):
  global leader, leaderip, clusterip, myhost, myhostip
+ thedisks = []
+ mindisksize = disk['disk']
+ diskcount = disk['diskcount']
+ for size,disknames in singles: # this is the iteration over all the singles(free) disks
+    if size < mindisksize: # size small to be in this raid group
+        continue
+    for diskname in disknames:
+        diskinfo = (diskname,size, disksinfo[diskname]['host'])  #tuple of diskname, size , host
+    if len(diskgroups) == 0:
+        diskgroups[diskname] = {
+    
+    while len(thediskss) < disks['diskcount']:  # this is the number of disks in the raidgroup
+
+
+def oldselectdisks(disks,singles, disksinfo):
+ global leader, leaderip, clusterip, myhost, myhostip
+ diskcount = disks['diskcount']
+        
+    
  #print('#########disks',disks)
  #print('#########singles',singles)
  with open('/TopStordata/selecteddisks','w') as f:
@@ -202,7 +221,7 @@ if __name__=='__main__':
  allinfo = getall(leaderip, alldsks)
  disks = allinfo['disks']
  raids = newraids(disks)
- disks= {'disk': 10.7, 'diskcount': 2, 'others': [64.4], 'hosts': ['dhcp876810'], 'othershosts': ['dhcp876810']}
- singles= {10.7: ['scsi-360014056e9df2c855f747d88a417d92a', 'scsi-360014054a72da87a9a3458e8d0cf54e0'], 64.4: ['scsi-36001405c2feda3f507e4daca90a34057', 'scsi-36001405f69f9b869aab47579f0044b23']}
- disksinfo={'scsi-3600140514d327de4f834e60bf133d261': {'name': 'scsi-3600140514d327de4f834e60bf133d261', 'actualdisk': 'sde', 'changeop': 'ONLINE', 'pool': 'pdhcp728726367', 'raid': 'mirror-0_pdhcp728726367', 'status': 'ONLINE', 'id': '0', 'host': 'dhcp273302', 'size': 64.4, 'devname': 'sde', 'silvering': 'no'}, 'scsi-36001405adfe5f94e2064dbf8bcc8bc9b': {'name': 'scsi-36001405adfe5f94e2064dbf8bcc8bc9b', 'actualdisk': 'sdd', 'changeop': 'ONLINE', 'pool': 'pdhcp728726367', 'raid': 'mirror-0_pdhcp728726367', 'status': 'ONLINE', 'id': '0', 'host': 'dhcp273302', 'size': 64.4, 'devname': 'sdd', 'silvering': 'no'}, 'scsi-360014056e9df2c855f747d88a417d92a': {'name': 'scsi-360014056e9df2c855f747d88a417d92a', 'actualdisk': 'scsi-360014056e9df2c855f747d88a417d92a', 'changeop': 'free', 'status': 'free', 'raid': 'free', 'pool': 'pree', 'id': '2', 'host': 'dhcp876810', 'size': 10.7, 'devname': 'sdh', 'silvering': 'no'}, 'scsi-360014054a72da87a9a3458e8d0cf54e0': {'name': 'scsi-360014054a72da87a9a3458e8d0cf54e0', 'actualdisk': 'scsi-360014054a72da87a9a3458e8d0cf54e0', 'changeop': 'free', 'status': 'free', 'raid': 'free', 'pool': 'pree', 'id': '3', 'host': 'dhcp876810', 'size': 10.7, 'devname': 'sdi', 'silvering': 'no'}, 'scsi-36001405c2feda3f507e4daca90a34057': {'name': 'scsi-36001405c2feda3f507e4daca90a34057', 'actualdisk': 'scsi-36001405c2feda3f507e4daca90a34057', 'changeop': 'free', 'status': 'free', 'raid': 'free', 'pool': 'pree', 'id': '4', 'host': 'dhcp876810', 'size': 64.4, 'devname': 'sdj', 'silvering': 'no'}, 'scsi-36001405f69f9b869aab47579f0044b23': {'name': 'scsi-36001405f69f9b869aab47579f0044b23', 'actualdisk': 'scsi-36001405f69f9b869aab47579f0044b23', 'changeop': 'free', 'status': 'free', 'raid': 'free', 'pool': 'pree', 'id': '5', 'host': 'dhcp876810', 'size': 64.4, 'devname': 'sdk', 'silvering': 'no'}}
+ disks = {'disk': 10.7, 'diskcount': 2, 'others': [64.4], 'hosts': ['dhcp876810'], 'othershosts': ['dhcp876810', 'dhcp273302']}
+ singles = {64.4: ['scsi-360014055908817040aa494cad2a26f03', 'scsi-36001405a430c5a307ff4cb99fea2c1f7'], 10.7: ['scsi-3600140538872a6d8e85460999d74f2ad', 'scsi-36001405b319164f4d1841e585cd61bc0']}
+ disksinfo = {'scsi-36001405cbd12826748b4091aa5d856ea': {'name': 'scsi-36001405cbd12826748b4091aa5d856ea', 'actualdisk': 'scsi-36001405cbd12826748b4091aa5d856ea', 'changeop': 'ONLINE', 'pool': 'pdhcp728726367', 'raid': 'mirror-0_pdhcp728726367', 'status': 'ONLINE', 'id': '0', 'host': 'dhcp876810', 'size': 64.4, 'devname': 'scsi-36001405cbd12826748b4091aa5d856ea', 'silvering': 'no'}, 'scsi-36001405596cc7d753b1400291ebbb673': {'name': 'scsi-36001405596cc7d753b1400291ebbb673', 'actualdisk': 'sdd', 'changeop': 'ONLINE', 'pool': 'pdhcp728726367', 'raid': 'mirror-0_pdhcp728726367', 'status': 'ONLINE', 'id': '0', 'host': 'dhcp273302', 'size': 64.4, 'devname': 'sdd', 'silvering': 'no'}, 'scsi-360014055908817040aa494cad2a26f03': {'name': 'scsi-360014055908817040aa494cad2a26f03', 'actualdisk': 'scsi-360014055908817040aa494cad2a26f03', 'changeop': 'free', 'status': 'free', 'raid': 'free', 'pool': 'pree', 'id': '1', 'host': 'dhcp273302', 'size': 64.4, 'devname': 'sdg', 'silvering': 'no'}, 'scsi-3600140538872a6d8e85460999d74f2ad': {'name': 'scsi-3600140538872a6d8e85460999d74f2ad', 'actualdisk': 'scsi-3600140538872a6d8e85460999d74f2ad', 'changeop': 'free', 'status': 'free', 'raid': 'free', 'pool': 'pree', 'id': '2', 'host': 'dhcp876810', 'size': 10.7, 'devname': 'sdh', 'silvering': 'no'}, 'scsi-36001405b319164f4d1841e585cd61bc0': {'name': 'scsi-36001405b319164f4d1841e585cd61bc0', 'actualdisk': 'scsi-36001405b319164f4d1841e585cd61bc0', 'changeop': 'free', 'status': 'free', 'raid': 'free', 'pool': 'pree', 'id': '3', 'host': 'dhcp876810', 'size': 10.7, 'devname': 'sdi', 'silvering': 'no'}, 'scsi-36001405a430c5a307ff4cb99fea2c1f7': {'name': 'scsi-36001405a430c5a307ff4cb99fea2c1f7', 'actualdisk': 'scsi-36001405a430c5a307ff4cb99fea2c1f7', 'changeop': 'free', 'status': 'free', 'raid': 'free', 'pool': 'pree', 'id': '4', 'host': 'dhcp876810', 'size': 64.4, 'devname': 'sdj', 'silvering': 'no'}}
  selectdisks(disks,singles, disksinfo)
