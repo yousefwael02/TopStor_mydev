@@ -140,22 +140,6 @@ def newraids(diskdict):
 
 def selectdisks(disks,singles, disksinfo):
  global leader, leaderip, clusterip, myhost, myhostip
- thedisks = []
- mindisksize = disk['disk']
- diskcount = disk['diskcount']
- for size,disknames in singles: # this is the iteration over all the singles(free) disks
-    if size < mindisksize: # size small to be in this raid group
-        continue
-    for diskname in disknames:
-        diskinfo = (diskname,size, disksinfo[diskname]['host'])  #tuple of diskname, size , host
-    if len(diskgroups) == 0:
-        diskgroups[diskname] = {
-    
-    while len(thediskss) < disks['diskcount']:  # this is the number of disks in the raidgroup
-
-
-def oldselectdisks(disks,singles, disksinfo):
- global leader, leaderip, clusterip, myhost, myhostip
  diskcount = disks['diskcount']
         
     
@@ -165,6 +149,7 @@ def oldselectdisks(disks,singles, disksinfo):
     f.write(str(disks)+'\n')
     f.write(str(singles)+'\n')
     f.write(str(disksinfo)+'\n')
+ return
  thedisks = []
  others = disks['others']
  others.sort(reverse=True)
