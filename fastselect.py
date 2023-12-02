@@ -7,10 +7,21 @@ combinations = dict()
 hosts = set()
 disktypes = set()
 disks = {}
-singles = {}
 disksinfo = {}
 count = 0 
 mindisksize = 0 
+
+def norm(val):
+ units={'B':1/1024**2,'K':1/1024, 'M': 1, 'G':1024 , 'T': 1024**2 }
+ if type(val)==float:
+  return val
+ if val[-1] != 'B':
+  return float(val)
+ else:
+  if val[-2] in list(units.keys()):
+   return float(val[:-2])*float(units[val[-2]])/1024   # returning in GB
+  else:
+   return float(val[:-1])*float(units['B'])
 
 def operate(df1row,df2row):
  res = []
@@ -25,7 +36,7 @@ def operate(df1row,df2row):
  return res   
 
 def feature_calc(i, k):
-    global hosts, disktypes, mindisksize, count, combinations, disks, singles, disksinfo
+    global hosts, disktypes, mindisksize, count, combinations, disks, disksinfo, mustinclude
     lendisks = len(disksinfo)
     combineddisks = i[0]+','+k[0]
     res = []
@@ -37,7 +48,7 @@ def feature_calc(i, k):
     combineddisks = i[0]+','+k[0]
     if  i[4] >= k[4] or i[0] == k[0] or i[0] in k[0] or k[0] in i[0] or i[2] == float('inf') or k[2] == float('inf'): # less matrix calcs
         res =  [i[0]+','+k[0],i[1],float('inf'),combinedhosts]
-    elif 'ree' not in disksinfo[i[0]]['pool'] or (',' not in k[0] and 'ree' not in disksinfo[k[0]]['pool']): # the disks belong to pools 
+    elif ('ree' not in disksinfo[i[0]]['pool'] and i[0] not in mustinclude) or (',' not in k[0] and 'ree' not in disksinfo[k[0]]['pool'] and k[0] not in mustinclude): # the disks belong to pools except if we are optimizing the raid they could be online in this mustinclude 
         res =  [i[0]+','+k[0],i[1],float('inf'),combinedhosts]
     elif disksinfo[i[0]]['size'] < mindisksize:
         res =  [i[0]+','+k[0],i[1],float('inf'),combinedhosts]
@@ -100,12 +111,12 @@ def feature_calc(i, k):
     return res   
                 
 def combine_features(column_values):
-    global hosts, disktypes, mindisksize, count, combinations, disks, singles, disksinfo
+    global hosts, disktypes, mindisksize, count, combinations, disks, disksinfo, mustinclude
     ccolumn_values = column_values.tolist()
     return (ccolumn_values[0][0],ccolumn_values[0][1],float(ccolumn_values[0][2])+float(ccolumn_values[1][2])+float(ccolumn_values[2][2]))
 
 def fastdiskselect(elements):
-    global hosts, disktypes, mindisksize, count, combinations, disks, singles, disksinfo
+    global hosts, disktypes, mindisksize, count, combinations, disks, disksinfo, mustinclude
     df = pd.DataFrame(elements)
     result_df = df
     pd.set_option('display.max_rows', None)
@@ -124,9 +135,23 @@ def fastdiskselect(elements):
     print(best_disk)
     return best_disk
 
-def selectdisks(fdisks,fsingles,fdisksinfo):
-    global hosts, disktypes, mindisksize, count, combinations, disks, singles, disksinfo
-    disks, singles, disksinfo = fdisks, fsingles, fdisksinfo
+def optimizedisks(fraid, fdisksinfo):
+    global hosts, disktypes, mindisksize, count, combinations, disks, disksinfo, mustinclude
+    raid, disksinfo = fraid, fdisksinfo
+    count = len(raid['disklist'])+ raid['missingdisks'][0]
+    mindisksize = min([ norm(x['size']) for x in raid['disklist']])
+    mustinclude = ''
+    for disk in raid['disklist']:
+        if len(mustinclude) == 0:
+            mustinclude = disk['name']
+        else:
+            mustinclude = disk['name']+','+mustinclude
+    disks = {'diskcount':count , 'disk': mindisksize }
+    return selectdisks(disks, disksinfo)
+
+def selectdisks(fdisks,fdisksinfo):
+    global hosts, disktypes, mindisksize, count, combinations, disks, disksinfo, mustinclude
+    disks, disksinfo = fdisks, fdisksinfo
     count = disks['diskcount']
     mindisksize = disks['disk'] 
     elements = []
@@ -147,11 +172,16 @@ def selectdisks(fdisks,fsingles,fdisksinfo):
     return fastdiskselect(elements)
 
 if __name__=='__main__':
+    import sys
     combinations = dict()
     hosts = set()
     disktypes = set()
+    mustinclude = 'NoDisk'
     disks = {'disk': 10.7, 'diskcount': 2, 'others': [64.4], 'hosts': ['dhcp876810'], 'othershosts': ['dhcp876810', 'dhcp273302']}
-    singles = {64.4: ['scsi-36001405e541e42742714917a94c26d31', 'scsi-360014054534810529d0474fa0ac9f556'], 10.7: ['scsi-360014054402527f43254e72a500fb36d', 'scsi-3600140589b9f420dde64d08ad87c1917']}
     disksinfo = {'scsi-36001405919b882628564570a779bedf9': {'name': 'scsi-36001405919b882628564570a779bedf9', 'actualdisk': 'scsi-36001405919b882628564570a779bedf9', 'changeop': 'ONLINE', 'pool': 'pdhcp1133218265', 'raid': 'mirror-0_pdhcp1133218265', 'status': 'ONLINE', 'id': '0', 'host': 'dhcp876810', 'size': 64.4, 'devname': 'scsi-36001405919b882628564570a779bedf9', 'silvering': 'no'}, 'scsi-36001405699c5995f3c34248890326830': {'name': 'scsi-36001405699c5995f3c34248890326830', 'actualdisk': 'sdd', 'changeop': 'ONLINE', 'pool': 'pdhcp1133218265', 'raid': 'mirror-0_pdhcp1133218265', 'status': 'ONLINE', 'id': '0', 'host': 'dhcp273302', 'size': 64.4, 'devname': 'sdd', 'silvering': 'no'}, 'scsi-36001405e541e42742714917a94c26d31': {'name': 'scsi-36001405e541e42742714917a94c26d31', 'actualdisk': 'scsi-36001405e541e42742714917a94c26d31', 'changeop': 'free', 'status': 'free', 'raid': 'free', 'pool': 'pree', 'id': '1', 'host': 'dhcp273302', 'size': 64.4, 'devname': 'sdg', 'silvering': 'no'}, 'scsi-360014054402527f43254e72a500fb36d': {'name': 'scsi-360014054402527f43254e72a500fb36d', 'actualdisk': 'scsi-360014054402527f43254e72a500fb36d', 'changeop': 'free', 'status': 'free', 'raid': 'free', 'pool': 'pree', 'id': '2', 'host': 'dhcp876810', 'size': 10.7, 'devname': 'sdh', 'silvering': 'no'}, 'scsi-3600140589b9f420dde64d08ad87c1917': {'name': 'scsi-3600140589b9f420dde64d08ad87c1917', 'actualdisk': 'scsi-3600140589b9f420dde64d08ad87c1917', 'changeop': 'free', 'status': 'free', 'raid': 'free', 'pool': 'pree', 'id': '3', 'host': 'dhcp876810', 'size': 10.7, 'devname': 'sdi', 'silvering': 'no'}, 'scsi-360014054534810529d0474fa0ac9f556': {'name': 'scsi-360014054534810529d0474fa0ac9f556', 'actualdisk': 'scsi-360014054534810529d0474fa0ac9f556', 'changeop': 'free', 'status': 'free', 'raid': 'free', 'pool': 'pree', 'id': '4', 'host': 'dhcp876810', 'size': 64.4, 'devname': 'sdj', 'silvering': 'no'}}
-    selectdisks(disks,singles,disksinfo)
+    raid = {'name': 'mirror-0', 'changeop': 'ONLINE', 'status': 'ONLINE', 'pool': 'pdhcp1133218265', 'host': 'dhcp273302', 'disklist': [{'name': 'scsi-360014050551bb921e8243629899640b0', 'actualdisk': 'scsi-360014050551bb921e8243629899640b0', 'changeop': 'ONLINE', 'pool': 'pdhcp1133218265', 'raid': 'mirror-0', 'status': 'ONLINE', 'id': '0', 'host': 'dhcp876810', 'size': '64.4GB', 'devname': 'scsi-360014050551bb921e8243629899640b0', 'silvering': 'no'}, {'name': 'scsi-36001405762de08e97d94222915977e7b', 'actualdisk': 'sdd', 'changeop': 'ONLINE', 'pool': 'pdhcp1133218265', 'raid': 'mirror-0', 'status': 'ONLINE', 'id': '0', 'host': 'dhcp273302', 'size': '64.4GB', 'devname': 'sdd', 'silvering': 'no'}], 'missingdisks': [0], 'raidrank': (2, 0)}
+    if sys.argv[1] == 'select':
+        selectdisks(disks,disksinfo)
+    else:
+        optimizedisks(raid, disksinfo)
 
