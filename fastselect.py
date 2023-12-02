@@ -138,8 +138,9 @@ def fastdiskselect(elements):
 def optimizedisks(fraid, fdisksinfo):
     global hosts, disktypes, mindisksize, count, combinations, disks, disksinfo, mustinclude
     raid, disksinfo = fraid, fdisksinfo
-    count = len(raid['disklist'])+ raid['missingdisks'][0]
-    mindisksize = min([ norm(x['size']) for x in raid['disklist']])
+    count = len(raid['disklist'])
+    mindisksize = min([ norm(x['size']) for x in raid['disklist'] if x['changeop'] in ['ONLINE']])
+    print(mindisksize,count)
     mustinclude = ''
     for disk in raid['disklist']:
         if len(mustinclude) == 0:
