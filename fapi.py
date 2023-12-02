@@ -319,7 +319,7 @@ def dgsaddtopool(data):
  if 'single' in data['redundancy']:
   selecteddisks= disks
  else:
-  bestdisks = selectdisks(disks,dgsinfo['newraid']['single'],allinfo['disks'])
+  bestdisks = selectdisks(disks,allinfo['disks'])
  if len(bestdisks) < 1:
     return jsonify(data)
  selecteddisks = bestdisks[0][0].split(',')
@@ -371,7 +371,7 @@ def dgsnewpool(data):
  if 'single' in data['redundancy']:
   selecteddisks= disks
  else:
-  bestdisks = selectdisks(disks,dgsinfo['newraid']['single'],allinfo['disks'])
+  bestdisks = selectdisks(disks, allinfo['disks'])
  if len(bestdisks) < 1:
     return jsonify(data)
  selecteddisks = bestdisks[0][0].split(',')
