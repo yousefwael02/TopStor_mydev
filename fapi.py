@@ -17,7 +17,8 @@ from socket import gethostname as hostname
 from getlogs import getlogs, onedaylog
 from fapistats import allvolstats, dskperf, cpuperf
 from datetime import datetime
-from getallraids import newraids, selectdisks
+from getallraids import newraids
+from fastselect import selectdisks
 from secrets import token_hex
 from ioperf import ioperf
 from time import time as timestamp
@@ -318,7 +319,10 @@ def dgsaddtopool(data):
  if 'single' in data['redundancy']:
   selecteddisks= disks
  else:
-  selecteddisks = selectdisks(disks,dgsinfo['newraid']['single'],allinfo['disks'])
+  bestdisks = selectdisks(disks,dgsinfo['newraid']['single'],allinfo['disks'])
+ if len(bestdisks) < 1:
+    return jsonify(data)
+ selecteddisks = bestdisks[0][0].split(',')
  owner = allinfo['pools'][data['pool']]['host']
  ownerip = allinfo['hosts'][owner]['ipaddress']
  diskstring = ''
@@ -367,12 +371,19 @@ def dgsnewpool(data):
  if 'single' in data['redundancy']:
   selecteddisks= disks
  else:
-  selecteddisks = selectdisks(disks,dgsinfo['newraid']['single'],allinfo['disks'])
- owner = allinfo['disks'][selecteddisks[0]]['host']
- ownerip = allinfo['hosts'][owner]['ipaddress']
+  bestdisks = selectdisks(disks,dgsinfo['newraid']['single'],allinfo['disks'])
+ if len(bestdisks) < 1:
+    return jsonify(data)
+ selecteddisks = bestdisks[0][0].split(',')
  diskstring = ''
  for dsk in selecteddisks:
   diskstring += dsk+":"+dsk[-5:]+" "
+ print('#############################3')
+ print(';;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;')
+ print(selecteddisks)
+ print('#########################333')
+ owner = allinfo['disks'][selecteddisks[0]]['host']
+ ownerip = allinfo['hosts'][owner]['ipaddress']
  if 'single' in data['redundancy']:
   datastr = 'Single '+data['user']+' '+owner+" "+selecteddisks[0]+" "+selecteddisks[0][-5:]+" nopool "+data['user']+" "+owner
  elif 'mirror' in data['redundancy']:
@@ -385,9 +396,6 @@ def dgsnewpool(data):
   datastr = 'parity3 '+data['user']+' '+owner+" "+diskstring+" "+data['user']+" "+owner
  elif 'raid6' in data['redundancy']:
   datastr = 'parity2 '+data['user']+' '+owner+" "+diskstring+" "+data['user']+" "+owner
- print('#############################3')
- print(selecteddisks)
- print('#########################333')
  cmndstring = '/TopStor/DGsetPool '+leaderip+' '+datastr+' '+data['user']
  z= cmndstring.split(' ')
  msg={'req': 'Pumpthis', 'reply':z}
