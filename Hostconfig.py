@@ -50,7 +50,8 @@ def config(leader, leaderip, myhost, *bargs):
   # updatenamespace(arglist['cluster'],oldarg)
   put(leaderip, 'namespace/mgmtip',arglist['cluster'])
   dels(leaderip, 'sync', 'namespace_')
-  put(leaderip, 'sync/namespace/Add_'+'namespace::mgmtip_'+arglist['cluster'].replace('/','::')+'/request','namespace_'+stampi)
+  if 'ipaddr' not in arglist:
+    put(leaderip, 'sync/namespace/Add_'+'namespace::mgmtip_'+arglist['cluster'].replace('/','::')+'/request','namespace_'+stampi)
   logmsg.sendlog('HostManual1su7','info',arglist['user'],oldarg,arglist['cluster'])
   queuethis('Hostconfig_cluster','finish',arglist['user'])
 
@@ -152,8 +153,13 @@ def config(leader, leaderip, myhost, *bargs):
   subprocess.run(cmdline.split(),stdout=subprocess.PIPE)
   put(leaderip, 'ActivePartners/'+arglist['name'],arglist['ipaddr'])
   dels(leaderip, 'sync', 'ipaddr_'+arglist['name'])
-  put(leaderip, 'sync/ipaddr/HostManualconfigIPADDR_'+'_'+arglist['name']+'/request','ipaddr_'+arglist['name']+'_'+stampi)
+  if 'cluster' not in arglist:
+    put(leaderip, 'sync/ipaddr/HostManualconfigIPADDR_'+'_'+arglist['name']+'/request','ipaddr_'+arglist['name']+'_'+stampi)
+  else:
+    put(leaderip, 'sync/cluip/HostManualconfigCLUIP_'+'_'+arglist['name']+'/request','ipaddr_'+arglist['name']+'_'+stampi)
+    
   put(leaderip, 'sync/ipaddr/Add_ActivePartners_'+arglist['name']+'_'+arglist['ipaddr'].replace('/','::')+'/request','ActivePartners_'+arglist['name']+'_'+stampi)
+
   put(leaderip, 'sync/ipaddr/Add_ActivePartners_'+arglist['name']+'_'+arglist['ipaddr'].replace('/','::')+'/request/'+leader,'ActivePartners_'+arglist['name']+'_'+stampi)
   logmsg.sendlog('HostManual1su6','info',arglist['user'], str(oldipaddr),arglist['ipaddr']+'/'+arglist['ipaddrsubnet'])
 ######################################
