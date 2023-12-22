@@ -57,7 +57,6 @@ def getalltime():
  global allinfo,alldsks, getalltimestamp, leaderip
  if (getalltimestamp+30) < timestamp():
   alldsks = deepcopy(get('host','current'))
-  print(leaderip)
   allinfo = deepcopy(getall(leaderip, alldsks))
   getalltimestamp = timestamp()
  return
@@ -319,7 +318,12 @@ def dgsaddtopool(data):
  if 'single' in data['redundancy']:
   selecteddisks= disks
  else:
+  print('#########################')
+  print('disks',disks)
+  print('#########################')
   bestdisks = selectdisks(disks,allinfo['disks'])
+  print('bestdisks',bestdisks)
+  print('#########################')
  if len(bestdisks) < 1:
     return jsonify(data)
  selecteddisks = bestdisks[0][0].split(',')
@@ -338,10 +342,6 @@ def dgsaddtopool(data):
   datastr = 'addparity3 '+data['user']+' '+owner+" "+diskstring+data['pool']
  elif 'raid6' in data['redundancy']:
   datastr = 'addparity2 '+data['user']+' '+owner+" "+diskstring+data['pool']
- print('#############################3')
- print(selecteddisks)
- print(datastr)
- print('#########################333')
  cmndstring = '/TopStor/DGsetPool '+leaderip+' '+datastr
  z= cmndstring.split(' ')
  msg={'req': 'Pumpthis', 'reply':z}
@@ -773,10 +773,7 @@ def usersauth(data):
  global allinfo
  if 'baduser' in data['response']:
   return {'response': 'baduser'}
- print('#######################')
  cmndstring = '/TopStor/Priv.py '+leader+' '+leaderip+' '+myhost+' '+myhostip+' '+data['tochange']+' '+data['auths'].replace(',','/')+' '+data['user']
- print(cmndstring)
- print('#######################')
  postchange(cmndstring)
  return data
 

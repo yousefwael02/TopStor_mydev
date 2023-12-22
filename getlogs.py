@@ -28,7 +28,6 @@ def onedaylog():
     onedaylogdic[sev].append(res)
     if 'Lognfa0' in res:
      onedaylogdic['failedlogon'].append(res)
- print(onedaylogdic)
  return onedaylogdic
 
 def notifthis(notifbody,loc=3):
@@ -38,10 +37,6 @@ def notifthis(notifbody,loc=3):
  for word in msg[4:]:
   if word == ':':
    if len(notifbody) <= notifc:
-    print('##################################')
-    print(msgbody)
-    print(notifbody,len(notifbody))
-    print('##################################')
     notifbody.append('<<fix>>')
    msgbody = msgbody[:-1]+' '+notifbody[notifc]+'.'
    notifc += 1
@@ -63,7 +58,6 @@ def getlogs(lines=100, *args):
     continue
    notifbody[3],notifbody[4],notifbody[5] = notifbody[5],notifbody[3],notifbody[4]
    notiflist.append(notifthis(notifbody=notifbody))
- print(notiflist)
  return notiflist  
 
  

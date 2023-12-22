@@ -119,6 +119,8 @@ allraids ={'raid5':{'parity':1, 'group':3 } , 'raid6':{ 'parity':2, 'group':4}, 
 
 def newraids(diskdict):
  global leader, leaderip, clusterip, myhost, myhostip
+ with open('/root/getallnewraidtmp','w') as f:
+    f.write(str(diskdict)+'\n')
  allsizes = dict() 
  single = dict() 
  #allsizes['single'] = single
@@ -136,6 +138,8 @@ def newraids(diskdict):
   allsizes['mirror'] = theraid
  if len(single) > 0:
   allsizes['single'] = single
+ with open('/root/getallnewraidtmp','a') as f:
+    f.write(str(allsizes)+'\n')
  return allsizes
 
 def selectdisks(disks,singles, disksinfo):

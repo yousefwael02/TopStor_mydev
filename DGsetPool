@@ -115,7 +115,7 @@ else
     echo disk1:$disk1, disk2:$diskns, pool:${nextpool}
     echo '#############################'
    docker exec etcdclient /TopStor/logmsg.py DGst20 info $userreq ${nextpool} $diskns .
-  /sbin/zpool add -f ${nextpool} mirror ${disk1} 
+  /sbin/zpool add -f ${nextpool} mirror ${disk1} 2>/TopStordata/zpoolerr
   if [ $? -eq 0 ]; then
      ETCDCTL_API=3 /pace/etcdput.py $leaderip 'pools/'$nextpool $myhost
      stamp=`date +%s`
@@ -123,6 +123,8 @@ else
      ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/pools/Add_${nextpool}_$myhost/request/$leader pools_$stamp 
     docker exec etcdclient /TopStor/logmsg.py DGsu20 info $userreq ${nextpool} $diskns .
   else
+    echo 'hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh'
+    cat /TopStordata/zpoolerr
     docker exec etcdclient /TopStor/logmsg.py DGfa20 error $userreq ${nextpool} $diskns .
   fi
  fi 
