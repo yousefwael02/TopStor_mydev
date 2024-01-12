@@ -12,7 +12,7 @@ leader=`docker exec etcdclient /TopStor/etcdgetlocal.py leader `
 leaderip=`docker exec etcdclient /TopStor/etcdgetlocal.py leaderip `
 myhost=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternode `
 myhostip=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternodeip `
-/TopStor/etcdget.py $leaderip Partner $clusterip | grep $ppass | grep $port 
+/TopStor/etcdget.py $leaderip Partner $clusterip | grep $ppass 
 if [ $? -eq 0 ];
 then
  echo it is okok >> /root/receivekeys
