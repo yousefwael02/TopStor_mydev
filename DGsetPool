@@ -578,7 +578,7 @@ else
  fi 
 fi
 #rm txt/${0:2}$userreq.txt
-sed -i "/p${nextpool}/c\\" $runningpools
+#sed -i "/p${nextpool}/c\\" $runningpools
 fi
 /pace/etcddel.py $leaderip requests/DGsetpool/$myhost $myhost/$userreq
 #systemctl restart zfs-zed

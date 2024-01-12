@@ -1,35 +1,19 @@
 #!/usr/bin/python3
 import sys, subprocess
+from putzpool import putzpool, initputzpool
 from allphysicalinfo import getall 
 from etcdget import etcdget as get
-from getallraids import newraids, selectdisks, initgetraids
+from getallraids import newraids, initgetraids
+from fastselect import selectdisks
 from levelthis import levelthis
-from sendhost import sendhost
 from time import sleep
 allinfo = {}
 
-def selectDG(volname , volsize):
+def dgsnewpool(data):
  global allinfo, leader, leaderip, clusterip, myhost, myhostip
- posraids = newraids(allinfo['disks'])
- raidname = 'noraid'
- raidsize = float('inf')
- createdpool = 'nopool'
- raidhosts = 'nohost' 
- for raid in posraids:
-  if ('mirror' or 'raid') in raid: 
-   for raidsz in posraids[raid]:
-    if raidsz > volsize and raidsz < raidsize:
-     raidsize = raidsz 
-     raidname = raid
-     raidhosts = posraids[raid][raidsz]['hosts']
+ keys = []
  dgsinfo = {'raids':allinfo['raids'], 'pools':allinfo['pools'], 'disks':allinfo['disks']}
- dgsinfo['newraid'] = posraids
- if len(dgsinfo['newraid']) == 0 or 'noraid' in raidname:
-  return 'No_vol_space'
- data = {}
- data['redundancy'] = raidname
- data['useable'] = raidsize
- data['user'] = 'system'
+ dgsinfo['newraid'] = newraids(allinfo['disks'])
  if data['useable'] not in dgsinfo['newraid'][data['redundancy']]:
   keys = list(dgsinfo['newraid'][data['redundancy']].keys())
   keys.append(float(data['useable']))
@@ -42,12 +26,20 @@ def selectDG(volname , volsize):
  if 'single' in data['redundancy']:
   selecteddisks= disks
  else:
-  selecteddisks = selectdisks(disks,dgsinfo['newraid']['single'],allinfo['disks'])
- owner = allinfo['disks'][selecteddisks[0]]['host']
- ownerip = allinfo['hosts'][owner]['ipaddress']
+  print('selectdisks',disks, allinfo['disks'])
+  bestdisks = selectdisks(disks, allinfo['disks'])
+ if len(bestdisks) < 1:
+    return jsonify(data)
+ selecteddisks = bestdisks[0][0].split(',')
  diskstring = ''
  for dsk in selecteddisks:
   diskstring += dsk+":"+dsk[-5:]+" "
+ print('#############################3')
+ print(';;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;')
+ print(selecteddisks)
+ print('#########################333')
+ owner = myhost 
+ data['user'] = 'system'
  if 'single' in data['redundancy']:
   datastr = 'Single '+data['user']+' '+owner+" "+selecteddisks[0]+" "+selecteddisks[0][-5:]+" nopool "+data['user']+" "+owner
  elif 'mirror' in data['redundancy']:
@@ -61,28 +53,40 @@ def selectDG(volname , volsize):
  elif 'raid6' in data['redundancy']:
   datastr = 'parity2 '+data['user']+' '+owner+" "+diskstring+" "+data['user']+" "+owner
  cmndstring = '/TopStor/DGsetPool '+leaderip+' '+datastr+' '+data['user']
- print('new poolcreate:',cmndstring)
- z= cmndstring.split(' ')
- msg={'req': 'Pumpthis', 'reply':z}
- sendhost(ownerip, str(msg),'recvreply',myhost)
- counter = 120
- while counter > 0:
-  counter -= 1
-  sleep(10)
-  alldsks = get(leaderip,'host','current')
-  allinfo = getall(leaderip, alldsks)
-  newpool = allinfo['disks'][selecteddisks[0]]['pool']
-  if 'ree' not in newpool:
-   createdpool = newpool
-   counter = -10 
+ print('creating pool')
+ print(cmndstring)
+ subprocess.run(cmndstring.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','').replace(' ','')
+ print('pool is created')
+ putzpool()
+ alldsks = get(leaderip,'host','current')
+ allinfo = getall(leaderip, alldsks)
+ newpool = allinfo['disks'][selecteddisks[0]]['pool']
+ createdpool = newpool
  host = allinfo['pools'][createdpool]['host']
  hostip = allinfo['hosts'][host]['ipaddress']
- result = hostip+':'+createdpool+'/'+volname
+ result = hostip+':'+createdpool+'/'
  return result
+
+def selectDG(volsize):
+ global allinfo, leader, leaderip, clusterip, myhost, myhostip
+ posraids = newraids(allinfo['disks'])
+ raidname = 'noraid'
+ raidsize = float('inf')
+ data = { 'useable': volsize, 'redundancy':'noraid' }
+ createdpool = 'nopool'
+ for raid in posraids:
+  if ('mirror' or 'raid') in raid: 
+   for raidsz in posraids[raid]:
+    if raidsz > data['useable']:
+     data['useable'] = raidsz 
+     data['redundancy'] = raid
+ if  'noraid' in data['redundancy']:
+  return 'No_vol_space'
+ return dgsnewpool(data) 
   
  
   
-def selectPool(volname, volsize):
+def selectPool(volsize):
  global leader, leaderip, clusterip, myhost, myhostip
  pools = allinfo['pools']
  volquota = levelthis(volsize,'G')
@@ -94,7 +98,7 @@ def selectPool(volname, volsize):
    pool = pol
    poolsize = pools[pol]['available']
    host = allinfo['hosts'][pools[pol]['host']]['ipaddress']
- pools = host+':'+pool+'/'+volname
+ pools = host+':'+pool+'/'
  return pools 
    
  
@@ -130,6 +134,7 @@ if __name__=='__main__':
  cmdline='docker exec etcdclient /TopStor/etcdgetlocal.py clusternodeip'
  myhostip=subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','').replace(' ','')
  initgetraids(leader, leaderip, myhost, myhostip)
+ initputzpool(leader, leaderip, myhost, myhostip)
  
  #snapused = levelthis(sys.argv[4])
  alldsks = get(leaderip, 'host','current')
@@ -141,10 +146,10 @@ if __name__=='__main__':
  replivol= selectVol(volname,volsize)
  if 'No_vol_space' in replivol:
   print('continuing to check existing pool.....')
-  replivol = selectPool(volname,volsize)
+  replivol = selectPool(volsize)+volname
   if 'No_vol_space' in replivol:
    print('continuing to create a pool....')
-   replivol = selectDG(volname,volsize)
+   replivol = selectDG(volsize)+volname
  print('result_'+replivol+'result_')
 
    
