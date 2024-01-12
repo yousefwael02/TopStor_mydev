@@ -11,24 +11,45 @@ tasks=`ps -ef | egrep 'Lremote|Rremote'`
 for file in $files; do
 	echo file=$file
 	cluster=` echo $file | awk -F'_' '{print $2}'`
+	nodeip=` echo $file | awk -F'_' '{print $4}'`
 	ttype=`echo $file | awk -F'/' '{print $NF}' | awk -F'_' '{print $1}'`
 	echo cluster $ttype $cluster
 	echo tasks$tasks | grep $file  >/dev/null
 	if [ $? -ne 0 ];
 	then
 		echo running $file
-		kill -9 ` ps -eo pid,args |grep $ttype | grep $cluster | awk '{print $1}'`
+		kill -9 ` ps -eo pid,args |grep $ttype | grep $cluster | awk '{print $1}'` 2>/dev/null
+		echo $file | grep Lremote
+		if [ $? -eq 0 ];
+		then
+			/TopStor/pumpkeys.py pumpthis $nodeip
+		fi
+	fi
+done
+for file in $files; do
+	echo file=$file
+	cluster=` echo $file | awk -F'_' '{print $2}'`
+	nodeip=` echo $file | awk -F'_' '{print $4}'`
+	ttype=`echo $file | awk -F'/' '{print $NF}' | awk -F'_' '{print $1}'`
+	echo cluster $ttype $cluster
+	echo tasks$tasks | grep $file  >/dev/null
+	if [ $? -ne 0 ];
+	then
+		echo running $file
+		kill -9 ` ps -eo pid,args |grep $ttype | grep $cluster | awk '{print $1}'` 2>/dev/null
 		$current_dir/$file & disown
 		if [ $? -ne 0 ];
 		then
 			echo Somthing went wrong, removing active links to this remote node
+			echo thefile=$file
 			kill -9 ` ps -eo pid,args |grep $ttype | grep $cluster | awk '{print $1}'`
 		fi
 	else
+		echo found it running
 		cmd=`cat $current_dir/$file | grep '_REMOTE_' | awk -F'_REMOTE_' '{print $2}'`
 		#cmd=`cat $current_dir/$file `
-		echo cmd=$cmd
-		$cmd > /dev/null
+		#$cmd > /dev/null
+		cat $current_dir/$file | grep '_REMOTE_' | awk -F'_REMOTE_' '{print $2}'
 		if [ $? -ne 0 ];
 		then
 			#kill -9 `pgrep -f $file | awk '{print $1}'`

@@ -2,6 +2,7 @@
 import sys, subprocess
 from sendhost import sendhost
 from time import sleep 
+from etcdget import etcdget as get
 
 def initpumpkeys(*args):
     global leader, leaderip, myhost, myhostip
@@ -19,8 +20,21 @@ def initpumpkeys(*args):
         leaderip = args[1]
         myhost = args[2]
         myhostip = args[3]
-
+def pumpthis(receiver):
+    global leader, leaderip, myhost, myhostip
+    partnerip = receiver[0].split('/')[2]
+    replitype = 'Receiver'
+    repliport = receiver[1].split('/')[1]
+    cluster = receiver[0].split('/')[1]
+    phrase = get(leaderip, 'Partner',cluster)[0][1].split('/')[-1] 
+    pumpkeys(partnerip, replitype, repliport, phrase)
     
+def pumpall():
+    global leader, leaderip, myhost, myhostip
+    receivers = get(leaderip, 'repliPartner','_Receiver')
+    for receiver in receivers:
+        pumpthis(receiver)
+
 def pumpkeys(*bargs):
  global leader, leaderip, myhost, myhostip
  print(str(bargs))
@@ -42,11 +56,20 @@ def pumpkeys(*bargs):
         result=subprocess.run(nodeloc.split(),stdout=subprocess.PIPE)
         if result.returncode == 0:
             isitopen = 'open'
+            print('it is open now')
             break
         count += 1
+        print('still closed')
         sleep(1) 
   
 
 if __name__=='__main__':
  initpumpkeys('init')
- pumpkeys(*sys.argv[1:])
+ if sys.argv[1] == 'pumpall':
+    pumpall()
+ elif sys.argv[1] == 'pumpthis':
+    receiver = get(leaderip, 'repliPartner', sys.argv[2])
+    if len(str(receiver)) > 0 :
+        pumpthis(receiver[0])
+ else:
+    pumpkeys(*sys.argv[1:])
