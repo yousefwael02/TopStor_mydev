@@ -57,7 +57,6 @@ then
    zfs mount $pDG/$name
    zfs set status:mount=active $pDG/$name
   fi
-  rm -rf /TopStordata/exportip*
  fi
  /TopStor/etcdput.py $etcd dirty/volume 0     
 fi

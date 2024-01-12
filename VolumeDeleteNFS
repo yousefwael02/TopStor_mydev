@@ -25,15 +25,15 @@ then
  	fi
 
  echo $@ > /root/VolumeDestroy
- /TopStor/logmsg.py NFS1000 info $userreq $volname
+ docker exec etcdclient /TopStor/logmsg.py NFS1000 info $userreq $volname
  rm -f /TopStordata/exportip.${volname}*
- /TopStor/nfs.sh
+ #/TopStor/nfs.sh
  exportfs -r 
  volip=`zfs get ip:addr $DG/$volname -H -ovalue`
  volsubnet=`zfs get ip:subnet $DG/$volname -H -ovalue`
  /sbin/zfs destroy -r $DG/$volname
  if [ $? -ne 0  ]; then
-  /TopStor/logmsg.py NFS1001 error $userreq $volname
+  docker exec etcdclient /TopStor/logmsg.py NFS1001 error $userreq $volname
  else 
   /pace/etcddel.py $leaderip volumes $volname
   allips=`/pace/etcdget.py $leaderip volumes`
@@ -48,7 +48,7 @@ then
   ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/volumes/${DG}_$name/request/$leader volumes_$stamp
   #/pace/delbroadcastlocal.py volumes $volname
   /TopStor/SnapShotPeriodDelete $leaderip $volname $userreq
-  /TopStor/logmsg.py NFS1002 info $userreq $volname
+  docker exec etcdclient /TopStor/logmsg.py NFS1002 info $userreq $volname
   rm -rf /$DG/exports.$volname
     
  fi
@@ -56,5 +56,5 @@ then
 fi
 echo $perfmon | grep 1
 if [ $? -eq 0 ]; then
- /TopStor/logqueue.py VolumeDeleteNFS stop system 
+ docker exec etcdclient /TopStor/logqueue.py VolumeDeleteNFS stop system 
 fi

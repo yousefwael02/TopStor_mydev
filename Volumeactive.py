@@ -5,6 +5,14 @@ from etcdgetpy import etcdget as get
 from etcdput import etcdput as put 
 
 
+def getippos(vtype):
+    if ('cifs' or 'home') in vtype.lower():
+        return 7
+    elif 'nfs' in vtype.lower():
+        return 9
+    else: 
+        return 0
+
 def volumeactive(leaderip, myhost, pool,volname,prot,active,userreq):
  with open('/root/volumactivepy','w') as f:
   f.write(' '.join([leaderip, myhost, pool,volname,prot,active,userreq]))
@@ -22,7 +30,8 @@ def volumeactive(leaderip, myhost, pool,volname,prot,active,userreq):
  print('volinfo',volinfo,prot)
  volright = volinfo[1].split('/')
  volright[-1] = active
- ipaddr = volright[7]
+ ippos = getippos(prot)
+ ipaddr = volright[ippos]+'/'+volright[ippos+1]
  volright = '/'.join(volright)
  volleft = volinfo[0]
  cmdline='/TopStor/Volumeactivesh.sh '+leaderip+' '+myhost+' '+pool+' '+volname+' '+prot+' '+active+' '+ipaddr+' '+userreq
