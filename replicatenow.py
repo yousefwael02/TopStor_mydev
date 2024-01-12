@@ -272,8 +272,9 @@ def repliparam(snapshot, receiver, userreq='system'):
  pool = snapshot.split('/')[0]
  snapshot = snapshot.split('@')[1].replace(' ','')
  volused = str(allinfo['volumes'][volume]['referenced'])
+ volquota = str(allinfo['volumes'][volume]['quota'])
  snapused = '0' 
- cmd = ' /TopStor/repliSelection.py '+volume+' '+volused+' '+snapshot
+ cmd = ' /TopStor/repliSelection.py '+volume+' '+volquota+' '+snapshot
  nodeip, nodeloc, finalresponse = createnodeloc(receiver, cmd, userreq)
  if 'fail' in finalresponse:
   print('(fail) no node is open for replication in the '+receiver)
