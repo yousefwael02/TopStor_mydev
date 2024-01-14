@@ -3,10 +3,9 @@ echo $@ > /root/receivekeys
 partner=`echo $@ | awk '{print $1}'`
 partnerip=`echo $@ | awk '{print $2}'`
 clusterip=`echo $@ | awk '{print $3}'`
-ptype=`echo $@ | awk '{print $4}'`
-port=`echo $@ | awk '{print $5}'`
-ppass=`echo $@ | awk '{print $6}'`
-keys=`echo $@ | awk '{print $7}'`
+port=`echo $@ | awk '{print $4}'`
+ppass=`echo $@ | awk '{print $5}'`
+keys=`echo $@ | awk '{print $6}'`
 
 leader=`docker exec etcdclient /TopStor/etcdgetlocal.py leader `
 leaderip=`docker exec etcdclient /TopStor/etcdgetlocal.py leaderip `
