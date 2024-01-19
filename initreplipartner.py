@@ -16,7 +16,6 @@ from ast import literal_eval as mtuple
 def submitkeys(partner, partnerip, isleader, myhost, myhostip, leaderip, repliport, phrase):
     cmdline = '/TopStor/preparekeys.sh '+partner+' '+partnerip
     result = subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').split('\n')[0].replace(' ','_spc_')
-    print('result of',partnerip,result)
     if 'yes' in isleader:
         z=['/TopStor/receivekeys.sh',myhost,myhostip,leaderip, repliport, phrase, result]
     else:
@@ -40,7 +39,6 @@ def submitkeys(partner, partnerip, isleader, myhost, myhostip, leaderip, replipo
     return nodeloc,result.returncode
 
 def pumpcluster(*bargs):
- print(str(bargs))
  leaderip = bargs[0]
  myhostip = bargs[1]
  myhost = bargs[2]
@@ -55,12 +53,11 @@ def pumpcluster(*bargs):
 
 def initPartnerReadies(leadernodeloc,  partner, partnerip, myhost, myhostip, leaderip, repliport, phrase): 
  cmd = leadernodeloc + ' /TopStor/etcdget.py '+partnerip+' leader'
- partnerleader =subprocess.run(cmd.split(),stdout=subprocess.PIPE).stdout.decode('utf-8')
- print(partnerleader)
+ partnerleader =subprocess.run(cmd.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','')
  cmd = leadernodeloc + ' /TopStor/etcdget.py '+partnerip+' ready --prefix'
  partnerreadies =subprocess.run(cmd.split(),stdout=subprocess.PIPE).stdout.decode('utf-8')
  cmd=' /TopStor/etcdget.py '+leaderip+' replinextport' 
- port2 =subprocess.run(cmd.split(),stdout=subprocess.PIPE).stdout.decode('utf-8')
+ port2 =subprocess.run(cmd.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','')
  for tup in partnerreadies[:-1].split("\n"):
     ready = mtuple(tup)
     if partnerleader in ready[0]:
@@ -72,14 +69,16 @@ def initPartnerReadies(leadernodeloc,  partner, partnerip, myhost, myhostip, lea
     nodeloc, _ = submitkeys(partner, ready[1], isleader,  myhost, myhostip, leaderip, repliport, phrase)
     if partnerleader in ready[0]:
         leadernodeloc = nodeloc
-    portcmd=' /TopStor/etcdget.py '+partnerip+' replinextport' 
+        portcmd=' /TopStor/etcdget.py '+partnerip+' replinextport' 
+    else:
+        portcmd=' /TopStor/etcdget.py '+ready[1]+' replinextport' 
     cmd = leadernodeloc + portcmd
-    port1 =subprocess.run(cmd.split(),stdout=subprocess.PIPE).stdout.decode('utf-8')
+    port1 =subprocess.run(cmd.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','')
     if int(port1) > int(port2):
         selectedport = int(port1) 
     else:
         selectedport = int(port2) 
-    print('selectedport',selectedport)
+    print('selectedport',port1, port2, selectedport)
  
 def checkpartner(nodeloccmd):
  isitopen = 'closed'
