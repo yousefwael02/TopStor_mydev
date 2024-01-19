@@ -21,7 +21,6 @@ def submitkeys(partner, partnerip, isleader, myhost, myhostip, leaderip, replipo
         z=['/TopStor/receivekeys.sh',myhost,myhostip,leaderip, repliport, phrase, result]
     else:
         z=['/TopStor/sendreceivekeys.py',partnerip, myhost,myhostip,leaderip, repliport, phrase, result]
-        print('zzzzzzzzz',' '.join(z))
     msg={'req': 'Exchange', 'reply':z}
     sendhost(partnerip, str(msg),'recvreply',myhost)
     sleep(3)
@@ -66,6 +65,8 @@ def initPartnerReadies(leadernodeloc,  partner, partnerip, myhost, myhostip, lea
     ready = mtuple(tup)
     if partnerleader in ready[0]:
         isleader = 'yes'
+        cmd = ' /TopStor/rmkeys.sh '+partner+' '+partnerip
+        subprocess.run(cmd.split(),stdout=subprocess.PIPE).stdout.decode('utf-8')
     else:
         isleader = 'no'
     nodeloc, _ = submitkeys(partner, ready[1], isleader,  myhost, myhostip, leaderip, repliport, phrase)
