@@ -66,15 +66,12 @@ def initPartnerReadies(leadernodeloc,  partner, partnerip, myhost, myhostip, lea
     nodeloc, _ = submitkeys(partner, ready[1], myhost, myhostip, leaderip, repliport, phrase)
     if partnerleader in ready[0]:
         leadernodeloc = nodeloc
-    cmd = ['/TopStor/sendreceivekeys.sh',myhost,myhostip,leaderip, repliport, phrase, result]
+    cmd = ['/TopStor/sendreceivekeys.py',myhost,myhostip,leaderip, repliport, phrase, result]
     cmd = nodeloc.split()+ cmd
     subprocess.run(cmd,stdout=subprocess.PIPE).stdout.decode('utf-8')
     portcmd=' /TopStor/etcdget.py '+partnerip+' replinextport' 
     cmd = nodeloc+portcmd
     port1 =subprocess.run(cmd.split(),stdout=subprocess.PIPE).stdout.decode('utf-8')
-    cmd=' /TopStor/etcdget.py '+leaderip+' replinextport' 
-    port2 =subprocess.run(cmd.split(),stdout=subprocess.PIPE).stdout.decode('utf-8')
-    print(port2)
     if int(port1) > int(port2):
         selectedport = int(port1) 
     else:
