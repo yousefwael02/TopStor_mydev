@@ -13,11 +13,15 @@ from sendhost import sendhost
 from ast import literal_eval as mtuple
 
 
-def submitkeys(partner, partnerip, myhost, myhostip, leaderip, repliport, phrase):
+def submitkeys(partner, partnerip, isleader, myhost, myhostip, leaderip, repliport, phrase):
     cmdline = '/TopStor/preparekeys.sh '+partner+' '+partnerip
     result = subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').split('\n')[0].replace(' ','_spc_')
     print('result of',partnerip,result)
-    z=['/TopStor/receivekeys.sh',myhost,myhostip,leaderip, repliport, phrase, result]
+    if 'yes' in isleader:
+        z=['/TopStor/receivekeys.sh',myhost,myhostip,leaderip, repliport, phrase, result]
+    else:
+        z=['/TopStor/sendreceivekeys.py',partnerip, myhost,myhostip,leaderip, repliport, phrase, result]
+        print('zzzzzzzzz',' '.join(z))
     msg={'req': 'Exchange', 'reply':z}
     sendhost(partnerip, str(msg),'recvreply',myhost)
     sleep(3)
@@ -45,10 +49,10 @@ def pumpcluster(*bargs):
  partnerip = bargs[4]
  repliport = bargs[5]
  phrase = bargs[6]
- leadernodeloc, returncode = submitkeys(partner, partnerip, myhost, myhostip, leaderip, repliport, phrase)
+ leadernodeloc, returncode = submitkeys(partner, partnerip, 'yes', myhost, myhostip, leaderip, repliport, phrase)
  if returncode != 0:
     return
- initPartnerReadies(leadernodeloc, leadernodeloc, partner, partnerip, myhost, myhostip, leaderip, repliport, phrase)
+ initPartnerReadies(leadernodeloc, partner, partnerip, myhost, myhostip, leaderip, repliport, phrase)
 
 def initPartnerReadies(leadernodeloc,  partner, partnerip, myhost, myhostip, leaderip, repliport, phrase): 
  cmd = leadernodeloc + ' /TopStor/etcdget.py '+partnerip+' leader'
@@ -61,16 +65,14 @@ def initPartnerReadies(leadernodeloc,  partner, partnerip, myhost, myhostip, lea
  for tup in partnerreadies[:-1].split("\n"):
     ready = mtuple(tup)
     if partnerleader in ready[0]:
-        cmd = '/TopStor/rmkeys.sh '+partner+' '+ready[1]
-        result = subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8')
-    nodeloc, _ = submitkeys(partner, ready[1], myhost, myhostip, leaderip, repliport, phrase)
+        isleader = 'yes'
+    else:
+        isleader = 'no'
+    nodeloc, _ = submitkeys(partner, ready[1], isleader,  myhost, myhostip, leaderip, repliport, phrase)
     if partnerleader in ready[0]:
         leadernodeloc = nodeloc
-    cmd = ['/TopStor/sendreceivekeys.py',myhost,myhostip,leaderip, repliport, phrase, result]
-    cmd = nodeloc.split()+ cmd
-    subprocess.run(cmd,stdout=subprocess.PIPE).stdout.decode('utf-8')
     portcmd=' /TopStor/etcdget.py '+partnerip+' replinextport' 
-    cmd = nodeloc+portcmd
+    cmd = leadernodeloc + portcmd
     port1 =subprocess.run(cmd.split(),stdout=subprocess.PIPE).stdout.decode('utf-8')
     if int(port1) > int(port2):
         selectedport = int(port1) 
