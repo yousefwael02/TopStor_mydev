@@ -16,7 +16,7 @@ if [ $? -eq 0 ];
 then
  echo it is okok >> /root/receivekeys
  /TopStor/etcdput.py $leaderip nodesender/${clusterip}/$partnerip/$myhostip $partner
- echo $myhost | $leader
+ echo $myhost | grep $leader
  if [ $? -ne 0 ];
  then
  	/TopStor/etcdput.py $myhostip nodesender/${clusterip}/$partnerip $partner   2>/dev/null

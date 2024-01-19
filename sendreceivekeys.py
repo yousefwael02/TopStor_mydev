@@ -10,5 +10,8 @@ repliport = sys.argv[5]
 phrase = sys.argv[6]
 result = sys.argv[7]
 z=['/TopStor/receivekeys.sh',myhost,myhostip,nodeip, repliport, phrase, result]
+with open('/root/sendrectmp','w') as f:
+    f.write(' '.join(z)+'\n')
+    f.write(ownerip)
 msg={'req': 'Exchange', 'reply':z}
-endhost(ownerip, str(msg),'recvreply',myhost)
+sendhost(ownerip, str(msg),'recvreply',myhost)
