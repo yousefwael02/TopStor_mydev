@@ -84,12 +84,11 @@ for receiver in "${receivers[@]}"; do
 		else
 			etcdip=`/TopStor/etcdget.py $leaderip clusternodeip`
 		fi
-('Partner/DRsite_Receiver', '10.11.11.200/Receiver/2400/bravositeone')
 		clusterip=`echo $receiver | awk -F", '" '{print$2}' | awk -F"/" '{print $1}'`
 		repliport=`echo $receiver | awk -F"/" '{print$4}'`
 		phrase=`echo $receiver | awk -F"/" '{print$5}' | awk -F"'" '{print $1}'`
-		echo /TopStor/initreplipartner.py $leaderip $myhostip $myhost $clusterip $repliport $phrase 
-		/TopStor/initreplipartner.py $leaderip $myhostip $myhost $clusterip $repliport $phrase 
+		echo /TopStor/initreplipartner.py $leaderip $myhostip $myhost $cluster $clusterip $repliport $phrase 
+		/TopStor/initreplipartner.py $leaderip $myhostip $myhost $cluster $clusterip $repliport $phrase 
 	fi
 done
 exit
