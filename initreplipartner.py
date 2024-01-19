@@ -23,8 +23,8 @@ def submitkeys(partner, partnerip, isleader, myhost, myhostip, leaderip, replipo
     msg={'req': 'Exchange', 'reply':z}
     sendhost(partnerip, str(msg),'recvreply',myhost)
     sleep(3)
-    nodeloc = 'ssh -oBatchmode=yes -i /TopStordata/'+partner+'_keys/'+partnerip+' -p '+repliport+' -oStrictHostKeyChecking=no '+partnerip
-    print('ssh -oBatchmode=yes -i /TopStordata/'+partner+'_keys/'+partnerip+' -p '+repliport+' -oStrictHostKeyChecking=no '+partnerip)
+    nodeloc = 'ssh -oBatchmode=yes -i /TopStordata/'+partner+'/'+partnerip+' -p '+repliport+' -oStrictHostKeyChecking=no '+partnerip
+    print('ssh -oBatchmode=yes -i /TopStordata/'+partner+'/'+partnerip+' -p '+repliport+' -oStrictHostKeyChecking=no '+partnerip)
     count = 0 
     result=subprocess.run(nodeloc.split()+['ls'],stdout=subprocess.PIPE)
     while count < 10:
@@ -79,6 +79,21 @@ def initPartnerReadies(leadernodeloc,  partner, partnerip, myhost, myhostip, lea
     else:
         selectedport = int(port2) 
     print('selectedport',port1, port2, selectedport)
+    cmdline = '/TopStor/remotetunneladd.sh '+partner+' '+partnerip+' '+leaderip+' '+ready[1]+' '+repliport+' '+str(selectedport)
+    print('/TopStor/remotetunneladd.sh '+partner+' '+partnerip+' '+leaderip+' '+ready[1]+' '+repliport+' '+str(selectedport))
+    subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8')
+    if partnerleader in ready[0]:
+        cmdline = nodeloc + ' /TopStor/etcdput.py '+partnerip+' replinextport '+str(selectedport+1)
+    else:
+        cmdline = nodeloc + ' /TopStor/etcdput.py '+ready[1]+' replinextport '+str(selectedport+1)
+    subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8')
+    leader=get(leaderip,'leader')[0]
+    if leader in myhost:
+        cmdline = '/TopStor/etcdput.py '+leaderip+' replinextport '+str(selectedport+1)
+    else:
+        cmdline = '/TopStor/etcdput.py '+myhostip+' replinextport '+str(selectedport+1)
+    subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8')
+    
  
 def checkpartner(nodeloccmd):
  isitopen = 'closed'
@@ -112,7 +127,7 @@ def createnodeloc(leaderip, etcdip, receiver,userreq):
  for node in nodesinfo:
   print(node)
   nodeip = node[0].split('/')[2]
-  nodeloc = 'ssh -oBatchmode=yes -i /TopStordata/'+partner+'_keys/'+nodeip+' -p '+pport+' -oStrictHostKeyChecking=no ' + nodeip 
+  nodeloc = 'ssh -oBatchmode=yes -i /TopStordata/'+partner+'/'+nodeip+' -p '+pport+' -oStrictHostKeyChecking=no ' + nodeip 
   nodeloccmd = nodeloc+' '+ cmd
   print('################################################333')
   print(nodeip)
@@ -129,7 +144,7 @@ def createnodeloc(leaderip, etcdip, receiver,userreq):
     return nodeip, nodeloc, response
  nodeip = remoteCluster
  pumpkeys(nodeip, replitype, pport, phrase)
- nodeloc = 'ssh -oBatchmode=yes -i /TopStordata/'+nodeip+'_keys/'+nodeip+' -p '+pport+' -oStrictHostKeyChecking=no ' + nodeip 
+ nodeloc = 'ssh -oBatchmode=yes -i /TopStordata/'+nodeip+'/'+nodeip+' -p '+pport+' -oStrictHostKeyChecking=no ' + nodeip 
  nodeloccmd = nodeloc+' '+ cmd
  isopen, response = checkpartner(nodeloccmd)
  finalresponse = response
