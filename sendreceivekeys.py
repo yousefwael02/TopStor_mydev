@@ -2,12 +2,13 @@
 import sys
 from sendhost import sendhost
 
-myhost = sys.argv[1]
-myhostip = sys.argv[2]
-nodeip = sys.argv[3]
-repliport = sys.argv[4]
-phrase = sys.argv[5]
-result = sys.argv[6]
-z=['/TopStor/sendreceivekeys.sh',myhost,myhostip,leaderip, repliport, phrase, result]
+ownerip = sys.argv[1]
+myhost = sys.argv[2]
+myhostip = sys.argv[3]
+nodeip = sys.argv[4]
+repliport = sys.argv[5]
+phrase = sys.argv[6]
+result = sys.argv[7]
+z=['/TopStor/receivekeys.sh',myhost,myhostip,nodeip, repliport, phrase, result]
 msg={'req': 'Exchange', 'reply':z}
-endhost(partnerip, str(msg),'recvreply',myhost)
+endhost(ownerip, str(msg),'recvreply',myhost)
