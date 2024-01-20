@@ -4,22 +4,26 @@
 leaderip=`echo $@ | awk '{print $1}'`
 myhost=`hostname`
 leader=`/TopStor/etcdget.py $leaderip leader`
+myhostip=`/TopStor/etcdget.py $leaderip ready/$myhost`
 echo $leader | grep $myhost
 if [ $? -eq 0 ];
 then
 	etcdip=$leaderip
 else
-	etcdip=`/TopStor/etcdget.py $leaderip ready/$myhost`
+	etcdip=$myhostip
 fi
 current_dir='/TopStordata'
 receivers=$(/TopStor/etcdget.py $leaderip Partner _Receiver)
 Lremote='needed'
+readyport='0'
 failednode='NOfailedNode'
 #looper over each receive
 echo ---------looping over each receiver
 for receiver in "${receivers[@]}"; do
 	cluster=`echo $receiver | awk -F'/' '{print$2}' | awk -F"'," '{print $1}'`
 	clusterip=`echo $receiver | awk -F"', '" '{print$2}' | awk -F"/" '{print $1}'`
+	phrase=`echo $receiver | awk -F"/" '{print$5}' | awk -F"'" '{print $1}'`
+	repliport=`echo $receiver | awk -F"/" '{print$4}'`
 	tasks=`ps -ef | egrep 'Rremote' | grep ssh$cluster`
 	echo tt$tasks | grep $cluster >/dev/null
 	if [ $? -eq 0 ];
@@ -36,8 +40,8 @@ for receiver in "${receivers[@]}"; do
 			failednode=`echo $tasks | awk -F"$cluster/" '{print $2}' | awk '{print $1}'`
 			Lremote='needed'
 		else
-			echo It is successful so progressing to the next Receiver
-			continue
+			echo It is successful so progressing to the next Receiver after checking the readies
+			Lremote='continue'
 		fi
 	fi
 	while [[ $Lremote == 'needed' ]];
@@ -76,7 +80,7 @@ for receiver in "${receivers[@]}"; do
 					continue
 				else
 				echo ----- test successfull then proceeding to the next receiver
-					Lremote='ok'
+					Lremote='continue'
 				fi
 			fi
 		else
@@ -106,10 +110,16 @@ for receiver in "${receivers[@]}"; do
 		else
 			etcdip=`/TopStor/etcdget.py $leaderip clusternodeip`
 		fi
-		clusterip=`echo $receiver | awk -F", '" '{print$2}' | awk -F"/" '{print $1}'`
-		repliport=`echo $receiver | awk -F"/" '{print$4}'`
-		phrase=`echo $receiver | awk -F"/" '{print$5}' | awk -F"'" '{print $1}'`
-		echo /TopStor/initreplipartner.py $leaderip $myhostip $myhost $cluster $clusterip $repliport $phrase 
-		/TopStor/initreplipartner.py $leaderip $myhostip $myhost $cluster $clusterip $repliport $phrase 
+		echo /TopStor/initreplipartner.py $leaderip $myhostip $myhost $cluster $clusterip $repliport $phrase
+		/TopStor/initreplipartner.py init $leaderip $myhostip $myhost $cluster $clusterip $repliport $phrase 
+	fi
+	echo $Lremote | grep continue
+	if [ $? -eq 0 ];
+	then
+		echo ------------ checking new remote ready nodes
+		echo /TopStor/initreplipartner.py readyonly $cluster $clusterip $myhost $myhostip $leaderip $repliport $phrase $readyport
+		/TopStor/initreplipartner.py readyonly $cluster $clusterip $myhost $myhostip $leaderip $repliport $phrase $readyport
+		
 	fi
 done
+

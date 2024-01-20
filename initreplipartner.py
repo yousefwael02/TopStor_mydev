@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import sys, subprocess, logmsg
+import sys, os, subprocess, logmsg
 from allphysicalinfo import getall 
 from etcdgetpy import etcdget as get
 from etcdgetnoport import etcdget as getnoport
@@ -21,7 +21,11 @@ def submitkeys(partner, partnerip, isleader, myhost, myhostip, leaderip, replipo
     else:
         z=['/TopStor/sendreceivekeys.py',partnerip, myhost,myhostip,leaderip, repliport, phrase, result]
     msg={'req': 'Exchange', 'reply':z}
-    sendhost(partnerip, str(msg),'recvreply',myhost)
+    try:
+        sendhost(partnerip, str(msg),'recvreply',myhost)
+    except:
+        print('the cluster is down')
+        exit()
     sleep(3)
     nodeloc = 'ssh -oBatchmode=yes -i /TopStordata/'+partner+'/'+partnerip+' -p '+repliport+' -oStrictHostKeyChecking=no '+partnerip
     print('ssh -oBatchmode=yes -i /TopStordata/'+partner+'/'+partnerip+' -p '+repliport+' -oStrictHostKeyChecking=no '+partnerip)
@@ -51,15 +55,27 @@ def pumpcluster(*bargs):
     return
  initPartnerReadies(leadernodeloc, partner, partnerip, myhost, myhostip, leaderip, repliport, phrase)
 
-def initPartnerReadies(leadernodeloc,  partner, partnerip, myhost, myhostip, leaderip, repliport, phrase): 
- cmd = leadernodeloc + ' /TopStor/etcdget.py '+partnerip+' leader'
- partnerleader =subprocess.run(cmd.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','')
- cmd = leadernodeloc + ' /TopStor/etcdget.py '+partnerip+' ready --prefix'
- partnerreadies =subprocess.run(cmd.split(),stdout=subprocess.PIPE).stdout.decode('utf-8')
+def initPartnerReadies(leadernodeloc,  partner, partnerip, myhost, myhostip, leaderip, repliport, phrase,tunnelport=''): 
+ if 'readyonly' in leadernodeloc:
+    partnerreadies = getnoport(leaderip, str(tunnelport),'ready','--prefix')
+    print(leadernodeloc, partner, partnerip, myhost)
+    knownreadies = os.listdir('/TopStordata/'+partner)
+    partnerleader = getnoport(leaderip, str(tunnelport),'leader')[0]
+    print('partnerleader',partnerleader)
+ else:
+    cmd = leadernodeloc + ' /TopStor/etcdget.py '+partnerip+' leader'
+    partnerleader =subprocess.run(cmd.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','')
+    cmd = leadernodeloc + ' /TopStor/etcdget.py '+partnerip+' ready --prefix'
+    partnerreadies =subprocess.run(cmd.split(),stdout=subprocess.PIPE).stdout.decode('utf-8')[:-1].split("\n")
  cmd=' /TopStor/etcdget.py '+leaderip+' replinextport' 
  port2 =subprocess.run(cmd.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','')
- for tup in partnerreadies[:-1].split("\n"):
-    ready = mtuple(tup)
+ for tup in partnerreadies:
+    if 'readyonly' in leadernodeloc:
+        ready = tup
+        if ready[1] in str(knownreadies):
+            continue 
+    else:
+        ready = mtuple(tup)
     if partnerleader in ready[0]:
         isleader = 'yes'
         cmd = ' /TopStor/rmkeys.sh '+partner+' '+partnerip
@@ -93,6 +109,7 @@ def initPartnerReadies(leadernodeloc,  partner, partnerip, myhost, myhostip, lea
     else:
         cmdline = '/TopStor/etcdput.py '+myhostip+' replinextport '+str(selectedport+1)
     subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8')
+    port2 = str(selectedport+1)
     
  
 def checkpartner(nodeloccmd):
@@ -214,4 +231,7 @@ def createnodeloc(leaderip, etcdip, receiver,userreq):
  
 
 if __name__=='__main__':
- pumpcluster(*sys.argv[1:])
+ if 'readyonly' in sys.argv[1]:
+    initPartnerReadies(*sys.argv[1:]) 
+ else:
+    pumpcluster(*sys.argv[2:])
