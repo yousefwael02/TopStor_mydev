@@ -56,102 +56,13 @@ def usetunnelport(receiver,cmd):
 
 def createnodeloc(receiver, cmd, userreq):
  global allinfo, phrase, myclusterip, pport, nodeloc, replitype, leaderip, etcdip
- partnerinfo = get(etcdip, 'Partner/'+receiver)[0].split('/')
- remoteCluster = partnerinfo[0]
- replitype = partnerinfo[1]
- pport = partnerinfo[2]
- phrase = partnerinfo[-1]
- print(partnerinfo)
- print(replitype, pport, phrase, leaderip )
- nodesinfo = get(etcdip, 'repliPartner/'+receiver,'--prefix')
- isopen = 'closed'
- print('hi',nodesinfo)
- #nodesinfo.append(('hi/hi/'+partnerinfo[0],'hi')) 
- isopen = 'close'
- print(nodesinfo)
- for node in nodesinfo:
-  print(node)
-  nodeip = node[0].split('/')[2]
-  nodeloc = 'ssh -oBatchmode=yes -i /TopStordata/'+nodeip+'_keys/'+nodeip+' -p '+pport+' -oStrictHostKeyChecking=no ' + nodeip 
-  nodeloccmd = nodeloc+' '+ cmd
-  print('################################################333')
-  print(nodeip)
-  print(nodeloc)
-  isopen, response = checkpartner(nodeloccmd)
-  print(isopen)
-  print(response)
-  print('################################################333')
-  if isopen == 'open':
-    return nodeip, nodeloc, response
- nodeip = remoteCluster
- pumpkeys(nodeip, replitype, pport, phrase)
- nodeloc = 'ssh -oBatchmode=yes -i /TopStordata/'+nodeip+'_keys/'+nodeip+' -p '+pport+' -oStrictHostKeyChecking=no ' + nodeip 
- nodeloccmd = nodeloc+' '+ cmd
- isopen, response = checkpartner(nodeloccmd)
- finalresponse = response
- if isopen != 'open':
-    print('port is not open')
-    finalresponse = 'result_failresult_ connection to all the nodes  cluster '+nodeip
- else:
-    nodeloccmd = nodeloc +' '+ '/TopStor/nodeinfo.sh '+remoteCluster 
-    print('################################################333')
-    print(nodeip)
-    print(nodeloccmd)
-    print('################################################333')
-    print('sending checkpartner')
-    isopen, response = checkpartner(nodeloccmd)
-    print('response',response)
-    if isopen != 'open':
-        finalresponse = 'result_failresult_ connection to remote node '+nodeip
-    else:
-        print('################################################333')
-        print(response)
-        print('################################################333')
-        partnerinfo = response.split('_')
-        try: 
-            remotenextport = int(partnerinfo[4])
-        except:
-            remotenextport = 2380
-        try:
-            mynextport = int(get(etcdip,'replinextport')[0])
-        except:
-            mynextport = 2380
-        replileader = partnerinfo[5]
-        tunnelport = [ remotenextport ,mynextport ]
-        print(tunnelport)
-        tunnelport.sort()
-        tunnelport = tunnelport[-1]+1 
-        print(tunnelport)
-        pumpkeys(partnerinfo[3], replitype, pport, phrase)
-        put(etcdip,'repliPartner/'+receiver+'/'+partnerinfo[3], partnerinfo[2]+'/'+str(tunnelport))
-        #if etcdip == leaderip:
-        put(etcdip, 'replinextport',str(tunnelport))
-        print('/TopStor/remotetunneladd.sh '+receiver+' '+remoteCluster+' '+leaderip+' '+partnerinfo[3]+' '+pport+' '+str(tunnelport))
-        cmdline = '/TopStor/remotetunneladd.sh '+receiver+' '+remoteCluster+' '+leaderip+' '+partnerinfo[3]+' '+pport+' '+str(tunnelport)
-        subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8')
-        cmdline='docker exec etcdclient /TopStor/etcdgetlocal.py clusternode'
-        myhost=subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','').replace(' ','')
-        cmdline='docker exec etcdclient /TopStor/etcdgetlocal.py clusternodeip'
-        myip=subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').replace('\n','').replace(' ','')
-        remotepartner = getnoport(leaderip, str(tunnelport),'Partner',leaderip)
-        if leaderip not in remotepartner:
-            #dels(leaderip,'Partner',receiver)
-            logmsg.sendlog('Partnerfa01','info',userreq, receiver.split('_')[0])
-        dels(leaderip,'sync','request/'+receiver)
-        myalias = remotepartner[0][0].split('/')[1]
-        putnoport(leaderip, str(tunnelport),'replireverse/'+myalias+'/'+receiver+'/'+leaderip, str(tunnelport))
-        checkifok = getnoport(leaderip, str(tunnelport),'replireverse/'+myalias+'/'+receiver+'/'+leaderip)[0]
-        if str(tunnelport) in checkifok:
-            putnoport(leaderip, str(tunnelport),'replinextport', str(tunnelport))
-            logmsg.sendlog('Partnersu01','info',userreq, receiver.split('_')[0])
-        else:
-            #dels(leaderip,'Partner',receiver)
-            logmsg.sendlog('Partnerfa01','error',userreq, receiver.split('_')[0])
-
- if nodeip == remoteCluster and isopen != 'open' :
-   finalresponse = 'result_failresult_ connection to all the nodes in the remote cluster '+nodeip
-    
- return nodeip, nodeloc, finalresponse
+ cmdline = 'ps -ef'
+ result = subprocess.run(cmdline.split(),stdout=subprocess.PIPE).stdout.decode('utf-8').split('\n')
+ tunnelport = [port for port in result if 'ssh'+receiver in port and 'Lremote' in port][0].split(leaderip+':')[1].split(':')[0]
+ nodeloc = 'ssh'+[port for port in result if 'ssh'+receiver in port and 'Lremote' in port][0].split('ssh')[1].split('-N')[0]
+ remoteip = nodeloc.split('/')[-1]
+ nodeloc = nodeloc + remoteip
+ return nodeloc
  
 
 def replistream(receiver, nodeip, snapshot, nodeowner, poolvol, pool, volume, csnaps):
@@ -275,14 +186,16 @@ def repliparam(snapshot, receiver, userreq='system'):
  volquota = str(allinfo['volumes'][volume]['quota'])
  snapused = '0' 
  cmd = ' /TopStor/repliSelection.py '+volume+' '+volquota+' '+snapshot
- nodeip, nodeloc, finalresponse = createnodeloc(receiver, cmd, userreq)
+ nodeloc = createnodeloc(receiver, cmd, userreq)
+ cmd = nodeloc + cmd
+ finalresponse = subprocess.run(cmd.split(' '),stdout=subprocess.PIPE).stdout.decode().split('result_')[1]
+ print('finalresponse',finalresponse)
  if 'fail' in finalresponse:
   print('(fail) no node is open for replication in the '+receiver)
   return 'closed'
  if 'No_vol_space' in str(finalresponse):
   print('(fail) No space in the receiver: '+receiver)
   return 'No_Sppue'
- finalresponse = finalresponse.split('result_')[1]
  print('selection',finalresponse)
  nodeowner = finalresponse.split(':')[0]
  poolvol = finalresponse.split(':')[1].split('@')[0]
@@ -297,11 +210,7 @@ def repliparam(snapshot, receiver, userreq='system'):
  else:
   print('success ',result)
   nodeloccmd = nodeloc+'  /TopStor/setsnapsender.py '+snapshot+' '+leaderip
-  isopen , _ = checkpartner(nodeloccmd)
-  if 'open' not in isopen:
-   print('result_failresult_ connection to the remote parnter')
-   exit()
-  #subprocess.run(cmd.split(' '),stdout=subprocess.PIPE).stdout.decode()
+  subprocess.run(nodeloccmd.split(' '),stdout=subprocess.PIPE).stdout.decode()
   cmd = '/usr/sbin/zfs set partner:receiver='+receiver.split('_')[0]+' '+pool+'/'+volume+'@'+snapshot
  subprocess.run(cmd.split(' '),stdout=subprocess.PIPE).stdout.decode()
  #return _'+volume, volused, snapshot+'result_'
@@ -355,7 +264,7 @@ def syncpush(receiver, userreq):
  #syncinfo = packagekeys('pushsync/sync', '/dhcp')
  #cmd = '/TopStor/replisyncpull.py '+usershash+' '+usersinfo+' '+groups+' '+syncinfo
  cmd = 'pwd'
- nodeip, nodeloc, finalresponse = createnodeloc(receiver, cmd,userreq)
+ nodeloc = createnodeloc(receiver, cmd,userreq)
  cmd = 'putnoport '+leaderip+' TUNNELPORT tempkey  32322'+leader
  usetunnelport(receiver,cmd)
  print('finalresponse', finalresponse)
