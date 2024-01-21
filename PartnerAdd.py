@@ -58,7 +58,8 @@ def addpartner(*bargs):
   put(leaderip, 'Partner/'+partneralias+'_'+replitype , partnerip+'/'+replitype+'/'+str(repliport)+'/'+phrase) 
   dosync(myhost,'Partnr_str_', 'sync/Partnr/Add_'+partneralias+':::'+replitype+'_'+partnerip+'::'+replitype+'::'+str(repliport)+'::'+phrase+'/request','Partnr_str_'+str(stamp())) 
  if 'Sender' not in replitype:
-  syncpush(partneralias+'_'+replitype,userreq) 
+  #syncpush(partneralias+'_'+replitype,userreq) 
+  put(leaderip, 'pushusers',partneralias+'/'+clusterip)
  sendlog('Partner1002','info',userreq,partneralias,replitype)
  
 

@@ -14,12 +14,18 @@ else
 fi
 current_dir='/TopStordata'
 receivers=$(/TopStor/etcdget.py $leaderip Partner _Receiver)
+if [[ $receivers == '_1' ]];
+then
+	echo --- no receivers....exiting
+	exit
+fi
 Lremote='needed'
 readyport='0'
 failednode='NOfailedNode'
 #looper over each receive
 echo ---------looping over each receiver
 for receiver in "${receivers[@]}"; do
+	
 	cluster=`echo $receiver | awk -F'/' '{print$2}' | awk -F"'," '{print $1}'`
 	clusterip=`echo $receiver | awk -F"', '" '{print$2}' | awk -F"/" '{print $1}'`
 	phrase=`echo $receiver | awk -F"/" '{print$5}' | awk -F"'" '{print $1}'`
