@@ -7,7 +7,7 @@ from logmsg import sendlog, initlog
 from sendhost import sendhost
 from privthis import privthis 
 from time import time as stamp
-from replicatenow import syncpush, repliinit
+#from replicatenow import syncpush, repliinit
 
 
 def dosync(leader,sync,  *args):
@@ -53,7 +53,7 @@ def addpartner(*bargs):
   print('not authorized to add partner')
   return
  sendlog('Partner1000','info',userreq,partneralias,replitype)
- repliinit(leaderip,leader, etcd)
+ #repliinit(leaderip,leader, etcd)
  if 'init' in init:
   put(leaderip, 'Partner/'+partneralias+'_'+replitype , partnerip+'/'+replitype+'/'+str(repliport)+'/'+phrase) 
   dosync(myhost,'Partnr_str_', 'sync/Partnr/Add_'+partneralias+':::'+replitype+'_'+partnerip+'::'+replitype+'::'+str(repliport)+'::'+phrase+'/request','Partnr_str_'+str(stamp())) 
