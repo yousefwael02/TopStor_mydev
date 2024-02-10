@@ -39,6 +39,13 @@ def feature_calc(i, k):
     global hosts, disktypes, mindisksize, count, combinations, disks, disksinfo, mustinclude
     lendisks = len(disksinfo)
     combineddisks = i[0]+','+k[0]
+    toprint = 0 
+    if ('207' in k[0] and 'f65' in i[0]) or ('207' in i[0] and 'f65' in k[0]):
+        toprint = 1
+        print('hellllllllllllllllllllo')
+        print(combineddisks)
+        print(disksinfo[i[0]]['pool'],disksinfo[k[0]]['pool'])
+        print('mustinclude',mustinclude)
     res = []
     if i[3] not in k[3]:
         combinedhosts = i[3]+','+k[3]
@@ -47,70 +54,143 @@ def feature_calc(i, k):
     
     combineddisks = i[0]+','+k[0]
     if  i[4] >= k[4] or i[0] == k[0] or i[0] in k[0] or k[0] in i[0] or i[2] == float('inf') or k[2] == float('inf'): # less matrix calcs
+        if toprint:
+            print('iam here 1')
         res =  [i[0]+','+k[0],i[1],float('inf'),combinedhosts]
     elif ('ree' not in disksinfo[i[0]]['pool'] and i[0] not in mustinclude) or (',' not in k[0] and 'ree' not in disksinfo[k[0]]['pool'] and k[0] not in mustinclude): # the disks belong to pools except if we are optimizing the raid they could be online in this mustinclude 
+        if toprint:
+            print('iam here 2')
         res =  [i[0]+','+k[0],i[1],float('inf'),combinedhosts]
     elif disksinfo[i[0]]['size'] < mindisksize:
         res =  [i[0]+','+k[0],i[1],float('inf'),combinedhosts]
+        if toprint:
+            print('iam here 3')
          
     elif ',' not in k[3] and disksinfo[k[0]]['size'] < mindisksize:
         res =  [i[0]+','+k[0],i[1],float('inf'),combinedhosts]
+        if toprint:
+            print('iam here 4')
     else:
+        if toprint:
+            print('iam here 5')
         if i[1] < lendisks+1:  # disk hosts test
             disksn = combineddisks.count(',')+1
             hostsn = combinedhosts.count(',')+1
+            if toprint:
+                print('iam here 6')
             if hostsn < disksn:
+                if toprint:
+                    print('iam here 7')
                 if ',' not in k[0]:
                     res =  [combineddisks,i[1],lendisks,combinedhosts]
+                    if toprint:
+                        print('iam here 8')
                 else: 
                     res =  [combineddisks,i[1],k[2]+lendisks,combinedhosts]
+                    if toprint:
+                        print('iam here 9')
             else:
                     res =  [combineddisks,i[1],0,combinedhosts] # hosts equal or higher than the disks so still 0
+                    if toprint:
+                        print('iam here 10')
         elif i[1] < (2*lendisks)+1: # disk type
+            if toprint:
+               print('iam here 11')
             disktypes.add(0)  # let all disktypes be 0 till we change them later
             if ',' not in k[0]:
                 disktypes.add(0)
+                if toprint:
+                    print('iam here 12')
             if len(disktypes) > 1:
                   res =  [i[0]+','+k[0],i[1],float('inf'),combinedhosts]
+                  if toprint:
+                    print('iam here 13')
             else:
                   res =  [i[0]+','+k[0],i[1],0,combinedhosts]
+                  if toprint:
+                    print('iam here 14')
         elif i[1] < (3*lendisks)+1: # disk sizes test 
+            if toprint:
+               print('iam here 15')
             if disksinfo[i[0]]['size'] == mindisksize: 
+                if toprint:
+                    print('iam here 16')
                 if ',' not in k[0] and disksinfo[k[0]]['size'] == mindisksize:
                     res =  [i[0]+','+k[0],i[1],0,combinedhosts]
+                if toprint:
+                    print('iam here 17')
                 elif ',' not in k[0] and disksinfo[k[0]]['size'] > mindisksize:
+                    if toprint:
+                        print('iam here 18')
                     res =  [i[0]+','+k[0],i[1],1,combinedhosts]
                 elif ',' in k[0]:
+                    if toprint:
+                        print('iam here 19')
                     res =  [i[0]+','+k[0],i[1],k[2],combinedhosts]
             elif disksinfo[i[0]]['size'] > mindisksize:
+                if toprint:
+                    print('iam here 20')
                 if ',' not in k[0] and disksinfo[k[0]]['size'] == mindisksize:
                     res =  [i[0]+','+k[0],i[1],1,combinedhosts]
+                    if toprint:
+                        print('iam here 21')
                 elif ',' not in k[0] and disksinfo[k[0]]['size'] > mindisksize:   # both disks are higher than minimum -- it is not allowed
+                    if toprint:
+                        print('iam here 22')
                     if count  == 2:
                         res =  [i[0]+','+k[0],i[1],float('inf'),combinedhosts]
+                        if toprint:
+                            print('iam here 23')
                     else: 
                         res =  [i[0]+','+k[0],i[1],2,combinedhosts]
+                        if toprint:
+                            print('iam here 24')
 
                 elif ',' in k[0] and k[2]+1 < count :
                     res =  [i[0]+','+k[0],i[1],k[2]+1,combinedhosts]
+                    if toprint:
+                        print('iam here 25')
                 else:
                     res =  [i[0]+','+k[0],i[1],float('inf'),combinedhosts]
+                    if toprint:
+                        print('iam here 26')
             elif disksinfo[i[0]]['size'] < mindisksize:
+                if toprint:
+                    print('iam here 27')
                 res =  [i[0]+','+k[0],i[1],float('inf'),combinedhosts]
             elif ',' not in k[0] and disksinfo[k[0]]['size'] < mindisksize:
                 res =  [i[0]+','+k[0],i[1],float('inf'),combinedhosts]
+                if toprint:
+                    print('iam here 28')
             else:
+                if toprint:
+                    print('iam here 29')
                 res =  [i[0]+','+k[0],i[1],float('inf'),combinedhosts]
     if len(res) < 3:
+        if toprint:
+           print('iam here 30')
         return []
+    if toprint:
+        print('iam here 31')
     res = res + [i[4]]
     if res[0] not in combinations:
+        if toprint:
+            print('iam here 32')
         combinations[res[0]] = res[2]
-        print('comb0',combinations[res[0]])
+        if toprint:
+            print('iam here 33')
+            print('comb0',combinations[res[0]])
     else:
-        print('comb1',combinations[res[0]])
+        if toprint:
+            print('iam here 34')
+            print('comb1',combinations[res[0]])
         combinations[res[0]] = combinations[res[0]]+res[2]
-        print('comb2',combinations[res[0]])
+        if toprint: 
+            print('iam here 35')
+            print('comb2',combinations[res[0]])
+    if toprint:
+        print('iam here 36')
+        print('comb',combinations)
     return res   
                 
 def combine_features(column_values):
@@ -170,10 +250,18 @@ def optimizedisks(fraid, fdisksinfo):
     #mindisksize = 0 
     return selectdisks(disks, disksinfo)
 
-def selectdisks(fdisks,fdisksinfo):
+def selectdisks(fdisks,fdisksinfo,addtopool=''):
     global hosts, disktypes, mindisksize, count, combinations, disks, disksinfo, mustinclude
     disks, disksinfo = fdisks, fdisksinfo
-    count = disks['diskcount']
+    with open('/TopStordata/fastselect','w') as f:
+        f.write(str(fdisks)+'\n'+str(fdisksinfo)+'/n')
+    count = disks['diskcount'] + 1
+    if len(addtopool) > 0 :
+        pooldisks = [x for x in disksinfo if addtopool in disksinfo[x]['pool']]
+        mustinclude = ','.join(pooldisks)
+    ####################################
+    ### need to optimize in case of adding single disks to the single .. no parity.. 
+    ######### it shoudl return non-inf
     mindisksize = disks['disk'] 
     elements = []
     feature1 = []   # hosts , identity of column < len(disks), penalty step = len(disk)+1
@@ -203,8 +291,13 @@ if __name__=='__main__':
     disks = {'disk': 64.4, 'diskcount': 2, 'others': [], 'hosts': ['dhcp177929'], 'othershosts': []}
     diskinfo = {'scsi-36001405d5b48429b1a143769bf03ca77': {'name': 'scsi-36001405d5b48429b1a143769bf03ca77', 'zname': 'scsi-36001405d5b48429b1a143769bf03ca77', 'actualdisk': 'scsi-36001405d5b48429b1a143769bf03ca77', 'changeop': 'ONLINE', 'pool': 'pdhcp3199524969', 'raid': 'mirror-0_pdhcp3199524969', 'status': 'ONLINE', 'id': '0', 'host': 'dhcp177929', 'size': 10.7, 'devname': 'scsi-36001405d5b48429b1a143769bf03ca77', 'silvering': 'no', 'replacingroup': ''}, 'scsi-360014059d54afe0ea104c68a1f39e0aa': {'name': 'scsi-360014059d54afe0ea104c68a1f39e0aa', 'zname': 'scsi-360014059d54afe0ea104c68a1f39e0aa', 'actualdisk': 'scsi-360014059d54afe0ea104c68a1f39e0aa', 'changeop': 'ONLINE', 'pool': 'pdhcp3199524969', 'raid': 'mirror-0_pdhcp3199524969', 'status': 'ONLINE', 'id': '0', 'host': 'dhcp177929', 'size': 10.7, 'devname': 'scsi-360014059d54afe0ea104c68a1f39e0aa', 'silvering': 'no', 'replacingroup': ''}, 'scsi-360014059853393b27724feeb7ca9ab92': {'name': 'scsi-360014059853393b27724feeb7ca9ab92', 'actualdisk': 'scsi-360014059853393b27724feeb7ca9ab92', 'zname': '', 'changeop': 'free', 'status': 'free', 'raid': 'free', 'pool': 'pree', 'id': '2', 'host': 'dhcp177929', 'size': 64.4, 'devname': 'sdh', 'silvering': 'no'}, 'scsi-36001405c03489b920e648239e99fd389': {'name': 'scsi-36001405c03489b920e648239e99fd389', 'actualdisk': 'scsi-36001405c03489b920e648239e99fd389', 'zname': '', 'changeop': 'free', 'status': 'free', 'raid': 'free', 'pool': 'pree', 'id': '3', 'host': 'dhcp177929', 'size': 64.4, 'devname': 'sdi', 'silvering': 'no'}}
     raid = {'name': 'mirror-0', 'changeop': 'ONLINE', 'status': 'ONLINE', 'pool': 'pdhcp1133218265', 'host': 'dhcp273302', 'disklist': [{'name': 'scsi-360014050551bb921e8243629899640b0', 'actualdisk': 'scsi-360014050551bb921e8243629899640b0', 'changeop': 'ONLINE', 'pool': 'pdhcp1133218265', 'raid': 'mirror-0', 'status': 'ONLINE', 'id': '0', 'host': 'dhcp876810', 'size': '64.4GB', 'devname': 'scsi-360014050551bb921e8243629899640b0', 'silvering': 'no'}, {'name': 'scsi-36001405762de08e97d94222915977e7b', 'actualdisk': 'sdd', 'changeop': 'ONLINE', 'pool': 'pdhcp1133218265', 'raid': 'mirror-0', 'status': 'ONLINE', 'id': '0', 'host': 'dhcp273302', 'size': '64.4GB', 'devname': 'sdd', 'silvering': 'no'}], 'missingdisks': [0], 'raidrank': (2, 0)}
+    disks = {'disk': 10.7, 'diskcount': 1, 'others': [], 'hosts': ['dhcp292043'], 'othershosts': []}
+    disksinfo = {'scsi-36001405f930ea081e584b539ab335f65': {'name': 'scsi-36001405f930ea081e584b539ab335f65', 'zname': 'scsi-36001405f930ea081e584b539ab335f65', 'actualdisk': 'scsi-36001405f930ea081e584b539ab335f65', 'changeop': 'NA', 'pool': 'pdhcp1102820153', 'raid': 'stripe-0_pdhcp1102820153', 'status': 'NA', 'id': '0', 'host': 'dhcp292043', 'size': 10.7, 'devname': 'scsi-36001405f930ea081e584b539ab335f65', 'silvering': 'no', 'replacingroup': ''}, 'dm-2': {'name': 'dm-2', 'zname': 'dm-2', 'actualdisk': 'dm-2', 'changeop': 'FAULT', 'pool': 'pdhcp1287810983', 'raid': 'mirror-0_pdhcp1287810983', 'status': 'OFFLINE', 'id': '0', 'host': 'dhcp292043', 'size': 0.0, 'devname': 'dm-2', 'silvering': 'no', 'replacingroup': ''}, 'scsi-36001405fab9382c464940fcb13184a66': {'name': 'scsi-36001405fab9382c464940fcb13184a66', 'zname': 'sdh', 'actualdisk': 'sdh', 'changeop': 'ONLINE', 'pool': 'pdhcp1287810983', 'raid': 'mirror-0_pdhcp1287810983', 'status': 'ONLINE', 'id': '0', 'host': 'dhcp292043', 'size': 64.4, 'devname': 'sdh', 'silvering': 'no', 'replacingroup': ''}, 'dm-3': {'name': 'dm-3', 'zname': 'dm-3', 'actualdisk': 'dm-3', 'changeop': 'FAULT', 'pool': 'pdhcp1287810983', 'raid': 'mirror-1_pdhcp1287810983', 'status': 'OFFLINE', 'id': '0', 'host': 'dhcp292043', 'size': 0.0, 'devname': 'dm-3', 'silvering': 'no', 'replacingroup': ''}, 'scsi-3600140540e15e05d1814a17aa8fd30af': {'name': 'scsi-3600140540e15e05d1814a17aa8fd30af', 'zname': 'sdg', 'actualdisk': 'sdg', 'changeop': 'ONLINE', 'pool': 'pdhcp1287810983', 'raid': 'mirror-1_pdhcp1287810983', 'status': 'ONLINE', 'id': '0', 'host': 'dhcp292043', 'size': 64.4, 'devname': 'sdg', 'silvering': 'no', 'replacingroup': ''}, 'scsi-36001405fde63d1eeffc4b4da9cfce207': {'name': 'scsi-36001405fde63d1eeffc4b4da9cfce207', 'actualdisk': 'scsi-36001405fde63d1eeffc4b4da9cfce207', 'zname': '', 'changeop': 'free', 'status': 'free', 'raid': 'free', 'pool': 'pree', 'id': '1', 'host': 'dhcp292043', 'size': 10.7, 'devname': 'sdi', 'silvering': 'no'}} 
+    addtopool = 'pdhcp1102820153'
     if sys.argv[1] == 'select':
         selectdisks(disks,disksinfo)
+    elif sys.argv[1] == 'addtopool':
+        selectdisks(disks,disksinfo, addtopool)
     else:
         optimizedisks(raid, disksinfo)
 

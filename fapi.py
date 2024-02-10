@@ -321,7 +321,7 @@ def dgsaddtopool(data):
   print('#########################')
   print('disks',disks)
   print('#########################')
-  bestdisks = selectdisks(disks,allinfo['disks'])
+  bestdisks = selectdisks(disks,allinfo['disks'],data['pool'])
   print('bestdisks',bestdisks)
   print('#########################')
  if len(bestdisks) < 1:
