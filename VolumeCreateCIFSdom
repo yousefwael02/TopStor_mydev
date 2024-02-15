@@ -27,6 +27,7 @@ privilege="CIFS";
 ./privthis.sh $privilege $userreq | grep true ;
 if [ $? -eq 0 ];
 then
+	echo hhhhhhhhhhhhhhhhhhhh
 	myhost=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternode`
 	myhostip=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternodeip`
 	leader=`docker exec etcdclient /TopStor/etcdgetlocal.py leader`

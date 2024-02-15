@@ -36,7 +36,7 @@ fi
 initstamp=`date +%s`
 echo $initstamp > /TopStordata/initstamp
 isinitn=`cat /root/nodeconfigured`'s'
-echo $isinitn | grep 'yess'
+echo $isinitn | grep 'yes'
 if [ $? -ne 0 ];
 then
  echo 222222222222222222222222222222222222222222222222222 run senddiscovery
@@ -44,6 +44,12 @@ then
 fi
 while true;
 do
+	ntpsync=`chronyc tracking | grep Normal`'not'
+	echo $ntpsync | grep Normal
+	if [ $? -ne 0 ];
+	then
+		chronyc makestep
+	fi 
 	leader=`docker exec etcdclient /TopStor/etcdgetlocal.py leader`
 	echo $leader | grep $myhost
 	if [ $? -eq 0 ];
