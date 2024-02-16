@@ -34,10 +34,18 @@ then
   then
    sed -i 's/active/disabled/g' /$pDG/smb.$name
    dockerps=`docker ps | grep -w $ipaddr | awk '{print $1}'`
+   echo -----$dockerps 
+   exit
    docker rm -f $dockerps 2>/dev/null
    zfs set status:mount=disabled $pDG/$name
    zfs unmount -f $pDG/$name
   else
+   dockerps=`docker ps | grep -w $ipaddr | awk '{print $1}'`
+   dockerpsn=`echo s$dockerps | wc -c`
+   if [ $dockerpsn -ge 4 ];
+   then
+   	docker rm -f $dockerps 2>/dev/null
+   fi
    sed -i 's/disabled/active/g' /$pDG/smb.$name*
    zfs mount $pDG/$name
    zfs set status:mount=active $pDG/$name
