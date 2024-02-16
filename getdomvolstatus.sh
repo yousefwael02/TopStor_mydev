@@ -59,5 +59,11 @@ if [ $? -eq 0 ];
 then
 	echo _resultserviceok_result
 else
-	echo _resultuknownerror_result
+	echo $dockerlogs | grep 'sssd is not running'
+	if [ $? -eq 0 ];
+	then
+		echo _resultADservererror_result
+	else
+		echo _resultuknownerror_result
+	fi
 fi
