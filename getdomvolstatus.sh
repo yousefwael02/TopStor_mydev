@@ -58,12 +58,13 @@ echo $dockerlogs | grep 'sssd is running' >/dev/null
 if [ $? -eq 0 ];
 then
 	echo _resultserviceok_result
+	#echo _resultunknownerror_result
 else
 	echo $dockerlogs | grep 'sssd is not running'
 	if [ $? -eq 0 ];
 	then
 		echo _resultADservererror_result
 	else
-		echo _resultuknownerror_result
+		echo _resultService is loading _result
 	fi
 fi
