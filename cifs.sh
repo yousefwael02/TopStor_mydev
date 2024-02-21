@@ -59,6 +59,8 @@ else
  	sync
  	cp /etc/resolv.conf /TopStordata/ 
  	echo nameserver $domainsrvi > /TopStordata/resolv.conf
+	sed -i "/$domainsrvi/"d /etc/resolv.conf
+ 	sed -i "1inameserver $domainsrvi" /etc/resolv.conf
 #  -e TZ=Etc/UTC \
  #adminpass=`echo $adminpass | sed 's/\@\@sep/\//g' | sed ':a;N;$!ba;s/\n/ /g'`
  	adminpass=`echo $adminpass | sed 's/\@\@sep/\//g'`
