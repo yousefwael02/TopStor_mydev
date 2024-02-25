@@ -351,7 +351,6 @@ then
  /pace/watchdoginit & disown
  /pace/keepsendingprim & disown
 fi
-
 echo starting intstub 
 docker run -itd --rm --privileged \
   -v /TopStor/smb.conf:/etc/samba/smb.conf:rw \
@@ -590,6 +589,10 @@ then
 	docker run -itd --rm --name flask --hostname apisrv -v /etc/localtime:/etc/localtime:ro -v /pace/:/pace -v /pacedata/:/pacedata/ -v /root/gitrepo/resolv.conf:/etc/resolv.conf --net bridge0 -p $myclusterip:5001:5001 -v /TopStor/:/TopStor -v /TopStordata/:/TopStordata moataznegm/quickstor:flask3
 	/TopStor/promserver.sh $myclusterip 
 fi
+mydns=`/TopStor/etcdget.py $myclusterip dnsname/$myhost`
+#nmcli conn modify cmynode ipv4.dns ''
+nmcli conn modify cmynode ipv4.dns $mydns
+nmcli conn up cmynode
 docker rm -f promexport
 docker run -d -p $mynodeip:9100:9100 -v /proc:/proc -v /sys:/sys --name promexport prom/node-exporter
 docker rm -f promcadvisor

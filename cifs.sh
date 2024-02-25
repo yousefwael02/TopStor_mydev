@@ -56,13 +56,23 @@ else
 	echo -e "cat /hostetc/smbmember.conf_$membername > /etc/samba/smb.conf" >> /etc/smb${membername}.sh
  	echo  "service samba --full-restart"  >> /etc/smb${membername}.sh
  	chmod +w /etc/smb${membername}.sh
+	myhost=`hostname`	
+    	myclusterip=`docker exec etcdclient /TopStor/etcdgetlocal.py leaderip`
+	echo myhost=$myhost myclusterip=$myclusterip
+	mydns=`/TopStor/etcdget.py $myclusterip dnsname/$myhost`
+	echo ll$mydns | grep '\.' 
+	if [ $? -eq 0 ];
+	then
+		echo iamhere
+		nmcli conn modify cmynode ipv4.dns $domainsrvi,$mydns
+		echo nmcli conn modify cmynode ipv4.dns $domainsrvi,$mydns
+	else
+		echo no dns
+		nmcli conn modify cmynode ipv4.dns $domainsrvi
+		echo nmcli conn modify cmynode ipv4.dns $domainsrvi
+	fi
+	nmcli conn up cmynode
  	sync
- 	cp /etc/resolv.conf /TopStordata/ 
- 	echo nameserver $domainsrvi > /TopStordata/resolv.conf
-	sed -i "/$domainsrvi/"d /etc/resolv.conf
- 	sed -i "1inameserver $domainsrvi" /etc/resolv.conf
-#  -e TZ=Etc/UTC \
- #adminpass=`echo $adminpass | sed 's/\@\@sep/\//g' | sed ':a;N;$!ba;s/\n/ /g'`
  	adminpass=`echo $adminpass | sed 's/\@\@sep/\//g'`
  	adminpass=`/TopStor/decthis.sh $domain $adminpass | awk -F'_result' '{print $2}' `
  	docker run -d  $mounts --privileged --rm --add-host "${membername}.$domain ${membername}":$ipaddr  \
