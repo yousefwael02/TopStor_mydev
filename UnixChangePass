@@ -30,6 +30,11 @@ then
 	if [ $? -eq 0 ];
 	then
  		usermod $username -c"AdminStor"$pas
+		echo $etcd | grep $leaderip
+		if [ $? -eq 0 ];
+		then
+			/TopStor/promserver.sh $leaderip
+		fi
 	else
  		usermod $username -c"TopStor"$pas
 		currentcifs=`docker ps | egrep 'CIFS|HOM' | awk '{print $1}'`

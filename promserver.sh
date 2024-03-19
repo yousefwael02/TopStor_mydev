@@ -26,3 +26,10 @@ docker rm -f promgraf
  	cp /TopStor/promgrafhosts /promgraf/hosts
  	sed -i "s/MYCLUSTER/$leaderip/g" /promgraf/hosts 
  	docker run -d -p $leaderip:4000:3000 -v /promgraf/grafana.ini:/etc/grafana/grafana.ini -v /promgraf:/var/lib/grafana -v /promgraf/hosts:/etc/hosts --name promgraf grafana/grafana
+	useradd -s /sbin/nologin --uid 472 -g root grafana
+	chown grafana /promgraf/grafana.db
+	phash=`/TopStor/etcdget.py $leaderip usershash/admin`
+	plhash=`/TopStor/decthis.sh admin $phash | awk -F'_result' '{print $2}'`
+	echo plhash=$plhash > /root/plhashtmp
+	docker restart promgraf
+	docker exec -it promgraf grafana-cli admin reset-admin-password $plhash 
