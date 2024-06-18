@@ -194,17 +194,19 @@ def setversion(data):
  return data 
 
 @app.route('/api/v1/software/versions', methods=['GET','POST'])
-def versions():
+@login_required
+def versions(data):
  return getversions()
 
-@app.route('/api/v1/hosts/info', methods=['GET','POST'])
+#@app.route('/api/v1/hosts/info', methods=['GET','POST'])
 def hostsinfo():
  global allhosts, readyhosts, activehosts, losthosts, possiblehosts
  allhosts = Hostsconfig.getall()
  return jsonify(allhosts)
 
 @app.route('/api/v1/hosts/allinfo', methods=['GET','POST'])
-def hostsallinfo():
+@login_required
+def hostsallinfo(data):
  global allhosts, readyhosts, activehosts, losthosts, possiblehosts
  hostsinfo()
  hostslost()  
@@ -246,7 +248,7 @@ def discover(data):
     postchange(cmndstring)
     return data 
 
-@app.route('/api/v1/hosts/possible', methods=['GET','POST'])
+#@app.route('/api/v1/hosts/possible', methods=['GET','POST'])
 def hostspossible():
  global allhosts, readyhosts, activehosts, losthosts, possiblehosts, leaderip
  hosts = get('possible','--prefix')
@@ -259,7 +261,7 @@ def hostspossible():
   hid +=1
  return jsonify(possiblehosts)
 
-@app.route('/api/v1/hosts/lost', methods=['GET','POST'])
+#@app.route('/api/v1/hosts/lost', methods=['GET','POST'])
 def hostslost():
  global allhosts, readyhosts, activehosts, losthosts, possiblehosts
  hostsready()
