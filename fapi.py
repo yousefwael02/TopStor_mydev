@@ -442,7 +442,8 @@ def dskperfs():
 
 
 @app.route('/api/v1/volumes/snapshots/snapshotsinfo', methods=['GET','POST'])
-def volumessnapshotsinfo():
+@login_required
+def volumessnapshotsinfo(data):
  global allvolumes, alldsks, allinfo
  snaplist = {'Once':[], 'Minutely': [], 'Hourly': [], 'Weekly':[], '-':[]}
  periodlist = {'Minutely': [], 'Hourly': [], 'Weekly':[], 'Trend': []}
@@ -495,34 +496,40 @@ def volumesinfo(prot='all'):
 
 
 @app.route('/api/v1/volumes/CIFS/volumesinfo', methods=['GET','POST'])
-def volumescifsinfo():
+@login_required
+def volumescifsinfo(data):
  volumes = volumesinfo('CIFS') 
  return jsonify({'allvolumes':volumes})
 
 @app.route('/api/v1/volumes/ISCSI/volumesinfo', methods=['GET','POST'])
-def volumesiscsiinfo():
+@login_required
+def volumesiscsiinfo(data):
  volumes = volumesinfo('ISCSI') 
  return jsonify({'allvolumes':volumes})
 
 @app.route('/api/v1/volumes/NFS/volumesinfo', methods=['GET','POST'])
-def volumesnfsinfo():
+@login_required
+def volumesnfsinfo(data):
  volumes = volumesinfo('NFS') 
  return jsonify({'allvolumes':volumes})
 
 @app.route('/api/v1/volumes/HOME/volumesinfo', methods=['GET','POST'])
-def volumeshomeinfo():
+@login_required
+def volumeshomeinfo(data):
  volumes = volumesinfo('HOME') 
  return jsonify({'allvolumes':volumes})
 
 @app.route('/api/v1/volumes/volumesinfo', methods=['GET','POST'])
-def volumesallinfo():
+@login_required
+def volumesallinfo(data):
  volumes = volumesinfo() 
  return jsonify({'allvolumes':volumes})
 
 
 
 @app.route('/api/v1/pools/poolsinfo', methods=['GET','POST'])
-def poolsinfo():
+@login_required
+def poolsinfo(data):
  global allpools
  allpools = getpools()
  allpools.append({'id':len(allpools), 'text':'-------'})
@@ -576,11 +583,13 @@ def userchange(data):
 
  
 @app.route('/api/v1/info/onedaylog', methods=['GET','POST'])
-def getonedaylog():
+@login_required
+def getonedaylog(data):
  result = onedaylog() 
  return result 
 @app.route('/api/v1/info/logs', methods=['GET','POST'])
-def getalllogs():
+@login_required
+def getalllogs(data):
  notif = getlogs()
  return jsonify({'alllogs': notif})
 
@@ -596,8 +605,8 @@ def renewtoken(data):
 
 
 @app.route('/api/v1/info/cversion', methods=['GET','POST'])
-#@login_required
-def getcversion():
+@login_required
+def getcversion(data):
     global leaderip, leader, myhost
     cmdline='/TopStor/getcversion.sh '+leaderip+' '+leader+' '+myhost
     #subprocess.run(cmdline,stdout=subprocess.PIPE)
