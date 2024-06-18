@@ -214,7 +214,7 @@ def hostsallinfo(data):
  return jsonify({'all': allhosts, 'active': activehosts, 'ready':readyhosts, 'possible':possiblehosts, 'lost':losthosts})
 
 
-@app.route('/api/v1/hosts/ready', methods=['GET','POST'])
+#@app.route('/api/v1/hosts/ready', methods=['GET','POST'])
 def hostsready():
  global allhosts, readyhosts, activehosts, losthosts, possiblehosts, leaderip
  hosts = get('ready','--prefix')
@@ -227,7 +227,7 @@ def hostsready():
   hid +=1
  return jsonify(readyhosts)
 
-@app.route('/api/v1/hosts/active', methods=['GET','POST'])
+#@app.route('/api/v1/hosts/active', methods=['GET','POST'])
 def hostsactive():
  global allhosts, readyhosts, activehosts, losthosts, possiblehosts, leaderip
  hosts = get('ActivePartners','--prefix')
@@ -275,7 +275,8 @@ def hostslost():
  return jsonify(losthosts)
 
 @app.route('/api/v1/pools/dgsinfo', methods=['GET','POST'])
-def dgsinfo():
+@login_required
+def dgsinfo(data):
  global allinfo 
  getalltime()
  dgsinfo = {'raids':allinfo['raids'], 'pools':allinfo['pools'], 'disks':allinfo['disks']}
@@ -406,14 +407,16 @@ def dgsnewpool(data):
  
 
 @app.route('/api/v1/volumes/stats', methods=['GET','POST'])
-def volumestats():
+@login_required
+def volumestats(data):
  global allinfo 
  getalltime()
  volstats = allvolstats(leaderip, deepcopy(allinfo))
  return jsonify(volstats)
 
 @app.route('/api/v1/volumes/volumelist', methods=['GET','POST'])
-def volumeslist():
+@login_required
+def volumeslist(data):
  global allinfo 
  getalltime()
  volumes = []
@@ -426,7 +429,8 @@ def volumeslist():
 
 
 @app.route('/api/v1/volumes/poolsinfo', methods=['GET','POST'])
-def volpoolsinfo():
+@login_required
+def volpoolsinfo(data):
  global allpools
  allpools = getpools()
  return jsonify({'results':allpools})
