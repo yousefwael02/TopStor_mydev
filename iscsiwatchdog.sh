@@ -149,7 +149,7 @@ do
 	then
 		if [ $repliflag -eq 0 ];
 		then
-			/TopStor/etcdput.py $etcdip replinextport 2380
+			/TopStor/etcdput.py $etcdip replinextport 2390
 			repliflag=1
 		fi
 	else
