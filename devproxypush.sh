@@ -3,7 +3,7 @@ fnupdate () {
 	git checkout QSD3.15
 	git branch -D $1
 	origin=`git remote -v | grep 252 | head -1 | awk '{print $1}'`
-	remote=`git remote -v | grep github | grep dev |  head -1 | awk '{print $1}'`
+	remote=`git remote -v | grep github | grep mydev |  head -1 | awk '{print $1}'`
 	git fetch $origin 
 	if [ $? -ne 0 ];
 	then
