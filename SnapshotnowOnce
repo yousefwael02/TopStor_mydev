@@ -70,6 +70,7 @@ done
 echo $receiver | grep NoReceive
 if [ $? -ne 0 ];
 then
+ zfs set partner:receiver=$receiver $snapshot 
  /TopStor/etcdput.py $leaderip running/$receiver $receiver
  /TopStor/etcdput.py $leaderip sync/running/____/request running_$stamp
  /TopStor/etcdput.py $leaderip sync/running/____/request/$leader running_$stamp

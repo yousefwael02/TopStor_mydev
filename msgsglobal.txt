@@ -183,6 +183,8 @@ Partsu06:0: : from :: finished checking and syncing this partner active pools
 Partnerst01:0: : from :: Start pushing cluster users, groups,...etc. to the partner receiver : 
 Partnersu01:0: : from :: Succeeded pushing cluster users, groups,...etc. to the partner receiver : 
 Partnerfa01:0: : from :: failed pushing cluster users, groups,...etc. to the partner receiver : 
+Partnerfa02:0: : from :: No node is open for replication in the  receiver : 
+Partnerfa03:0: : from :: No No space for receiving replication in the  receiver : 
 Partner1000:2: : from :: Adding partner : in : mode.
 Partner1001:1: : from :: Partner : already exists
 Partner1002:1: : from :: Success adding partner : in : mode
@@ -205,7 +207,10 @@ Replica1007: Problem occurred while rolling back snapshot :
 Replispacest01:1: : from :: Preparing to replicate volume : to the replication partner :
 Replispacesu01:1: : from :: Success to replicate volume : to the replication partner : 
 Replispacefa01:1: : from :: No Space is found in replication partner : to replicate volume :
-Streamfa01:1: : from :: Couldn't replicate the volume : to Partner :
+Streamst01:1: : from :: Start to replicate the volume : to Partner :
+Streamfa01:1: : from :: Failed to replicate the volume : to Partner :
+Streamsu01:1: : from :: Success to replicate the volume : to Partner :
+Streamfa02:1: : from :: We cannot replicate the volume : to Partner : due to :
 NotSupported:1: : from :: Not Supported notification code : ......
 DGst5:1: : from :: Deleting Pool : ......
 DGsu5:2: : from :: Success deleting Pool :
