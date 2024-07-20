@@ -130,7 +130,7 @@ then
     docker exec etcdclient /TopStor/logmsg.py Snap1025 info $userreq $soldsnap
    fi
     echo successfulwork
-    docker exec etcdclient /TopStor/logmsg.py Replispacesu01 info $userreq $vol $shortreceiver
+    docker exec etcdclient /TopStor/logmsg.py Replispacesu02 info $userreq $vol $shortreceiver
   fi 
   docker exec etcdclient /TopStor/logqueue.py `basename "$0"` stop system 
  fi
