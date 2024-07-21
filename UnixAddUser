@@ -15,7 +15,6 @@ pullsync=`echo $@  | awk '{print $9}'`;
 echo $pullsync | grep pullsync
 if [ $? -eq 0 ]
 then
-	
 	userid=`echo $@  | awk '{print $10}'`;
 	usergd=`echo $@  | awk '{print $11}'`;
 	active=`echo $@  | awk '{print $12}'`;
@@ -29,6 +28,7 @@ privilege="Box_Users";
 contrun=`./privthis.sh $privilege $userreq`;
 if [[ $contrun == 'true' ]]
 then
+
 	myhost=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternode`
 	myhostip=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternodeip`
 	leader=`docker exec etcdclient /TopStor/etcdgetlocal.py leader`
@@ -47,14 +47,18 @@ then
   			docker exec etcdclient/TopStor/logqueue.py `basename "$0"` stop $userreq 
   			exit
  		fi
- 		./etcdget.py $etcd user --prefix | grep -w $username 
- 		if [ $? -eq 0 ];
- 		then
- 	echo hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
-  			docker exec etcdclient /TopStor/logmsg.py Unlin1021uu warning $userreq $username
-  			docker exec etcdclient /TopStor/logqueue.py `basename "$0"` stop $userreq 
-  			exit
- 		fi
+		
+		echo $pullsync | grep pullsync
+		if [ $? -ne 0 ]
+		then
+ 			./etcdget.py $etcd user --prefix | grep -w $username 
+ 			if [ $? -eq 0 ];
+ 			then
+  				docker exec etcdclient /TopStor/logmsg.py Unlin1021uu warning $userreq $username
+  				docker exec etcdclient /TopStor/logqueue.py `basename "$0"` stop $userreq 
+  				exit
+ 			fi
+		fi
 	fi
  docker exec etcdclient /TopStor/logmsg.py Unlin1018 info $userreq $username
  userdel -f  $username
@@ -66,44 +70,39 @@ then
  echo $homePool | grep 'NoHome'
  if [ $? -ne 0 ];
  then
-  docker exec etcdclient docker exec etcdclient /TopStor/logmsg.py Unlin1024 info  $userreq $username $homedir
-  homedir=$homePool
-  homebase='-b /'$homedir' -M'  
-  echo hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
-  echo /TopStor/VolumeCreateHOME $leaderip $homePool $username $size $username $HomeAddr $HomeSubnet active $userreq $myhost $userreq 
-  /TopStor/VolumeCreateHOME $leaderip $homePool $username $size $username $HomeAddr $HomeSubnet active $userreq $myhost $userreq 
-  echo hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
-  #usermod -d $homdedir/$usrename $username
-  # it is in the VolCreate HOME chmod o-rwx /$homedir/$username -R
+  	docker exec etcdclient docker exec etcdclient /TopStor/logmsg.py Unlin1024 info  $userreq $username $homedir
+  	homedir=$homePool
+  	homebase='-b /'$homedir' -M'  
+  	echo hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
+  	echo /TopStor/VolumeCreateHOME $leaderip $homePool $username $size $username $HomeAddr $HomeSubnet active $userreq $myhost $userreq 
+  	/TopStor/VolumeCreateHOME $leaderip $homePool $username $size $username $HomeAddr $HomeSubnet active $userreq $myhost $userreq 
+  	echo hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
  else
-  docker exec etcdclient /TopStor/logmsg.py Unlin1023 warning $userreq $username
+  	docker exec etcdclient /TopStor/logmsg.py Unlin1023 warning $userreq $username
  fi
  echo $pullsync | grep pullsync
- if [ $? -eq 0 ];
+ if [ $? -eq 0 ]
  then
 	useradd -c"TopStor"$userpass $homebase -g $usergd -u $userid -p $userpass -s /usr/sbin/nologin $username
 	echo useradd \-c"TopStor"$userpass $homebase \-g $usergd \-u $userid \-p $userpass \-s /usr/sbin/nologin $username
 	currentcifs=`docker ps | awk '{print $NF}' | grep CIFS | grep -v 'CIFS_'`
 	echo "$currentcifs" | while read y
 	do
- 	echo $y | grep CIFS
- 	if [ $? -eq 0 ];
- 	then
-        	echo dock=$y
-        	echo docker exec $y  sh /hostetc/smbuserfix.sh x $username $pas 
-       		docker exec $y  sh /hostetc/smbuserfix.sh x $username $pas
- 	fi	
-done
+ 		echo $y | grep CIFS
+ 		if [ $? -eq 0 ]
+ 		then
+        		echo dock=$y
+        		echo docker exec $y  sh /hostetc/smbuserfix.sh x $username $pas 
+       			docker exec $y  sh /hostetc/smbuserfix.sh x $username $pas
+ 		fi	
+	done
 
  else
 	echo useradd \-c"TopStor"$pas $homebase \-p $userpass \-s /usr/sbin/nologin $username
  	currentcifs=`docker ps | egrep 'CIFS|HOM' | awk '{print $1}' | grep -v 'CIFS_'`
  	echo "$currentcifs" | while read y; do docker exec $y  sh /hostetc/smbuserfix.sh x $username $userpass;  done; 
- 	docker exec intsmb /root/smbuser.sh $username $userpass
- #docker exec etcdsmb "( echo $userpass; echo $userpass) | /bin/smbpasswd -s -a $username"
-
- #mkdir -p /Data/Common/$username;
- #chown $username /Data/Common/$username;
+ fi
+ docker exec intsmb /root/smbuser.sh $username $userpass
  userline=`cat /etc/passwd | grep $username`
  if [ $? -ne  0  ]; then
   docker exec etcdclient /TopStor/logmsg.py Unlin1020 error $userreq $username
@@ -123,15 +122,11 @@ done
  echo $etcd 2222222222222222222222222222222222222222222222222222222222222222 
   docker exec etcdclient /TopStor/logmsg.py Unlin1022 info $userreq $username
  fi 
-fi
-#echo ln -f /etc/passwd  /opt/passwds/passwd
-#ln -f /etc/passwd  /opt/passwds/passwd
-#ln -f /etc/group  /opt/passwds/group
-#ln -f /etc/shadow  /opt/passwds/shadow
-echo hi1
-echo $leader | grep $myhost
-if [ $? -eq 0 ];
-then
+ echo hi1
+ echo myhost=$myhost    leader=$leader
+ echo $leader | grep $myhost
+ if [ $? -eq 0 ];
+ then
 	echo hi2
 	stamp=`date +%s%N`
 	myscript=`basename "$0"`
@@ -143,6 +138,7 @@ then
 	params=`echo UnixChangeUser $@ $stamp | sed 's\ \\_\g'`
 	/pace/etcdput.py $leaderip sync/UsrChange/$params/request/$myhost UsrChange_$stamp
 	/pace/etcdput.py $leaderip sync/UsrChange/$params/request UsrChange_$stamp
+ fi
+ echo hi3
+ docker exec etcdclient /TopStor/logqueue.py `basename "$0"` finish $userreq 
 fi
-echo hi3
-docker exec etcdclient /TopStor/logqueue.py `basename "$0"` finish $userreq 
