@@ -11,8 +11,20 @@ userpass=`echo $@ | awk '{print $5}'`;
 size=`echo $@ | awk '{print $6}'`;
 HomeAddr=`echo $@  | awk '{print $7}' `;
 HomeSubnet=`echo $@  | awk '{print $8}'`;
-host=`echo $@ | awk '{print $9}'`;
-userreq=`echo $@  | awk '{print $10}'`;
+pullsync=`echo $@  | awk '{print $9}'`;
+echo $pullsync | grep pullsync
+if [ $? -eq 0 ]
+then
+	
+	userid=`echo $@  | awk '{print $10}'`;
+	usergd=`echo $@  | awk '{print $11}'`;
+	active=`echo $@  | awk '{print $12}'`;
+	permis=`echo $@  | awk '{print $13}'`;
+	userpass=`/TopStor/decthis.sh $username $userpass | awk -F'_result' '{print $2}'`
+	userreq=`echo $@  | awk '{print $14}'`;
+else
+	userreq=`echo $@  | awk '{print $10}'`;
+fi
 privilege="Box_Users";
 contrun=`./privthis.sh $privilege $userreq`;
 if [[ $contrun == 'true' ]]
@@ -66,11 +78,28 @@ then
  else
   docker exec etcdclient /TopStor/logmsg.py Unlin1023 warning $userreq $username
  fi
-echo useradd \-c"TopStor"$pas $homebase \-p $userpass \-s /usr/sbin/nologin $username
- currentcifs=`docker ps | egrep 'CIFS|HOM' | awk '{print $1}' | grep -v 'CIFS_'`
- echo "$currentcifs" | while read y; do docker exec $y  sh /hostetc/smbuserfix.sh x $username $userpass;  done; 
- #/bin/smbpasswd -x $username
- docker exec intsmb /root/smbuser.sh $username $userpass
+ echo $pullsync | grep pullsync
+ if [ $? -eq 0 ];
+ then
+	useradd -c"TopStor"$userpass $homebase -g $usergd -u $userid -p $userpass -s /usr/sbin/nologin $username
+	echo useradd \-c"TopStor"$userpass $homebase \-g $usergd \-u $userid \-p $userpass \-s /usr/sbin/nologin $username
+	currentcifs=`docker ps | awk '{print $NF}' | grep CIFS | grep -v 'CIFS_'`
+	echo "$currentcifs" | while read y
+	do
+ 	echo $y | grep CIFS
+ 	if [ $? -eq 0 ];
+ 	then
+        	echo dock=$y
+        	echo docker exec $y  sh /hostetc/smbuserfix.sh x $username $pas 
+       		docker exec $y  sh /hostetc/smbuserfix.sh x $username $pas
+ 	fi	
+done
+
+ else
+	echo useradd \-c"TopStor"$pas $homebase \-p $userpass \-s /usr/sbin/nologin $username
+ 	currentcifs=`docker ps | egrep 'CIFS|HOM' | awk '{print $1}' | grep -v 'CIFS_'`
+ 	echo "$currentcifs" | while read y; do docker exec $y  sh /hostetc/smbuserfix.sh x $username $userpass;  done; 
+ 	docker exec intsmb /root/smbuser.sh $username $userpass
  #docker exec etcdsmb "( echo $userpass; echo $userpass) | /bin/smbpasswd -s -a $username"
 
  #mkdir -p /Data/Common/$username;
