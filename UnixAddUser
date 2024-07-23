@@ -12,7 +12,7 @@ size=`echo $@ | awk '{print $6}'`;
 HomeAddr=`echo $@  | awk '{print $7}' `;
 HomeSubnet=`echo $@  | awk '{print $8}'`;
 pullsync=`echo $@  | awk '{print $9}'`;
-echo $pullsync | grep pullsync
+echo $pullsync | grep pull
 if [ $? -eq 0 ]
 then
 	userid=`echo $@  | awk '{print $10}'`;
@@ -26,6 +26,7 @@ else
 fi
 privilege="Box_Users";
 contrun=`./privthis.sh $privilege $userreq`;
+echo contrun $contrun, $userreq
 if [[ $contrun == 'true' ]]
 then
 
@@ -80,7 +81,7 @@ then
  else
   	docker exec etcdclient /TopStor/logmsg.py Unlin1023 warning $userreq $username
  fi
- echo $pullsync | grep pullsync
+ echo $pullsync | grep pull
  if [ $? -eq 0 ]
  then
 	useradd -c"TopStor"$userpass $homebase -g $usergd -u $userid -p $userpass -s /usr/sbin/nologin $username
@@ -99,6 +100,11 @@ then
 
  else
 	echo useradd \-c"TopStor"$pas $homebase \-p $userpass \-s /usr/sbin/nologin $username
+ fi
+
+ echo $pullsync | grep pullsync
+ if [ $? -ne 0 ]
+ then
  	currentcifs=`docker ps | egrep 'CIFS|HOM' | awk '{print $1}' | grep -v 'CIFS_'`
  	echo "$currentcifs" | while read y; do docker exec $y  sh /hostetc/smbuserfix.sh x $username $userpass;  done; 
  fi
