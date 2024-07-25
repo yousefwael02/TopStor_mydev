@@ -74,7 +74,6 @@ then
  pas=`/TopStor/encthis.sh $username $userpass | awk -F'_result' '{print $2}'` 
  homebase='-b /NoHome -M'
  groupdel $username
- useradd -c"TopStor"$pas $homebase -p $userpass -s /usr/sbin/nologin $username 
  echo $homePool | grep 'NoHome'
  if [ $? -ne 0 ];
  then
@@ -99,7 +98,8 @@ then
  echo $pullsync | grep pull
  if [ $? -eq 0 ]
  then
-	useradd -c"TopStor"$userpass $homebase -g $usergd -u $userid -p $userpass -s /usr/sbin/nologin $username
+	useradd -c"TopStor"$pas  $homebase -u $userid -p $userpass -s /usr/sbin/nologin $username
+	groupmod -g $usergd $username
 	echo useradd \-c"TopStor"$userpass $homebase \-g $usergd \-u $userid \-p $userpass \-s /usr/sbin/nologin $username
 	currentcifs=`docker ps | awk '{print $NF}' | grep CIFS | grep -v 'CIFS_'`
 	echo "$currentcifs" | while read y
@@ -115,9 +115,10 @@ then
 
  else
 	echo useradd \-c"TopStor"$pas $homebase \-p $userpass \-s /usr/sbin/nologin $username
+ 	useradd -c"TopStor"$pas $homebase -p $userpass -s /usr/sbin/nologin $username 
  fi
 
- echo $pullsync | grep pullsync
+ echo $pullsync | grep pull
  if [ $? -ne 0 ]
  then
  	currentcifs=`docker ps | egrep 'CIFS|HOM' | awk '{print $1}' | grep -v 'CIFS_'`
