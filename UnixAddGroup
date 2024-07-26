@@ -79,7 +79,7 @@ echo 2222222222222222222222222222222222222222222222
   /TopStor/etcdput.py $etcd 'usersigroup/'$username $userid':'$usergd':'nogrouphome/nogroupsize'/NoUser/no/no/no/no/no/no/no/no/no/no/no/no/no/no/no/no/no/no/no/no/no/no/no/no/no/no/no/no'
   #/TopStor/broadcast.py GroupAdd /TopStor/pump.sh UnixAddGroup_sync -d$myhost $username $userid $usergd $groupusers
   echo /TopStor/UnixChangeGroup $leaderip $username $groupusers $userreq create
-  /TopStor/UnixChangeGroup $leaderip $username $groupusers $userreq create
+  /TopStor/UnixChangeGroup $leaderip $username $groupusers $userreq create $pullsync
   docker exec etcdclient /TopStor/logmsg.py Unlin1122 info $userreq $username
  fi 
 fi

@@ -7,6 +7,7 @@ username=`echo $@ | awk '{print $2}'`;
 usergroups=`echo $@ | awk  '{print $3}' | sed 's/groups//g' `;
 userreq=`echo $@  | awk '{print $4}'`;
 ischange=`echo $@  | awk '{print $5}'`;
+pullsync=`echo $@  | awk '{print $6}'`;
 stablegrp=""
 privilege="Box_Users";
 contrun=`./privthis.sh $privilege $userreq`;
@@ -23,11 +24,20 @@ then
 	else
 		etcd=$myhostip
 	fi
-
+ #if a change happens before a user is created, no need to proceed, the script will be run again in the AddUser
+ id $username
+ if [ $? -ne 0 ];
+ then
+	exit 
+ fi
  echo 'NoUser' | grep $username
  if [ $? -ne 0 ];
  then
-  docker exec etcdclient /TopStor/logmsg.py Unst1024 info $userreq $username
+ 	echo s$pullsync | grep pull 
+ 	if [ $? -ne 0 ];
+ 	then
+  		docker exec etcdclient /TopStor/logmsg.py Unst1024 info $userreq $username
+	fi
  fi
  echo $username | grep NoUser
  if [ $? -ne 0 ];
@@ -142,7 +152,11 @@ then
  echo 'NoUser' | grep $username
  if [ $? -ne 0 ];
  then
-  docker exec etcdclient /TopStor/logmsg.py Unsu1024 info $userreq $username
+	echo s$pullsync | grep pull 
+ 	if [ $? -ne 0 ];
+ 	then
+  		docker exec etcdclient /TopStor/logmsg.py Unsu1024 info $userreq $username
+	fi
  fi
 fi 
 echo dddddddddddddddddddddddddd $leader, $myhost

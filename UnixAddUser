@@ -144,7 +144,7 @@ then
   /TopStor/etcdput.py $etcd 'usershash/'$username $userhash
   #/TopStor/broadcast.py UserAdd /TopStor/pump.sh UnixAddUser_sync -d$myhost $username $userhash $userid $usergd $userhome
   echo $etcd 2222222222222222222222222222222222222222222222222222222222222222 
-   /TopStor/UnixChangeUser $leaderip $username $usergroups $userreq create
+   /TopStor/UnixChangeUser $leaderip $username $usergroups $userreq create $pullsync
   echo $etcd 2222222222222222222222222222222222222222222222222222222222222222 
   echo s$pullsync | grep pull
   if [ $? -ne 0 ]
