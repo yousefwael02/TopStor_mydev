@@ -57,6 +57,7 @@ fnupdateold () {
 	sync
 	sync
 }
+echo nameserver 8.8.8.8 > /etc/resolv.conf
 cjobs=(`echo TopStor pace topstorweb`)
 branch=$1
 branchc=`echo $branch | wc -c`
