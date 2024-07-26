@@ -66,7 +66,8 @@ echo 2222222222222222222222222222222222222222222222
  then
  	useradd -c"TopStorGroup"$pas $homebase -p $userpass -s /usr/sbin/nologin $username 
  else
-	useradd -c"TopStorGroup"$userpass $homebase -g $usergd -u $userid -p $userpass -s /usr/sbin/nologin $username
+	echo iam here
+	useradd -c"TopStorGroup"$pas $homebase -g $usergd -u $userid -p $userpass -s /usr/sbin/nologin $username
 	groupmod -g $usergd $username
  fi
 
