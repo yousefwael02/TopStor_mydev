@@ -118,7 +118,7 @@ then
  	useradd -c"TopStor"$pas $homebase -p $userpass -s /usr/sbin/nologin $username 
  fi
 
- echo $pullsync | grep pull
+ echo $pullsync | grep sync 
  if [ $? -ne 0 ]
  then
  	currentcifs=`docker ps | egrep 'CIFS|HOM' | awk '{print $1}' | grep -v 'CIFS_'`
