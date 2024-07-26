@@ -99,7 +99,7 @@ then
    then
     continue
    fi
-   usergroups=`id -Gn $l | sed 's/ /,/g' | sed "s/$l,//g" | sed "s/$groupname//g" | sed "s/Everyone//g" | sed "s/,,/,/g" | sed 's/,,,/,/g' | sed 's/,,,,/,/g' | sed 's/^,//g' | sed 's/,$//g' `
+   usergroups=`id -Gn $l | sed 's/ /,/g' | sed "s/$l,//g" | sed "s/$groupname//g" |  sed "s/,,/,/g" | sed 's/,,,/,/g' | sed 's/,,,,/,/g' | sed 's/^,//g' | sed 's/,$//g' `
    usergroupsn=`echo $usergroups | wc -c`
    if [ $usergroupsn -le 2 ];
    then
