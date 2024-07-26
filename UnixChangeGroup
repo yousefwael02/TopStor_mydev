@@ -127,10 +127,10 @@ if [ $? -eq 0 ];
 then
  stamp=`date +%s`;
  myscript=`basename "$0"`
- params=`echo $myscript $@ $pullsync | sed 's\ \\_\g'`
+ params=`echo $myscript $@ pull | sed 's\ \\_\g'`
  echo params=$params
  /pace/etcdput.py $etcd sync/GrpChange/$params/request/$myhost GrpChange_${groupname}_$stamp
- /pace/etcdput.py $etcd sync/user/$params/request GrpChange_${groupname}_$stamp
+ /pace/etcdput.py $etcd sync/GrpChange/$params/request GrpChange_${groupname}_$stamp
 fi
 
 docker exec etcdclient /TopStor/logqueue.py `basename "$0"` stop $userreq 

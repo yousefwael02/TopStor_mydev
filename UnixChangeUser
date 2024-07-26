@@ -166,7 +166,7 @@ then
 	stamp=`date +%s`;
 	stamp=$((stamp+10))
 	myscript=`basename "$0"`
-	params=`echo $myscript $@ $stamp | sed 's\ \\_\g'`
+	params=`echo $myscript $@ pull | sed 's\ \\_\g'`
 	echo params=$params
 	echo /pace/etcdput.py $etcd sync/UsrChange/$params/request/$myhost UsrChange_$stamp
 	/TopStor/etcdput.py $etcd sync/UsrChange/$params/request/$myhost UsrChange_$stamp
