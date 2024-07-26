@@ -26,7 +26,11 @@ then
 	myhostip=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternodeip`
 	leader=`docker exec etcdclient /TopStor/etcdgetlocal.py leader`
 echo 2222222222222222222222222222222222222222222222
- docker exec etcdclient /TopStor/logmsg.py Unlin1118 info $userreq $username
+ echo s$pullsync | grep pull
+ if [ $? -eq 0 ]
+ then
+ 	docker exec etcdclient /TopStor/logmsg.py Unlin1118 info $userreq $username
+ fi
  echo $leader | grep $myhost
  if [ $? -ne 0 ];
  then
@@ -66,7 +70,6 @@ echo 2222222222222222222222222222222222222222222222
  then
  	useradd -c"TopStorGroup"$pas $homebase -p $userpass -s /usr/sbin/nologin $username 
  else
-	echo iam here
 	useradd -c"TopStorGroup"$pas $homebase -u $userid -p $userpass -s /usr/sbin/nologin $username
 	groupmod -g $usergd $username
  fi
@@ -83,7 +86,11 @@ echo 2222222222222222222222222222222222222222222222
   #/TopStor/broadcast.py GroupAdd /TopStor/pump.sh UnixAddGroup_sync -d$myhost $username $userid $usergd $groupusers
   echo /TopStor/UnixChangeGroup $leaderip $username $groupusers $userreq create $pullsync
   /TopStor/UnixChangeGroup $leaderip $username $groupusers $userreq create $pullsync
-  docker exec etcdclient /TopStor/logmsg.py Unlin1122 info $userreq $username
+  echo s$pullsync | grep pull
+  if [ $? -eq 0 ]
+  then
+  	docker exec etcdclient /TopStor/logmsg.py Unlin1122 info $userreq $username
+  fi
  fi 
  ln -f /etc/passwd  /opt/passwds/passwd
  ln -f /etc/group  /opt/passwds/group
