@@ -109,11 +109,11 @@ then
    fi 
     echo ------------------------------------------------------------------------------
    echo /TopStor/UnixChangeUser $l groups$usergroups $userreq 
-   /TopStor/UnixChangeUser $leaderip $l groups$usergroups $userreq $ischange 2&>/root/UnixChangeUser
+   /TopStor/UnixChangeUser $leaderip $l groups$usergroups $userreq $ischange $pullsync &>/root/UnixChangeUser
   done 
  else
     echo ---------------0000000000000000000000000------------------- 
-   /TopStor/UnixChangeUser $leaderip NoUser groups$groupname $userreq $ischange 2&>/root/UnixChangeUser
+   /TopStor/UnixChangeUser $leaderip NoUser groups$groupname $userreq $ischange $pullsync &>/root/UnixChangeUser
  fi 
  #/TopStor/broadcast.py GroupChange /TopStor/pump.sh UnixChangeGroup_sync -d$myhost $@ 
  echo s$pullsync | grep pull
