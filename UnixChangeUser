@@ -28,6 +28,7 @@ then
  id $username
  if [ $? -ne 0 ];
  then
+	docker exec etcdclient /TopStor/logqueue.py `basename "$0"` finish $userreq 
 	exit 
  fi
  echo 'NoUser' | grep $username
@@ -158,11 +159,10 @@ then
   		docker exec etcdclient /TopStor/logmsg.py Unsu1024 info $userreq $username
 	fi
  fi
-fi 
-echo dddddddddddddddddddddddddd $leader, $myhost
-echo $leader | grep $myhost
-if [ $? -eq 0 ];
-then
+ echo dddddddddddddddddddddddddd $leader, $myhost
+ echo $leader | grep $myhost
+ if [ $? -eq 0 ];
+ then
 	stamp=`date +%s`;
 	stamp=$((stamp+10))
 	myscript=`basename "$0"`
@@ -171,5 +171,6 @@ then
 	echo /pace/etcdput.py $etcd sync/UsrChange/$params/request/$myhost UsrChange_$stamp
 	/TopStor/etcdput.py $etcd sync/UsrChange/$params/request/$myhost UsrChange_$stamp
 	/TopStor/etcdput.py $etcd sync/UsrChange/$params/request UsrChange_$stamp
+ fi
+ docker exec etcdclient /TopStor/logqueue.py `basename "$0"` finish $userreq 
 fi
-docker exec etcdclient /TopStor/logqueue.py `basename "$0"` finish $userreq 

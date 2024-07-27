@@ -51,7 +51,7 @@ echo 2222222222222222222222222222222222222222222222
                         if [ $? -eq 0 ];
                         then
                                 docker exec etcdclient /TopStor/logmsg.py Unlin1021uu warning $userreq $username
-                                docker exec etcdclient /TopStor/logqueue.py `basename "$0"` stop $userreq 
+                                docker exec etcdclient /TopStor/logqueue.py `basename "$0"` finish $userreq 
                                 exit
                         fi
  else
@@ -105,5 +105,5 @@ echo 2222222222222222222222222222222222222222222222
 	/pace/etcdput.py $etcd sync/group/$params/request/$myhost group_${username}_$stamp
 	/pace/etcdput.py $etcd sync/group/$params/request group_${username}_$stamp
  fi
- docker exec etcdclient /TopStor/logqueue.py `basename "$0"` stop $userreq
+ docker exec etcdclient /TopStor/logqueue.py `basename "$0"` finish $userreq
 fi

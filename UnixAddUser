@@ -56,7 +56,7 @@ then
  			if [ $? -eq 0 ];
  			then
   				docker exec etcdclient /TopStor/logmsg.py Unlin1021uu warning $userreq $username
-  				docker exec etcdclient /TopStor/logqueue.py `basename "$0"` stop $userreq 
+  				docker exec etcdclient /TopStor/logqueue.py `basename "$0"` finish $userreq 
   				exit
  			fi
 		fi

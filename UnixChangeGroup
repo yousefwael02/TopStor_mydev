@@ -121,16 +121,15 @@ then
  then
  	docker exec etcdclient /TopStor/logmsg.py Unsu1025 info $userreq $groupname
  fi
-fi 
-echo ${ischange}$leader | grep change$myhost
-if [ $? -eq 0 ];
-then
- stamp=`date +%s`;
- myscript=`basename "$0"`
- params=`echo $myscript $@ pull | sed 's\ \\_\g'`
- echo params=$params
- /pace/etcdput.py $etcd sync/GrpChange/$params/request/$myhost GrpChange_${groupname}_$stamp
- /pace/etcdput.py $etcd sync/GrpChange/$params/request GrpChange_${groupname}_$stamp
+ echo ${ischange}$leader | grep change$myhost
+ if [ $? -eq 0 ];
+ then
+  stamp=`date +%s`;
+  myscript=`basename "$0"`
+  params=`echo $myscript $@ pull | sed 's\ \\_\g'`
+  echo params=$params
+  /pace/etcdput.py $etcd sync/GrpChange/$params/request/$myhost GrpChange_${groupname}_$stamp
+  /pace/etcdput.py $etcd sync/GrpChange/$params/request GrpChange_${groupname}_$stamp
+ fi
+ docker exec etcdclient /TopStor/logqueue.py `basename "$0"` finish $userreq 
 fi
-
-docker exec etcdclient /TopStor/logqueue.py `basename "$0"` stop $userreq 
