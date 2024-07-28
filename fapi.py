@@ -1149,7 +1149,8 @@ def api_partners_userslist():
  return { "allpartners":allpartners }
 
 @app.route('/api/v1/users/userlist', methods=['GET'])
-def api_users_userslist():
+@login_required
+def api_users_userslist(data):
  global allgroups, allusers, leaderip
  userlst = etcdgetjson(leaderip,'usersinfo','--prefix')
  allgroups = getgroups()
