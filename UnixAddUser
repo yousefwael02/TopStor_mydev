@@ -165,7 +165,7 @@ then
 	/pace/etcdput.py $leaderip sync/user/$params/request/$myhost user_${username}_$stamp
 	/pace/etcdput.py $leaderip sync/user/$params/request user_${username}_$stamp
 	stamp=$((stamp+10))
-	params=`echo UnixChangeUser $@ $stamp | sed 's\ \\_\g'`
+	params=`echo UnixChangeUser $@ s$pullsync | sed 's\ \\_\g'`
 	/pace/etcdput.py $leaderip sync/UsrChange/$params/request/$myhost UsrChange_$stamp
 	/pace/etcdput.py $leaderip sync/UsrChange/$params/request UsrChange_$stamp
  fi
