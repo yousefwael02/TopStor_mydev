@@ -40,18 +40,18 @@ then
  		etcd=$myhostip
 	else
  		etcd=$leaderip
- 
- 		/pace/etcdget.py $etcd volumes --prefix | grep -w $username
-	 	if [ $? -eq 0 ];
- 		then
- 			docker exec etcdclient /TopStor/logmsg.py Unlin1021uv warning $userreq $username
-  			docker exec etcdclient/TopStor/logqueue.py `basename "$0"` stop $userreq 
-  			exit
- 		fi
-		
 		echo $pullsync | grep pullsync
 		if [ $? -ne 0 ]
 		then
+ 
+ 			/pace/etcdget.py $etcd volumes --prefix | grep -w $username
+	 		if [ $? -eq 0 ];
+ 			then
+ 				docker exec etcdclient /TopStor/logmsg.py Unlin1021uv warning $userreq $username
+  				docker exec etcdclient/TopStor/logqueue.py `basename "$0"` finish $userreq 
+  				exit
+ 			fi
+		
  			./etcdget.py $etcd user --prefix | grep -w $username 
  			if [ $? -eq 0 ];
  			then
