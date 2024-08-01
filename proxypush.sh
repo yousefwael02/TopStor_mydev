@@ -103,6 +103,14 @@ do
 		flag=0
 	fi
 done
+cd /topstorweb
+if [ $? -ne 0 ]
+then
+	cd /var/www/html/des20/
+fi
+git show | grep commit
+cd /pace
+git show | grep commit
 cd /TopStor
 git show | grep commit
 echo finished
