@@ -559,7 +559,6 @@ fi
  /TopStor/refreshdisown.sh & disown 
  /TopStor/etcdput.py $etcd refreshdisown/$myhost yes 
  #/pace/syncrequestlooper.sh $leaderip $myhost & disown
- #/pace/zfsping.py $leaderip $myhost & disown
  /pace/rebootmeplslooper.sh $myclusterip $myhost & disown
  #/TopStor/receivereplylooper.sh & disown
  #/TopStor/iscsiwatchdoglooper.sh $mynodeip $myhost & disown 
@@ -597,4 +596,5 @@ docker rm -f promexport
 docker run -d -p $mynodeip:9100:9100 -v /proc:/proc -v /sys:/sys --name promexport prom/node-exporter
 docker rm -f promcadvisor
 docker run   --volume=/:/rootfs:ro   --volume=/var/run:/var/run:ro   --volume=/sys:/sys:ro   --volume=/var/lib/docker/:/var/lib/docker:ro   --volume=/dev/disk/:/dev/disk:ro   --publish=$mynodeip:9101:8080   --detach=true   --name=promcadvisor   --privileged   --device=/dev/kmsg   gcr.io/cadvisor/cadvisor
+ /pace/zfsping.py $leaderip $myhost & disown
  /pace/fapilooper.sh & disown

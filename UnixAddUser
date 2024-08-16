@@ -79,15 +79,6 @@ then
  then
   	homedir=$homePool
   	homebase='-b /'$homedir' -M'  
- 	echo $pullsync | grep pull
- 	if [ $? -ne 0 ]
- 	then
-  		docker exec etcdclient docker exec etcdclient /TopStor/logmsg.py Unlin1024 info  $userreq $username $homedir
-  		echo hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
-  		echo /TopStor/VolumeCreateHOME $leaderip $homePool $username $size $username $HomeAddr $HomeSubnet active $userreq $myhost $userreq 
-  		/TopStor/VolumeCreateHOME $leaderip $homePool $username $size $username $HomeAddr $HomeSubnet active $userreq $myhost $userreq 
-  		echo hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
-	fi
  else
  	echo $pullsync | grep pull
  	if [ $? -ne 0 ]
@@ -101,29 +92,39 @@ then
 	useradd -c"TopStor"$pas  $homebase -u $userid -p $userpass -s /usr/sbin/nologin $username
 	groupmod -g $usergd $username
 	echo useradd \-c"TopStor"$userpass $homebase \-g $usergd \-u $userid \-p $userpass \-s /usr/sbin/nologin $username
-	currentcifs=`docker ps | awk '{print $NF}' | grep CIFS | grep -v 'CIFS_'`
-	echo "$currentcifs" | while read y
-	do
- 		echo $y | grep CIFS
- 		if [ $? -eq 0 ]
- 		then
-        		echo dock=$y
-        		echo docker exec $y  sh /hostetc/smbuserfix.sh x $username $pas 
-       			docker exec $y  sh /hostetc/smbuserfix.sh x $username $pas
- 		fi	
-	done
-
+	
  else
 	echo useradd \-c"TopStor"$pas $homebase \-p $userpass \-s /usr/sbin/nologin $username
  	useradd -c"TopStor"$pas $homebase -p $userpass -s /usr/sbin/nologin $username 
  fi
-
- echo $pullsync | grep sync 
+ echo $pullsync | grep pull
  if [ $? -ne 0 ]
  then
- 	currentcifs=`docker ps | egrep 'CIFS|HOM' | awk '{print $1}' | grep -v 'CIFS_'`
- 	echo "$currentcifs" | while read y; do docker exec $y  sh /hostetc/smbuserfix.sh x $username $userpass;  done; 
+	docker exec etcdclient docker exec etcdclient /TopStor/logmsg.py Unlin1024 info  $userreq $username $homedir
+  	echo hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
+  	echo /TopStor/VolumeCreateHOME $leaderip $homePool $username $size $username $HomeAddr $HomeSubnet active $userreq $myhost $userreq 
+  	/TopStor/VolumeCreateHOME $leaderip $homePool $username $size $username $HomeAddr $HomeSubnet active $userreq $myhost $userreq 
+  	echo hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
  fi
+
+ currentcifs=`docker ps | awk '{print $NF}' | grep CIFS | grep -v 'CIFS_'`
+ echo "$currentcifs" | while read y
+ do
+ 	echo $y | grep CIFS
+ 	if [ $? -eq 0 ]
+ 	then
+       		echo dock=$y
+       		echo docker exec $y  sh /hostetc/smbuserfix.sh x $username $pas 
+       		docker exec $y  sh /hostetc/smbuserfix.sh x $username $pas
+ 	fi	
+ done
+
+# echo $pullsync | grep sync 
+# if [ $? -ne 0 ]
+# then
+# 	currentcifs=`docker ps | egrep 'CIFS|HOM' | awk '{print $1}' | grep -v 'CIFS_'`
+# 	echo "$currentcifs" | while read y; do docker exec $y  sh /hostetc/smbuserfix.sh x $username $userpass;  done; 
+# fi
  docker exec intsmb /root/smbuser.sh $username $userpass
  userline=`cat /etc/passwd | grep $username`
  if [ $? -ne  0  ]; then

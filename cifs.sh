@@ -7,10 +7,10 @@ mounts=`echo $@ | awk '{print $2}' | sed 's/\-v/ \-v /g'`
 ipaddr=`echo $@ | awk '{print $3}'`
 ipsubnet=`echo $@ | awk '{print $4}'`
 vtype=`echo $@ | awk '{print $5}'`
-echo $@ > /root/cifstmp
-echo $resname >> /root/cifstmp
-echo $mounts >> /root/cifstmp
-echo $ipaddr $ipsubnet >> /root/cifstmp
+echo params $@ > /root/cifstmp
+echo name $resname >> /root/cifstmp
+echo mounts $mounts >> /root/cifstmp
+echo ip and subnet $ipaddr $ipsubnet >> /root/cifstmp
 docker rm -f $resname
 nmcli conn mod cmynode -ipv4.addresses ${ipaddr}/$ipsubnet
 nmcli conn mod cmynode +ipv4.addresses ${ipaddr}/$ipsubnet
