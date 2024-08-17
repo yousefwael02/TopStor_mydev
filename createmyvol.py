@@ -13,6 +13,7 @@ def createvol(*args):
  size = args[7]
  user = 'system'
  typep = args[8]
+ vtype = typep
  if 'ISCSI' in typep:
   chapuser = 'MoatazNegm'
   chappas = 'MezoAdmin'
@@ -29,14 +30,16 @@ def createvol(*args):
   cmdline=['./encthis.sh',domname,dompass]
   dompass=subprocess.run(cmdline,stdout=subprocess.PIPE).stdout.decode().split('_result')[1].replace('/','@@sep')[:-1]
   datastr = leaderip+' '+pool+' '+name+' '+size+' '+ipaddress+' '+Subnet+' '+user+' '+owner+' '+user+' '+domname+' '+domsrv+' '+ domip+' '+domadmin+' '+dompass 
+ elif 'HOMEE' in typep:
+    vtype='HOME'
  else:
   groups = args[9] 
   print(leaderip+' '+pool+' '+name+' '+size+' '+groups+' '+ipaddress+' '+Subnet+' disabled '+user+' '+owner+' '+user)
   datastr = leaderip+' '+pool+' '+name+' '+size+' '+groups+' '+ipaddress+' '+Subnet+' disabled '+user+' '+owner+' '+user
  print('#############################')
- print('/TopStor/VolumeCreate'+typep,datastr)
+ print('/TopStor/VolumeCreate'+vtype,datastr)
  print('###########################')
- cmndstring = '/TopStor/VolumeCreate'+typep+' '+datastr
+ cmndstring = '/TopStor/VolumeCreate'+vtype+' '+datastr
  result=subprocess.run(cmndstring.split(),stdout=subprocess.PIPE)
  return 
 
