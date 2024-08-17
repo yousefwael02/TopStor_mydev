@@ -162,7 +162,7 @@ def config(leader, leaderip, myhost, *bargs):
 
   put(leaderip, 'sync/ipaddr/Add_ActivePartners_'+arglist['name']+'_'+arglist['ipaddr'].replace('/','::')+'/request/'+leader,'ActivePartners_'+arglist['name']+'_'+stampi)
   logmsg.sendlog('HostManual1su6','info',arglist['user'], str(oldipaddr),arglist['ipaddr']+'/'+arglist['ipaddrsubnet'])
-  queuethis('Hostconfigi_alias','finish',arglist)
+  queuethis('Hostconfig_ip','finish',arglist['user'])
 ######################################
  queuethis('Hostconfig','finish',arglist)
  return 1
