@@ -46,5 +46,7 @@ def createvol(*args):
 
 if __name__=='__main__':
 
+ with open('/root/createmyvol','w') as f:
+    f.write(' '.join(sys.argv[1:]))
  createvol(*sys.argv[1:])
 
