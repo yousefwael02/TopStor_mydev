@@ -217,7 +217,6 @@ def repliparam(snapshot, receiver, userreq='system'):
   csnaps = finalresonse.split('@')[1]
  except:
   csnaps = 'noold'
- logmsg.sendlog('Partnerfa02','error',userreq, 'tttest'+receiver.split('_')[0])
  result = replistream(receiver.split('_')[0], snapshot, nodeowner, poolvol, pool, volume, csnaps)
  if 'fail' in result:
   print('fail')

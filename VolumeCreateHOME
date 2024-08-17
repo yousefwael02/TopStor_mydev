@@ -39,8 +39,8 @@ then
         else
                 etcd=$leaderip
         fi
+  	docker exec etcdclient /TopStor/logqueue.py `basename "$0"` running $userreq
 
-        docker exec etcdclient /TopStor/logqueue.py VolumeCreateHOME running $userreq
  /pace/etcdget.py $etcd volumes --prefix | grep $shortname
  if [ $? -eq 0 ];
  then
