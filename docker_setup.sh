@@ -4,6 +4,14 @@ eth2='enp0s8';
 
 # Get the current directory
 ports='/TopStordata/ports'
+if grep -q 'reset' /root/nodestatus; then
+	pports=$(ip a | grep -Po '(?<=^\d: )[^\:]+')
+	eth1=$(echo "$pports" | sed -n '2p')
+	eth2=$(echo "$pports" | sed -n '2p')
+	echo "$eth1" > $ports
+	echo "$eth2" >> $ports
+fi
+
 # Create an empty list
 eth_list=()
 if [ ! -f $ports ];
