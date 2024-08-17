@@ -50,7 +50,7 @@ then
    usermod -G '' $username
    usermod -G $usergroups $username
   fi
-  usermod -a -G Everyone $username
+  usermod -a -G $username  $username
   cgrps=`/pace/etcdget.py $etcd usersigroup $username`
   cgrpsl=${#cgrps}
   while [ $cgrpsl  -gt 4 ];
@@ -91,13 +91,18 @@ then
    usergroups=`echo $usergroups | sed 's/ /,/g' | cut -d, -f2-`
    usergroups=$usergroups','
    grpsl=` echo ${usergroups} | sed 's/,/ /g' | wc -w`
-   echo l=$l
+   echo $l | grep -w $username
+   if [ $? -eq 0 ];
+   then
+	continue
+   fi
    echo usrgroups=$usergroups
    echo grpsl=$grpsl
    echo stablegrp=$stablegrp
    echo $l | grep -w NoGroup 
    if [ $? -ne 0 ];
    then
+    echo 'kdsl' $stablegrp | grep -w $l 
     echo 'kdsl' $stablegrp | grep -w $l >/dev/null
     if [ $? -ne 0 ];
     then
