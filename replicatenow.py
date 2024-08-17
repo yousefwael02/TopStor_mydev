@@ -176,7 +176,7 @@ def replistream(receiver, snapshot, nodeowner, poolvol, pool, volume, csnaps, us
     return 'success' 
  else:
     print('replicatenow_failreplciatenow_')
-    logmsg.sendlog('Streamfa01','info',userreq, myvol+'@'+snapshot,receiver)
+    logmsg.sendlog('Streamfa01','error',userreq, myvol+'@'+snapshot,receiver)
     return 'fail'
  return stream
 
