@@ -306,7 +306,7 @@ else
      #ETCDCTL_API=3 /pace/etcdput.py $myhostip fixpool/p$nextpool running 
     docker exec etcdclient /TopStor/logmsg.py DGsu13 info $userreq p${nextpool} $diskns
   else
-    docker exec etcdclient /TopStor/logmsg.py DGfa13 info $userreq p${nextpool} $diskns
+    docker exec etcdclient /TopStor/logmsg.py DGfa13 error $userreq p${nextpool} $diskns
   fi
  fi  
  if [[ $raid == "addparity2" ]]; then

@@ -28,7 +28,16 @@ def do(data):
  logmsg.sendlog('AddHostst01','info',user,name)
  put(discip, 'tojoin/'+name,leaderip)
  put(leaderip, 'allowedPartners',name)
- nameip = get(discip,'possible/'+name)[0]
+ nameip = '_1'
+ counter = 1 
+ while '_1' in str(nameip):
+    nameip = get(discip,'possible/'+name)[0]
+    sleep(2)
+    counter += 1
+    if counter > 5:
+        logmsg.sendlog('AddHostfa01','error',user,name)
+        return
+        
  print('nameip', nameip, name)
  put(leaderip, 'ActivePartners/'+name, nameip) 
  dosync('Partnr_str_', 'sync/allowedPartners/Add_'+name+'_'+nameip+'/request','Partnr_str_'+str(stamp())) 

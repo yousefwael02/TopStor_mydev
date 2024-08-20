@@ -330,7 +330,8 @@ NFS1007:2: : from :: Success creating volume :
 Evacuaest01:1: : from :: Start Evacuating node :
 Evacuaesu01:1: : from :: Success Evacuating node :
 AddHostst01:2: : from :: Start Adding the new node : to the cluster
-AddHostsu01:2: : from :: Success Adding the new node : to the cluster
+AddHostsu01:2: : from :: Success adding the new node : to the cluster
+AddHostfa01:2: : from :: Failed adding the new node : to the cluster, please try again by pressing on the discovery button and wiating for some time
 Snap1022:0: : from :: Deleting Snapshot :
 Snap1023:2: : from :: Problem while deleting snapshot :
 Snap1024: Success in deleting snapshot :
