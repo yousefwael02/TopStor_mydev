@@ -320,20 +320,21 @@ def featuring():
     for disk in disksinfo:
         if 'pdhcp' in disksinfo[disk]['pool'] or norm(disksinfo[disk]['size']) < norm(disks['disk']) or disksinfo[disk]['changeop'] != 'free':
             continue
-        key = f"{disksinfo[disk]['host']}_{disksinfo[disk]['size']}"
-        if key not in diskscat:
-            diskscat[key] = dict()
-            diskscat[key]['host'] = disksinfo[disk]['host']
-            diskscat[key]['size'] = disksinfo[disk]['size']
-            diskscat[key]['diskcount'] = 0 
-            diskscat[key]['disks'] = []
-            hosts.add(disksinfo[disk]['host'])
-            feature1.append([key,counter,0,disksinfo[disk]['host'],counter])
-            feature2.append([key,lendisks+counter,0,disksinfo[disk]['host'],counter])
-            feature3.append([key,(2*lendisks)+counter,0,disksinfo[disk]['host'],counter])
-            counter +=1
-        diskscat[key]['disks'].append(disk)
-        diskscat[key]['diskcount'] += 1
+        else:
+            key = f"{disksinfo[disk]['host']}_{disksinfo[disk]['size']}"
+            if key not in diskscat:
+                diskscat[key] = dict()
+                diskscat[key]['host'] = disksinfo[disk]['host']
+                diskscat[key]['size'] = disksinfo[disk]['size']
+                diskscat[key]['diskcount'] = 0 
+                diskscat[key]['disks'] = []
+                hosts.add(disksinfo[disk]['host'])
+                feature1.append([key,counter,0,disksinfo[disk]['host'],counter])
+                feature2.append([key,lendisks+counter,0,disksinfo[disk]['host'],counter])
+                feature3.append([key,(2*lendisks)+counter,0,disksinfo[disk]['host'],counter])
+                counter +=1
+            diskscat[key]['disks'].append(disk)
+            diskscat[key]['diskcount'] += 1
     
     elements.append(feature1)
     elements.append(feature2)
@@ -361,8 +362,12 @@ def selectdisks(fdisks,fdisksinfo,addtopool=''):
     elements = []
     elements = featuring()
     combinations = dict()
-    #return fastdiskselect(elements)
-    return veryfastselect(elements)
+    res = veryfastselect(elements)
+    disksinfo = []
+    disks = {} 
+    hosts = {}
+    diskscat = {}
+    return res 
 
 if __name__=='__main__':
     import sys

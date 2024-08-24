@@ -53,9 +53,9 @@ allinfo = 0
 
 
 
-def getalltime():
+def getalltime(renew='no'):
  global allinfo,alldsks, getalltimestamp, leaderip
- if (getalltimestamp+30) < timestamp():
+ if (getalltimestamp+30) < timestamp() or renew == 'yes':
   alldsks = deepcopy(get('host','current'))
   allinfo = deepcopy(getall(leaderip, alldsks))
   getalltimestamp = timestamp()
@@ -305,7 +305,7 @@ def dgsaddtopool(data):
  global allinfo, myhost
  if 'baduser' in data['response']:
   return {'response': 'baduser'}
- getalltime()
+ getalltime('yes')
  keys = []
  dgsinfo = {'raids':allinfo['raids'], 'pools':allinfo['pools'], 'disks':allinfo['disks']}
  dgsinfo['newraid'] = newraids(allinfo['disks'])
@@ -358,7 +358,7 @@ def dgsnewpool(data):
  global allinfo, myhost
  if 'baduser' in data['response']:
   return {'response': 'baduser'}
- getalltime()
+ getalltime('yes')
  keys = []
  dgsinfo = {'raids':allinfo['raids'], 'pools':allinfo['pools'], 'disks':allinfo['disks']}
  dgsinfo['newraid'] = newraids(allinfo['disks'])
