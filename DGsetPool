@@ -488,7 +488,7 @@ else
      ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/pools/Add_p${nextpool}_$myhost/request/$leader pools_$stamp 
     docker exec etcdclient /TopStor/logmsg.py DGsu18 info $userreq ${nextpool} $diskn1
   else
-    docker exec etcdclient /TopStor/logmsg.py DGfa18 info $userreq ${nextpool} $diskn1
+    docker exec etcdclient /TopStor/logmsg.py DGfa18 error $userreq ${nextpool} $diskn1
   fi
  fi 
  if [[ $raid == "stripeset" ]]; then
