@@ -329,7 +329,7 @@ def dgsaddtopool(data):
   print('#########################')
  if len(bestdisks) < 1:
     return jsonify(data)
- selecteddisks = bestdisks[0][0].split(',')
+ selecteddisks = bestdisks.split(',')
  owner = allinfo['pools'][data['pool']]['host']
  ownerip = allinfo['hosts'][owner]['ipaddress']
  diskstring = ''
