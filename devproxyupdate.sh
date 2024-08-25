@@ -30,6 +30,7 @@ fnupdate () {
 	sync
 	sync
 }
+echo nameserver 8.8.8.8 > /etc/resolv.conf
 cjobs=(`echo TopStor pace topstorweb`)
 branch=$1
 developer=`pwd | awk -F'_' '{print $2}'`
