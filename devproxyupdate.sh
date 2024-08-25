@@ -88,6 +88,8 @@ do
 		flag=0
 	fi
 done
-cd /TopStor
+cd /TopStor_$developer
+echo the latest commit in the $developer repo:
 git show | grep commit
+cd /TopStor
 echo finished
