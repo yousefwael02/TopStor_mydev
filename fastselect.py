@@ -352,9 +352,10 @@ def selectdisks(leaderip, fdisks,fdisksinfo,addtopool=''):
     global hosts, disktypes, mindisksize, count, combinations, disks, disksinfo, mustinclude, diskscat, redundancy
     disks, disksinfo = fdisks, fdisksinfo
     with open('/TopStordata/fastselect','w') as f:
-        f.write(str(fdisks)+'\n'+str(fdisksinfo)+'/n')
+        f.write('fdisks: '+str(fdisks.keys())+'\n'+str(fdisks)+'\n'+str(fdisksinfo)+'/n')
     count = disks['diskcount']
     hosts = set()
+    mustinclude = ''
     print('count',count)
     #if count ==1:
     #    count = disks['diskcount'] + 1

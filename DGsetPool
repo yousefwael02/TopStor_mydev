@@ -316,7 +316,7 @@ else
   disk1=" "
   diskns=""
   /pace/diskchange.sh dgsetpool dgsetpool dgsetpool
-  while [ $i -lt $((diskargs-3)) ]; do
+  while [ $i -lt $((diskargs)) ]; do
    i=$((i+1));
    disk=`echo ${params[$i]} | awk -F':' '{print $1}'`
    diskn=`echo ${params[$i]} | awk -F':' '{print $2}'`
@@ -324,6 +324,7 @@ else
    diskns=${diskns}$diskn","
   done;
    docker exec etcdclient /TopStor/logmsg.py DGst14 info $userreq p${nextpool} $diskns
+  echo /sbin/zpool add -f ${nextpool} raidz2 ${disk1} 
   /sbin/zpool add -f ${nextpool} raidz2 ${disk1} 
   if [ $? -eq 0 ]; then
      ETCDCTL_API=3 /pace/etcdput.py $leaderip 'pools/'$nextpool $myhost
