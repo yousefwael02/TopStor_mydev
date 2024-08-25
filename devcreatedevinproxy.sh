@@ -2,11 +2,6 @@
 fnupdate () {
 	origin='http://10.11.11.252/git/'$1'.git'
 	remote='http://github.com/'$2'/'$1'_mydev.git'
-	echo xx$3 | grep init
-	if [ $? -eq 0 ];
-	then
-		rm -rf .git
-	fi
 	git init
 	git remote add origin $origin
 	git remote add remote $remote 
@@ -39,6 +34,12 @@ do
 	do
 		echo '###########################################'
  		echo ${job}_${developer}
+		echo xx$2 | grep init
+		if [ $? -eq 0 ];
+		then
+			echo re-creating the complete ${job}_${developer} repo
+			rm -rf /${job}_${developer}
+		fi
 		mkdir /${job}_${developer}
 		cd /${job}_${developer}
 		if [ $? -ne 0 ];
@@ -46,7 +47,7 @@ do
 				echo the directory $job is not found... exiting
 				exit
 		fi
-		fnupdate $job $developer $3
+		fnupdate $job $developer 
 		cjobs=(`echo "${cjobs[@]}" | sed "s/$job//g" `)
   	done
 	lencjobs=`echo $cjobs | wc -c`
