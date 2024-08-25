@@ -302,7 +302,7 @@ def dgsdelpool(data):
 @app.route('/api/v1/pools/addtopool', methods=['GET','POST'])
 @login_required
 def dgsaddtopool(data):
- global allinfo, myhost
+ global allinfo, myhost, leaderip
  if 'baduser' in data['response']:
   return {'response': 'baduser'}
  getalltime('yes')
@@ -324,7 +324,7 @@ def dgsaddtopool(data):
   print('#########################')
   print('disks',disks)
   print('#########################')
-  bestdisks = selectdisks(disks,allinfo['disks'],data['pool'])
+  bestdisks = selectdisks(leaderip,allinfo['disks'],data['pool'])
   print('bestdisks',bestdisks)
   print('#########################')
  if len(bestdisks) < 1:
@@ -355,7 +355,7 @@ def dgsaddtopool(data):
 @app.route('/api/v1/pools/newpool', methods=['GET','POST'])
 @login_required
 def dgsnewpool(data):
- global allinfo, myhost
+ global allinfo, myhost, leaderip
  if 'baduser' in data['response']:
   return {'response': 'baduser'}
  getalltime('yes')
@@ -374,7 +374,7 @@ def dgsnewpool(data):
  if 'single' in data['redundancy']:
   selecteddisks= disks
  else:
-  bestdisks = selectdisks(disks, allinfo['disks'])
+  bestdisks = selectdisks(leaderip, disks, allinfo['disks'])
   if len(bestdisks) < 1:
     return jsonify(data)
   selecteddisks = bestdisks.split(',')
@@ -438,6 +438,7 @@ def volpoolsinfo(data):
 @app.route('/api/v1/stats/dskperf', methods=['GET','POST'])
 def dskperfs():
  #ioperf(leaderip,myhost)
+ global leaderip
  return jsonify({'dsk':dskperf(leaderip), 'cpu':cpuperf(leaderip)})
 
 
@@ -538,6 +539,7 @@ def poolsinfo(data):
 @app.route('/api/v1/groups/groupchange', methods=['GET','POST'])
 @login_required
 def pgroupchange(data):
+ global leaderip
  if 'baduser' in data['response']:
   return {'response': 'baduser'}
  usrs = data.get('users')
