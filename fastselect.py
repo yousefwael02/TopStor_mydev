@@ -322,7 +322,7 @@ def featuring(leaderip):
     counter = 1 
     elements = []
     needtoreplacelst = get(leaderip,'needto','--prefix')
-    needtoreplace = ",".join(needtoreplacelst)
+    needtoreplace = str(needtoreplacelst)
     for disk in disksinfo:
         if norm(disksinfo[disk]['size']) < norm(disks['disk']) or disksinfo[disk]['changeop'] not in [ 'free', 'ONLINE' ] or ( disksinfo[disk]['changeop'] in 'ONLINE' and disk not in mustinclude) or disk in needtoreplace:
             continue
