@@ -40,6 +40,29 @@ then
 	echo no valid branch is supplied .... exiting
 	exit
 fi 
+developer=`pwd | awk -F'_' '{print $2}'`
+dev=$2
+devc=`echo $dev | wc -c`
+if [ $devc -le 3 ];
+then
+	echo no valid developer name is supplied .... exiting
+	exit
+fi 
+ondevtopstor=`ls / | grep $dev | grep TopStor`
+devl=`echo x$ondevtopstor | wc -l` 
+if [ $devl -ge 1 ];
+then
+	echo choose between:
+	echo $ondevtopstor | awk -F'_' '{$NF}' 
+	exit
+fi
+
+if [ $devl -eq 0 ];
+then
+	echo No such developer $dev 
+	exit
+fi
+developer=$dev
 flag=1
 while [ $flag -ne 0 ];
 do
@@ -53,20 +76,8 @@ do
 		cd /${job}_${developer}
 		if [ $? -ne 0 ];
 		then
-			echo $job | grep topstorweb
-			if [ $? -eq 0 ];
-			then
-				cd /var/www/html/des20/
-				if [ $? -eq 0 ];
-				then
-					isexit=0
-				fi
-			fi
-			if [ $isexit -eq 1 ];
-			then
 				echo the directory $job is not found... exiting
 				exit
-			fi
 		fi
 		fnupdate $branch $developer 
 		cjobs=(`echo "${cjobs[@]}" | sed "s/$job//g" `)
@@ -77,6 +88,6 @@ do
 		flag=0
 	fi
 done
-cd /TopStor_$developer
+cd /TopStor
 git show | grep commit
 echo finished
