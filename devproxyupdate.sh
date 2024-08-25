@@ -33,36 +33,36 @@ fnupdate () {
 echo nameserver 8.8.8.8 > /etc/resolv.conf
 cjobs=(`echo TopStor pace topstorweb`)
 branch=$1
-developer=`pwd | awk -F'_' '{print $2}'`
 branchc=`echo $branch | wc -c`
 if [ $branchc -le 3 ];
 then
 	echo no valid branch is supplied .... exiting
 	exit
 fi 
-developer=`pwd | awk -F'_' '{print $2}'`
 dev=$2
-devc=`echo $dev | wc -c`
-if [ $devc -le 3 ];
+devc=`echo x$dev | wc -c`
+if [ $devc -le 4 ];
 then
 	echo no valid developer name is supplied .... exiting
 	exit
 fi 
-ondevtopstor=`ls / | grep $dev | grep TopStor`
-devl=`echo x$ondevtopstor | wc -l` 
-if [ $devl -ge 1 ];
-then
-	echo choose between:
-	echo $ondevtopstor | awk -F'_' '{$NF}' 
-	exit
-fi
-
-if [ $devl -eq 0 ];
+ondevtopstor=$(ls / | grep $dev | grep TopStor)
+devl=`echo $ondevtopstor | wc -c` 
+if [ $devl -le 4 ];
 then
 	echo No such developer $dev 
 	exit
 fi
-developer=$dev
+devl=`echo $ondevtopstor | wc -l` 
+echo $ondevtopstor | grep ' '
+if [ $? -eq 0 ];
+then
+	echo choose a valid developer name.i.e. TopStor\_\<\<developer\>\> between:
+	echo $ondevtopstor  
+	exit
+fi
+
+developer=`echo $ondevtopstor | awk -F'_' '{print $NF}'`
 flag=1
 while [ $flag -ne 0 ];
 do
