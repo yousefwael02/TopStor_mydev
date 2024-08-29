@@ -83,9 +83,14 @@ def veryfastselect(elements):
             bests += diskscat[com]['disks'][:diskscat[com]['hcounter']]
             diskscat[com]['hcounter'] = 0
         allbests.append(bests)  
+    print('diskscat',diskscat)
     print('best disks',allbests) 
+    mustincludeset = set(mustinclude.split(',')) 
     best_disk = allbests[0]
-    print('the best disk', allbests[0])
+    for best in allbests:
+        if len(set(best) - mustincludeset) == 0:
+            best_disk = []
+    print('the best disk', best_disk)
     combinations = dict()
     hosts = set()
     mindisksize = 0
@@ -127,7 +132,6 @@ def optimizedisks(leaderip, fraid, fdisksinfo,excludelst=''):
 def featuring(leaderip,excludelst=''):
     global hosts, disktypes, mindisksize, count, combinations, disks, disksinfo, mustinclude, diskscat
     counter = 1
-    print('current', disks)
 #{'name': 'scsi-3600140544acffed7e3b4d78899970462', 'zname': 'sdt', 'actualdisk': 'sdt', 'changeop': 'ONLINE', 'pool': 'pdhcp154702900', 'raid': 'mirror-0_pdhcp154702900', 'status': 'ONLINE', 'id': '0', 'host': 'dhcp222552', 'size': 10.7, 'devname': 'sdt', 'silvering': 'no', 'replacingroup': ''}
     feature1 = []   # hosts , identity of column < len(disks), penalty step = len(disk)+1
     feature2 = []   # disk type (sata, sas,..etc0 identity of column len(disks),2len(disks, penalty step = inf (cannot mix)
@@ -158,6 +162,9 @@ def featuring(leaderip,excludelst=''):
             else:
                 diskscat[key]['disks'].append(disk)
             diskscat[key]['diskcount'] += 1
+    print('mustinclude:',mustinclude)
+    print('needtoreplace:',needtoreplace)
+    print('excludelst:',excludelst)
     elements.append(feature1)
     elements.append(feature2)
     elements.append(feature3)
