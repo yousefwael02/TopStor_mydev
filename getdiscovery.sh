@@ -48,7 +48,7 @@ do
 	then
 		break
 	fi
-	if [ $counter -ge 30  ];
+	if [ $counter -ge 600  ];
 	then
 		break
 	fi
