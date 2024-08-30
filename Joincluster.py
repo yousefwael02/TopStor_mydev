@@ -4,6 +4,7 @@ from etcdput import etcdput as put
 from etcddel import etcddel as dels 
 from etcdget import etcdget as get 
 import logmsg
+from time import sleep
 from time import time as stamp
 
 discip = '10.11.11.253'
@@ -36,6 +37,7 @@ def do(data):
     counter += 1
     if counter > 5:
         logmsg.sendlog('AddHostfa01','error',user,name)
+        queuethis('AddHost','stop',user)
         return
         
  print('nameip', nameip, name)
@@ -47,5 +49,5 @@ def do(data):
  queuethis('AddHost','stop',user)
 
 if __name__=='__main__':
- data = { 'name' : 'dhcp298511', 'user':'admin' , 'leaderip': '10.11.11.251', 'myhost': 'dhcp207492' }
+ data = { 'name' : 'dhcp195391', 'user':'admin' , 'leaderip': '10.11.11.100', 'myhost': 'dhcp932129' }
  do(data)
