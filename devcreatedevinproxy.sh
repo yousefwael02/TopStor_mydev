@@ -6,6 +6,7 @@ fnupdate () {
 	git init
 	git remote add origin $origin
 	git remote add remote $remote 
+	git remote add QuickStor $QuickStor
 	git fetch $remote 
 	if [ $? -ne 0 ];
 	then
