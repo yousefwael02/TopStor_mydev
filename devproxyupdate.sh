@@ -88,8 +88,17 @@ do
 		flag=0
 	fi
 done
-cd /TopStor_$developer
-echo the latest commit in the $developer repo:
+cd /topstorweb_$developer
+if [ $? -ne 0 ]
+then
+	cd /var/www/html/des20/
+fi
 git show | grep commit
+cd /pace_$developer
+git show | grep commit
+cd /TopStor_$developer
+git show | grep commit
+echo the latest commit in the $developer repo:
+echo returning back to the TopStor directory
 cd /TopStor
 echo finished
