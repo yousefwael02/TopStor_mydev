@@ -19,6 +19,7 @@ fnupdate () {
 }
 echo nameserver 8.8.8.8 > /etc/resolv.conf
 cjobs=(`echo TopStor pace topstorweb`)
+ajobs=(`echo TopStordev HC TopStorweb`)
 developer=$1
 branchc=`echo $developer | wc -c`
 if [ $branchc -le 3 ];
@@ -26,36 +27,25 @@ then
 	echo no valid developer name is supplied .... exiting
 	exit
 fi 
-flag=1
-while [ $flag -ne 0 ];
-do
-	rjobs=(`echo "${cjobs[@]}"`)
-	echo rjobs=${rjobs[@]}
-	for job in "${rjobs[@]}";
-	do
+for ((i=0; i<${#cjobs[@]}; i++)); do
+    		cjob="${cjobs[$i]}"
+    		ajob="${ajobs[$i]}"
 		echo '###########################################'
- 		echo ${job}_${developer}
+ 		echo ${cjob}_${developer}
 		echo xx$2 | grep init
 		if [ $? -eq 0 ];
 		then
-			echo re-creating the complete ${job}_${developer} repo
-			rm -rf /${job}_${developer}
+			echo re-creating the complete ${cjob}_${developer} repo
+			rm -rf /${cjob}_${developer}
 		fi
-		mkdir /${job}_${developer}
-		cd /${job}_${developer}
+		mkdir /${cjob}_${developer}
+		cd /${cjob}_${developer}
 		if [ $? -ne 0 ];
 		then
-				echo the directory $job is not found... exiting
+				echo the directory $cjob is not found... exiting
 				exit
 		fi
-		fnupdate $job $developer 
-		cjobs=(`echo "${cjobs[@]}" | sed "s/$job//g" `)
-  	done
-	lencjobs=`echo $cjobs | wc -c`
-	if [ $lencjobs -le 3 ];
-	then
-		flag=0
-	fi
+		fnupdate $cjob $developer $ajob
 done
 cd /TopStor
 echo finished
