@@ -1,7 +1,7 @@
 #!/usr/bin/sh
 fnupdate () {
 	origin=`git remote -v | grep 252 | head -1 | awk '{print $1}'`
-	remote=`git remote -v | grep github | grep -v devremote | grep mydev | head -1 | awk '{print $1}'`
+	remote=`git remote -v | grep github | grep -v QuickStor |  head -1 | awk '{print $1}'`
 	git fetch $remote 
 	if [ $? -ne 0 ];
 	then
