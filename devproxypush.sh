@@ -3,7 +3,7 @@ fnupdate () {
 	git checkout QSD3.15
 	git branch -D $1
 	origin=`git remote -v | grep 252 | head -1 | awk '{print $1}'`
-	remote=`git remote -v | grep github | grep mydev |  head -1 | awk '{print $1}'`
+	remote=`git remote -v | grep github | grep $2 |  head -1 | awk '{print $1}'`
 	git fetch $origin 
 	if [ $? -ne 0 ];
 	then
@@ -65,6 +65,31 @@ then
 	echo no valid branch is supplied .... exiting
 	exit
 fi 
+dev=$2
+devc=`echo x$dev | wc -c`
+if [ $devc -le 4 ];
+then
+	echo no valid developer name is supplied .... exiting
+	exit
+fi 
+ondevtopstor=$(ls / | grep $dev | grep TopStor)
+devl=`echo $ondevtopstor | wc -c` 
+if [ $devl -le 4 ];
+then
+	echo No such developer $dev 
+	exit
+fi
+devl=`echo $ondevtopstor | wc -l` 
+echo $ondevtopstor | grep ' '
+if [ $? -eq 0 ];
+then
+	echo choose a valid developer name.i.e. TopStor\_\<\<developer\>\> between:
+	echo $ondevtopstor  
+	exit
+fi
+
+developer=`echo $ondevtopstor | awk -F'_' '{print $NF}'`
+f
 flag=1
 while [ $flag -ne 0 ];
 do
@@ -73,27 +98,17 @@ do
 	for job in "${rjobs[@]}";
 	do
 		echo '###########################################'
- 		echo $job
+		echo '###########################################'
+ 		echo ${job}_${developer}
 		isexit=1
-		cd /$job
+		cd /${job}_${developer}
 		if [ $? -ne 0 ];
 		then
-			echo $job | grep topstorweb
-			if [ $? -eq 0 ];
-			then
-				cd /var/www/html/des20/
-				if [ $? -eq 0 ];
-				then
-					isexit=0
-				fi
-			fi
-			if [ $isexit -eq 1 ];
-			then
 				echo the directory $job is not found... exiting
 				exit
-			fi
 		fi
-		fnupdate $branch 
+
+		fnupdate $branch $developer 
 		cjobs=(`echo "${cjobs[@]}" | sed "s/$job//g" `)
   	done
 	lencjobs=`echo $cjobs | wc -c`
@@ -102,6 +117,12 @@ do
 		flag=0
 	fi
 done
-cd /TopStor
 git show | grep commit
+cd /pace_$developer
+git show | grep commit
+cd /TopStor_$developer
+git show | grep commit
+echo the latest commit in the $developer repo:
+echo returning back to the TopStor directory
+cd /TopStor
 echo finished
