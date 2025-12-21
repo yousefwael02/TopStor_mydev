@@ -953,7 +953,10 @@ def testlogin():
 
 @app.route('/api/v1/login', methods=['GET','POST'])
 def login():
- data = request.args.to_dict()
+ if request.method == 'POST':
+    data = request.get_json(force=True)
+ else:
+    data = request.args.to_dict()
  print('#######################')
  print(data)
  print('#######################')
