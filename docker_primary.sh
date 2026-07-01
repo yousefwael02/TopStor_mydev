@@ -73,7 +73,12 @@ docker run -itd --rm --name flask --hostname apisrv -v /etc/localtime:/etc/local
 #/TopStor/topstorrecvreply.py $myhostip & disown
 #/pace/iscsiwatchdog.sh $myhostip $myhost >/dev/null 2>/dev/null & disown 
 #/pace/syncrequestlooper.sh $leaderip $myhost & disown
-#/pace/fapilooper.sh & disown
+if [ -f /pace/fapilooper.sh ];
+then
+ sh /pace/fapilooper.sh >/TopStordata/fapilooper.log 2>&1 & disown
+else
+ docker exec -d flask sh -c 'python3 /TopStor/fapi.py >/TopStordata/fapi.log 2>&1'
+fi
 #/pace/zfsping.py $leaderip $myhost & disown
 #/pace/rebootmeplslooper.sh $leaderip $myhost & disown 
 echo hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
