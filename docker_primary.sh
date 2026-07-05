@@ -72,7 +72,10 @@ docker run --rm --name httpd --hostname shttpd --net bridge0 -v /etc/localtime:/
 docker run -itd --rm --name flask --hostname apisrv -v /etc/localtime:/etc/localtime:ro -v /pace/:/pace -v /pacedata/:/pacedata/ -v /root/gitrepo/resolv.conf:/etc/resolv.conf --net bridge0 -p $myclusterip:5001:5001 -v /TopStor/:/TopStor -v /TopStordata/:/TopStordata moataznegm/quickstor:flask3
 #/TopStor/topstorrecvreply.py $myhostip & disown
 #/pace/iscsiwatchdog.sh $myhostip $myhost >/dev/null 2>/dev/null & disown 
-#/pace/syncrequestlooper.sh $leaderip $myhost & disown
+if [ -f /pace/syncrequestlooper.sh ];
+then
+ sh /pace/syncrequestlooper.sh $leaderip $myhost >/TopStordata/syncrequestlooper.log 2>&1 & disown
+fi
 if [ -f /pace/fapilooper.sh ];
 then
  sh /pace/fapilooper.sh >/TopStordata/fapilooper.log 2>&1 & disown
