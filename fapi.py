@@ -794,6 +794,14 @@ def volumesnfsinfo(data):
  volumes = volumesinfo('NFS') 
  return jsonify({'allvolumes':volumes})
 
+@app.route('/api/v1/volumes/S3/volumesinfo', methods=['GET','POST'])
+@login_required
+def volumess3info(data):
+ if 'baduser' in data['response']:
+     return {'response': 'baduser'}
+ volumes = volumesinfo('S3')
+ return jsonify({'allvolumes':volumes})
+
 @app.route('/api/v1/volumes/HOME/volumesinfo', methods=['GET','POST'])
 @login_required
 def volumeshomeinfo(data):
@@ -1057,6 +1065,13 @@ def volumecreate(data):
 
   datastr = data['pool']+' '+data['name']+' '+data['size']+' '+' '+data['ipaddress']+' '+data['Subnet']+' '+data['active']+' '+data['user']+' '+data['owner']+' '+data['user']+' '+ data["domname"]+' '+ data["domsrv"]+' '+ data["domip"]+' '+ data["domadmin"]+' '+ data["dompass"]
 
+ elif 'S3' in data['type']:
+  data['accesskey'] = data.get('accesskey') or ('s3' + token_hex(4))
+  data['secretkey'] = data.get('secretkey') or token_hex(16)
+  data['apiPort'] = data.get('apiPort', '9000')
+  data['consolePort'] = data.get('consolePort', '9001')
+  datastr = data['pool']+' '+data['name']+' '+data['size']+' '+data['ipaddress']+' '+data['Subnet']+' '+data['accesskey']+' '+data['secretkey']+' '+str(data['apiPort'])+' '+str(data['consolePort'])+' '+data['active']+' '+data['user']+' '+data['owner']+' '+data['user']
+
  elif 'NFS' in data['type']:
   datastr = data['pool']+' '+data['name']+' '+data['size']+' '+data['rootname']+' '+data['rootid']+' '+data['groupname']+' '+data['groupid']+' '+data['ipaddress']+' '+data['Subnet']+' '+data['active']+' '+data['user']+' '+data['owner']+' '+data['user']
 
@@ -1185,6 +1200,12 @@ def volumeconfig(data):
   for ele in data:
    volume[ele] = data[ele] 
   datastr = volume['pool']+' '+volume['name']+' '+str(volume['quota'])+' '+data['ipaddress']+' '+str(volume['Subnet'])+' '+data['portalport']+' '+data['initiators']+' '+data['chapuser']+' '+data['chappas']+' '+volume['statusmount']+' '+data['user']+' '+data['owner']+' '+data['user']
+ elif 'S3' in data['type']:
+  if 'active' in data:
+   volume['statusmount'] = data['active']
+  for ele in data:
+   volume[ele] = data[ele]
+  datastr = volume['pool']+' '+volume['name']+' '+str(volume['quota'])+' '+volume.get('bucket', volume['name'].split('_')[0])+' '+volume['ipaddress']+' '+str(volume['Subnet'])+' '+volume.get('accesskey', '')+' '+volume.get('secretkey', '')+' '+str(volume.get('apiPort', '9000'))+' '+str(volume.get('consolePort', '9001'))+' '+volume['statusmount']+' '+data['user']+' '+data['owner']+' '+data['user']
  else:
 
   if 'groups' in data and len(data['groups']) < 1: 

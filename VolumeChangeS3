@@ -1,0 +1,58 @@
+#!/bin/sh
+export ETCDCTL_API=3
+cd /TopStor
+echo $@ > /root/volchanges3
+
+leaderip=`echo $@ | awk '{print $1}'`;
+pDG=`echo $@ | awk '{print $2}'`;
+name=`echo $@ | awk '{print $3}'`;
+quota=`echo $@ | awk '{print $4}'`;
+bucket=`echo $@ | awk '{print $5}'`;
+ipaddr=`echo $@ | awk '{print $6}'`;
+ipsubnet=`echo $@ | awk '{print $7}'`;
+accesskey=`echo $@ | awk '{print $8}'`;
+secretkey=`echo $@ | awk '{print $9}'`;
+apiport=`echo $@ | awk '{print $10}'`;
+consoleport=`echo $@ | awk '{print $11}'`;
+active=`echo $@ | awk '{print $12}'`;
+userreq=`echo $@ | awk '{print $13}'`;
+DG=$pDG;
+privilege="CIFS";
+
+contrun=`./privthis.sh $privilege $userreq`;
+if [[ $contrun == 'true' ]]
+then
+ myhost=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternode`
+ myhostip=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternodeip`
+ leader=`docker exec etcdclient /TopStor/etcdgetlocal.py leader`
+ echo $leader | grep $myhost
+ if [ $? -ne 0 ];
+ then
+  etcd=$myhostip
+ else
+  etcd=$leaderip
+ fi
+
+ docker exec etcdclient /TopStor/logqueue.py `basename "$0"` running $userreq
+ oldipaddr=`zfs get -H ip:addr $DG/$name | awk '{print $3}'`
+ oldipsubnet=`zfs get -H ip:subnet $DG/$name | awk '{print $3}'`
+ /TopStor/VolumeDockerChange.py $oldipaddr $oldipsubnet S3
+ mkdir -p /$DG/$name/$bucket
+ /sbin/zfs set quota=$quota $DG/$name
+ /sbin/zfs set ip:addr=$ipaddr $DG/$name
+ /sbin/zfs set ip:subnet=$ipsubnet $DG/$name
+ /sbin/zfs set status:mount=$active $DG/$name
+ ETCDCTL_API=3 /pace/etcdput.py $leaderip volumes/S3/$myhost/$DG/$name $DG/$name/$bucket/$ipaddr/$ipsubnet/$accesskey/$secretkey/$apiport/$consoleport/$active
+ stamp=`date +%s`
+ ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/volumes/${DG}_$name/request volumes_$stamp
+ ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/volumes/${DG}_$name/request/$leader volumes_$stamp
+
+ echo $active | grep active
+ if [ $? -eq 0 ];
+ then
+  /TopStor/s3.sh $DG $name $bucket $ipaddr $ipsubnet $accesskey $secretkey $apiport $consoleport
+ fi
+
+ /pace/putzpool.py $leaderip
+ docker exec etcdclient /TopStor/logqueue.py `basename "$0"` finish $userreq
+fi

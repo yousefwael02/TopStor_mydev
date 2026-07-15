@@ -103,6 +103,18 @@ def getall(leadip, alldsks='0'):
    voldict['chappas'] = vol[1].split('/')[7]
    voldict['prot'] = 'ISCSI'
    volumesdict[voldict['name']] = voldict.copy()
+  elif vol[0].split('/')[1] == 'S3':
+   voldict['groups'] = ''
+   voldict['bucket'] = vol[1].split('/')[2]
+   voldict['ipaddress'] = vol[1].split('/')[3]
+   voldict['Subnet'] = vol[1].split('/')[4]
+   voldict['accesskey'] = vol[1].split('/')[5]
+   voldict['secretkey'] = vol[1].split('/')[6]
+   voldict['apiPort'] = vol[1].split('/')[7]
+   voldict['consolePort'] = vol[1].split('/')[8]
+   voldict['statusmount'] = vol[1].split('/')[9]
+   voldict['prot'] = 'S3'
+   volumesdict[voldict['name']] = voldict.copy()
   if len(voldict['ipaddress']) < 5:
         voldict['ipaddress'] = '256.256.256.256';
         voldict['Subnet'] = '24'
