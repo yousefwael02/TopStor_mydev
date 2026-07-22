@@ -1019,24 +1019,53 @@ def volumecreate(data):
  if 'baduser' in data['response']:
   return {'response': 'baduser'}
  datastr = ''
+ getalltime()
+ try:
+  ownerip = allinfo['hosts'][allinfo['pools'][data['pool']]['host']]['ipaddress']
+  data['owner'] = allinfo['hosts'][allinfo['pools'][data['pool']]['host']]['name']
+ except Exception:
+  return {'response': 'error', 'message': 'Selected pool owner is unavailable. Provisioning was not queued.'}
+
+ if 'S3' in data['type']:
+  # S3 endpoint is bound to the selected owner node network.
+  data['ipaddress'] = ownerip
+  data['Subnet'] = str(data.get('Subnet') or '24')
+
  if 'NFS' in data['type']:
     datatype='ANYthing'
  else:
     datatype=data['type']
- isvu =  int(is_valid_ip(data['ipaddress']))+int(is_unique_ip(data['ipaddress'],datatype))+int(is_unique_name(data['name']))
+
+ if 'S3' in data['type']:
+  isvu = int(is_unique_name(data['name']))
+ else:
+  isvu = int(is_valid_ip(data['ipaddress'])) + int(is_unique_ip(data['ipaddress'], datatype)) + int(is_unique_name(data['name']))
+
  if isvu == 0:
     print('ip is valid')
  else:
-    if isvu < 100:
+    msg = 'Invalid or duplicate bucket parameters (IP/name). Provisioning was not queued.'
+    if 'S3' in data['type']:
+        logmsg.sendlog('IPnamuqfa','error','system',loggedusers[data['token']]['user'])
+        msg = 'Name already exists. Provisioning was not queued.'
+    elif isvu < 100:
         logmsg.sendlog('IPaddrfa','error','system',loggedusers[data['token']]['user'])
-    elif isvu > 10 and isvu < 120: 
+        msg = 'Invalid IP address. Provisioning was not queued.'
+    elif isvu > 10 and isvu < 120:
         logmsg.sendlog('IPadduqfa','error','system',loggedusers[data['token']]['user'])
+        msg = 'IP address already exists. Provisioning was not queued.'
     else:
         logmsg.sendlog('IPnamuqfa','error','system',loggedusers[data['token']]['user'])
-    return data
- getalltime()
- ownerip = allinfo['hosts'][allinfo['pools'][data['pool']]['host']]['ipaddress']
- data['owner'] = allinfo['hosts'][allinfo['pools'][data['pool']]['host']]['name']
+        msg = 'Name already exists. Provisioning was not queued.'
+    return {'response': 'error', 'message': msg}
+
+ if 'S3' in data['type']:
+  s3priv = subprocess.run(['/TopStor/privthis.sh', 'S3', data['user']], stdout=subprocess.PIPE).stdout.decode('utf-8').lower()
+  if 'true' not in s3priv:
+   cifspriv = subprocess.run(['/TopStor/privthis.sh', 'CIFS', data['user']], stdout=subprocess.PIPE).stdout.decode('utf-8').lower()
+   if 'true' not in cifspriv:
+    return {'response': 'error', 'message': 'User is not authorized to create S3 buckets.'}
+
  if 'ISCSI' in data['type']:
   data['chapuser']='MoatazNegm'
   data['chappas']='MezoAdmin'
@@ -1070,7 +1099,8 @@ def volumecreate(data):
   data['secretkey'] = data.get('secretkey') or token_hex(16)
   data['apiPort'] = data.get('apiPort', '9000')
   data['consolePort'] = data.get('consolePort', '9001')
-  datastr = data['pool']+' '+data['name']+' '+data['size']+' '+data['ipaddress']+' '+data['Subnet']+' '+data['accesskey']+' '+data['secretkey']+' '+str(data['apiPort'])+' '+str(data['consolePort'])+' '+data['active']+' '+data['user']+' '+data['owner']+' '+data['user']
+  data['groups'] = data.get('groups') or 'NoGroup'
+  datastr = data['pool']+' '+data['name']+' '+data['size']+' '+data['ipaddress']+' '+data['Subnet']+' '+data['accesskey']+' '+data['secretkey']+' '+str(data['apiPort'])+' '+str(data['consolePort'])+' '+data['active']+' '+data['user']+' '+data['owner']+' '+data['user']+' '+data['groups']
 
  elif 'NFS' in data['type']:
   datastr = data['pool']+' '+data['name']+' '+data['size']+' '+data['rootname']+' '+data['rootid']+' '+data['groupname']+' '+data['groupid']+' '+data['ipaddress']+' '+data['Subnet']+' '+data['active']+' '+data['user']+' '+data['owner']+' '+data['user']
@@ -1087,7 +1117,9 @@ def volumecreate(data):
  #z= cmndstring.split(' ')
  #msg={'req': 'Pumpthis', 'reply':z}
  #sendhost(ownerip, str(msg),'recvreply',myhost)
- postchange(cmndstring,data['owner'])
+ dispatch = postchange(cmndstring,data['owner'])
+ if isinstance(dispatch, str) and 'host is not ready' in dispatch:
+  return {'response': 'error', 'message': 'Owner host is not ready. Provisioning was not queued.'}
  return data
 
 def getlogin(token):
@@ -1205,7 +1237,7 @@ def volumeconfig(data):
    volume['statusmount'] = data['active']
   for ele in data:
    volume[ele] = data[ele]
-  datastr = volume['pool']+' '+volume['name']+' '+str(volume['quota'])+' '+volume.get('bucket', volume['name'].split('_')[0])+' '+volume['ipaddress']+' '+str(volume['Subnet'])+' '+volume.get('accesskey', '')+' '+volume.get('secretkey', '')+' '+str(volume.get('apiPort', '9000'))+' '+str(volume.get('consolePort', '9001'))+' '+volume['statusmount']+' '+data['user']+' '+data['owner']+' '+data['user']
+  datastr = volume['pool']+' '+volume['name']+' '+str(volume['quota'])+' '+volume.get('bucket', volume['name'].split('_')[0])+' '+volume['ipaddress']+' '+str(volume['Subnet'])+' '+volume.get('accesskey', '')+' '+volume.get('secretkey', '')+' '+str(volume.get('apiPort', '9000'))+' '+str(volume.get('consolePort', '9001'))+' '+volume['statusmount']+' '+data['user']+' '+data['owner']+' '+data['user']+' '+volume.get('groups', 'NoGroup')
  else:
 
   if 'groups' in data and len(data['groups']) < 1: 
@@ -1862,7 +1894,7 @@ def telemetry_heartbeat():
     # Write the current epoch time to a file
     try:
         with open('/tmp/ui_active_heartbeat', 'w') as f:
-            f.write(str(int(time.time())))
+            f.write(str(int(timestamp())))
         return {"status": "boost_active"}, 200
     except Exception as e:
         return {"error": str(e)}, 500
@@ -1936,4 +1968,5 @@ if __name__=='__main__':
     getalltime()
    #myhostip = sys.argv[5]
     app.run(host="0.0.0.0", port=5001)
+
 
