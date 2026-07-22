@@ -1,0 +1,176 @@
+#!/bin/sh
+cd /TopStor
+export ETCDCTL_API=3
+echo $@ > /root/s3shparam
+
+pool=`echo $@ | awk '{print $1}'`
+name=`echo $@ | awk '{print $2}'`
+bucket=`echo $@ | awk '{print $3}'`
+ipaddr=`echo $@ | awk '{print $4}'`
+ipsubnet=`echo $@ | awk '{print $5}'`
+accesskey=`echo $@ | awk '{print $6}'`
+secretkey=`echo $@ | awk '{print $7}'`
+apiport=`echo $@ | awk '{print $8}'`
+consoleport=`echo $@ | awk '{print $9}'`
+resname=S3-$ipaddr
+
+mkdir -p /$pool/$name/$bucket
+
+# Host MinIO mode: if systemd minio service is running on this node,
+# keep all bucket IO on MINIO_VOLUMES to avoid cross-device rename failures.
+if command -v minio >/dev/null 2>&1 && systemctl is-active --quiet minio; then
+ envfile="/etc/default/minio"
+ minio_vol="/storage/minio"
+ target_path="/$pool/$name/$bucket"
+ bucket_mount=""
+ root_user="$accesskey"
+ root_pass="$secretkey"
+ if [ -f "$envfile" ]; then
+  minio_vol=$(grep -E '^MINIO_VOLUMES=' "$envfile" | head -n1 | cut -d= -f2- | tr -d '"')
+  ru=$(grep -E '^MINIO_ROOT_USER=' "$envfile" | head -n1 | cut -d= -f2- | tr -d '"')
+  rp=$(grep -E '^MINIO_ROOT_PASSWORD=' "$envfile" | head -n1 | cut -d= -f2- | tr -d '"')
+  [ -n "$ru" ] && root_user="$ru"
+  [ -n "$rp" ] && root_pass="$rp"
+ fi
+ [ -z "$minio_vol" ] && minio_vol="/storage/minio"
+ bucket_mount="$minio_vol/$bucket"
+
+ mkdir -p "$minio_vol"
+ mkdir -p "/$pool/$name"
+
+ if mountpoint -q "$bucket_mount"; then
+  umount "$bucket_mount" >/dev/null 2>&1 || true
+ fi
+
+ if [ -L "$bucket_mount" ]; then
+  rm -f "$bucket_mount"
+ fi
+
+ mkdir -p "$bucket_mount"
+
+ mc_host_url="http://${root_user}:${root_pass}@127.0.0.1:${apiport}"
+ bucket_created=false
+
+ if command -v mc >/dev/null 2>&1; then
+  if MC_HOST_s3="$mc_host_url" mc mb --ignore-existing "s3/$bucket" >/dev/null 2>&1; then
+   bucket_created=true
+  fi
+ fi
+
+ if [ "$bucket_created" = false ] && command -v python3 >/dev/null 2>&1; then
+  if MINIO_ACCESS_KEY="$root_user" MINIO_SECRET_KEY="$root_pass" MINIO_PORT="$apiport" MINIO_BUCKET="$bucket" python3 - <<'PY'
+import datetime
+import hashlib
+import hmac
+import os
+import urllib.error
+import urllib.request
+
+ak = os.environ.get("MINIO_ACCESS_KEY", "")
+sk = os.environ.get("MINIO_SECRET_KEY", "")
+port = os.environ.get("MINIO_PORT", "9000")
+bucket = os.environ.get("MINIO_BUCKET", "")
+
+if not ak or not sk or not bucket:
+  raise SystemExit(2)
+
+host = f"127.0.0.1:{port}"
+method = "PUT"
+service = "s3"
+region = "us-east-1"
+payload_hash = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+amz_date = datetime.datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+date_stamp = amz_date[:8]
+
+canonical_uri = f"/{bucket}"
+canonical_querystring = ""
+canonical_headers = f"host:{host}\n" + f"x-amz-content-sha256:{payload_hash}\n" + f"x-amz-date:{amz_date}\n"
+signed_headers = "host;x-amz-content-sha256;x-amz-date"
+canonical_request = "\n".join([
+  method,
+  canonical_uri,
+  canonical_querystring,
+  canonical_headers,
+  signed_headers,
+  payload_hash,
+])
+
+algorithm = "AWS4-HMAC-SHA256"
+credential_scope = f"{date_stamp}/{region}/{service}/aws4_request"
+string_to_sign = "\n".join([
+  algorithm,
+  amz_date,
+  credential_scope,
+  hashlib.sha256(canonical_request.encode("utf-8")).hexdigest(),
+])
+
+def sign(key: bytes, msg: str) -> bytes:
+  return hmac.new(key, msg.encode("utf-8"), hashlib.sha256).digest()
+
+k_date = sign(("AWS4" + sk).encode("utf-8"), date_stamp)
+k_region = sign(k_date, region)
+k_service = sign(k_region, service)
+k_signing = sign(k_service, "aws4_request")
+signature = hmac.new(k_signing, string_to_sign.encode("utf-8"), hashlib.sha256).hexdigest()
+
+authorization_header = (
+  f"{algorithm} Credential={ak}/{credential_scope}, "
+  f"SignedHeaders={signed_headers}, Signature={signature}"
+)
+
+url = f"http://{host}/{bucket}"
+req = urllib.request.Request(url=url, method="PUT")
+req.add_header("x-amz-date", amz_date)
+req.add_header("x-amz-content-sha256", payload_hash)
+req.add_header("Authorization", authorization_header)
+
+try:
+  with urllib.request.urlopen(req, timeout=5) as resp:
+    code = resp.getcode()
+    if code in (200, 204):
+      raise SystemExit(0)
+    raise SystemExit(1)
+except urllib.error.HTTPError as e:
+  if e.code == 409:
+    raise SystemExit(0)
+  raise SystemExit(1)
+except Exception:
+  raise SystemExit(1)
+PY
+  then
+   bucket_created=true
+  fi
+ fi
+
+ if [ "$bucket_created" = false ]; then
+  exit 1
+ fi
+
+ chown -R minio:minio "$bucket_mount" 2>/dev/null || true
+
+ # Keep an informational alias path for operators while keeping MinIO data local.
+ if [ -d "$target_path" ] && [ -z "$(ls -A "$target_path" 2>/dev/null)" ]; then
+  rmdir "$target_path" >/dev/null 2>&1 || true
+ fi
+ if [ -L "$target_path" ]; then
+  ln -sfn "$bucket_mount" "$target_path"
+ elif [ ! -e "$target_path" ]; then
+  ln -s "$bucket_mount" "$target_path"
+ fi
+
+ exit 0
+fi
+
+docker rm -f $resname
+nmcli conn mod cmynode -ipv4.addresses ${ipaddr}/$ipsubnet
+nmcli conn mod cmynode +ipv4.addresses ${ipaddr}/$ipsubnet
+nmcli conn up cmynode
+
+docker run -d --rm \
+  -p $ipaddr:$apiport:9000 \
+  -p $ipaddr:$consoleport:9001 \
+  -e MINIO_ROOT_USER=$accesskey \
+  -e MINIO_ROOT_PASSWORD=$secretkey \
+  -v /$pool/$name:/data \
+  --name $resname \
+  quay.io/minio/minio server /data --console-address ":9001"

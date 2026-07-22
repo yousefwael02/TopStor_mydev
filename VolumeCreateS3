@@ -1,95 +1,104 @@
 #!/bin/sh
 export ETCDCTL_API=3
-cd /TopStor
-echo $@ > /root/volcreates3
+cd /TopStor || exit 1
 
-leaderip=`echo $@ | awk '{print $1}'`;
-shortname=`echo $@ | awk '{print $3}'`;
-echo $shortname | grep '_repli'
-if [ $? -eq 0 ];
-then
- shortname=`echo $shortname | awk -F'_repli' '{print $1}'`
- name=$shortname
+echo "$@" > /root/volcreates3
+
+leaderip="$1"
+pDG="$2"
+shortname="$3"
+quota="$4"
+ipaddr="$5"
+ipsubnet="$6"
+accesskey="$7"
+secretkey="$8"
+apiport="$9"
+consoleport="${10}"
+active="${11}"
+userreq="${12}"
+groups="${15}"
+
+if echo "$shortname" | grep -q '_repli'; then
+ shortname="$(echo "$shortname" | awk -F'_repli' '{print $1}')"
+ name="$shortname"
 else
- nameid=$RANDOM$RANDOM
- name=${shortname}_$nameid
+ nameid="$RANDOM$RANDOM"
+ name="${shortname}_${nameid}"
 fi
-pDG=`echo $@ | awk '{print $2}'`;
-quota=`echo $@ | awk '{print $4}'`;
-ipaddr=`echo $@ | awk '{print $5}'`;
-ipsubnet=`echo $@ | awk '{print $6}'`;
-accesskey=`echo $@ | awk '{print $7}'`;
-secretkey=`echo $@ | awk '{print $8}'`;
-apiport=`echo $@ | awk '{print $9}'`;
-consoleport=`echo $@ | awk '{print $10}'`;
-active=`echo $@ | awk '{print $11}'`;
-userreq=`echo $@ | awk '{print $12}'`;
-DG=$pDG;
-privilege="CIFS";
 
-./privthis.sh $privilege $userreq | grep true ;
-if [ $? -eq 0 ];
-then
- myhost=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternode`
- myhostip=`docker exec etcdclient /TopStor/etcdgetlocal.py clusternodeip`
- leader=`docker exec etcdclient /TopStor/etcdgetlocal.py leader`
- echo $leader | grep $myhost
- if [ $? -ne 0 ];
- then
-  etcd=$myhostip
- else
-  etcd=$leaderip
- fi
+DG="$pDG"
 
- docker exec etcdclient /TopStor/logqueue.py `basename "$0"` running $userreq
- /pace/etcdget.py $etcd volumes --prefix | grep $shortname
- if [ $? -eq 0 ];
- then
-  docker exec etcdclient /TopStor/logmsg.py Unlin1021vv warning $userreq $shortname
-  docker exec etcdclient /TopStor/logqueue.py `basename "$0"` finish $userreq
-  exit
- fi
-
- /pace/etcdget.py $etcd usersinfo --prefix | grep $shortname
- if [ $? -eq 0 ];
- then
-  docker exec etcdclient /TopStor/logmsg.py Unlin1021vu warning $userreq $name
-  docker exec etcdclient /TopStor/logqueue.py `basename "$0"` finish $userreq
-  exit
- fi
-
- /sbin/zfs create -o overlay=on -o acltype=posixacl -o aclinherit=passthrough -o xattr=sa -o atime=off -o redundant_metadata=most -o quota=$quota -o dedup=on -o compression=lz4 $DG/$name
- if [ $? -ne 0 ];
- then
-  docker exec etcdclient /TopStor/logqueue.py `basename "$0"` finish $userreq
-  exit
- fi
-
- mkdir -p /$DG/$name/$shortname
- /sbin/zfs set prot:kind=S3 $DG/$name
- /sbin/zfs set ip:addr=$ipaddr $DG/$name
- /sbin/zfs set ip:subnet=$ipsubnet $DG/$name
- /sbin/zfs set status:mount=$active $DG/$name
-
- stamp=`date +%s`
- ETCDCTL_API=3 /pace/etcdput.py $leaderip volumes/S3/$myhost/$DG/$name $DG/$name/$shortname/$ipaddr/$ipsubnet/$accesskey/$secretkey/$apiport/$consoleport/$active
- ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/volumes/${DG}_$name/request volumes_$stamp
- ETCDCTL_API=3 /pace/etcdput.py $leaderip sync/volumes/${DG}_$name/request/$leader volumes_$stamp
-
- echo $active | grep active
- if [ $? -eq 0 ];
- then
-  /TopStor/s3.sh $DG $name $shortname $ipaddr $ipsubnet $accesskey $secretkey $apiport $consoleport
-  if [ $? -ne 0 ];
-   /TopStor/VolumeDockerChange.py $ipaddr $ipsubnet S3
-   ETCDCTL_API=3 /pace/etcddel.py $leaderip volumes/S3/$myhost/$DG/$name
-   /sbin/zfs destroy -rf $DG/$name
-   docker exec etcdclient /TopStor/logqueue.py `basename "$0"` finish $userreq
-   exit
-  fi
- fi
-
- /TopStor/SnapshotCreateHourlytrend $leaderip $DG $name 0 24 7 system
- /pace/putzpool.py $leaderip
- docker exec etcdclient /TopStor/logqueue.py `basename "$0"` finish $userreq
+# Primary S3 privilege check with compatibility fallback to legacy CIFS grouping.
+if ./privthis.sh S3 "$userreq" | grep -q true; then
+ has_priv=true
+elif ./privthis.sh CIFS "$userreq" | grep -q true; then
+ has_priv=true
+else
+ has_priv=false
 fi
+
+if [ "$has_priv" != "true" ]; then
+ exit 1
+fi
+
+myhost="$(docker exec etcdclient /TopStor/etcdgetlocal.py clusternode)"
+myhostip="$(docker exec etcdclient /TopStor/etcdgetlocal.py clusternodeip)"
+leader="$(docker exec etcdclient /TopStor/etcdgetlocal.py leader)"
+
+if echo "$leader" | grep -q "$myhost"; then
+ etcd="$leaderip"
+else
+ etcd="$myhostip"
+fi
+
+docker exec etcdclient /TopStor/logqueue.py "$(basename "$0")" running "$userreq"
+
+if /pace/etcdget.py "$etcd" volumes --prefix | grep -q "$shortname"; then
+ docker exec etcdclient /TopStor/logmsg.py Unlin1021vv warning "$userreq" "$shortname"
+ docker exec etcdclient /TopStor/logqueue.py "$(basename "$0")" finish "$userreq"
+ exit 0
+fi
+
+if /pace/etcdget.py "$etcd" usersinfo --prefix | grep -q "$shortname"; then
+ docker exec etcdclient /TopStor/logmsg.py Unlin1021vu warning "$userreq" "$name"
+ docker exec etcdclient /TopStor/logqueue.py "$(basename "$0")" finish "$userreq"
+ exit 0
+fi
+
+/sbin/zfs create -o overlay=on -o acltype=posixacl -o aclinherit=passthrough -o xattr=sa -o atime=off -o redundant_metadata=most -o quota="$quota" -o dedup=on -o compression=lz4 "$DG/$name"
+if [ $? -ne 0 ]; then
+ docker exec etcdclient /TopStor/logqueue.py "$(basename "$0")" finish "$userreq"
+ exit 1
+fi
+
+mkdir -p "/$DG/$name/$shortname"
+/sbin/zfs set prot:kind=S3 "$DG/$name"
+/sbin/zfs set ip:addr="$ipaddr" "$DG/$name"
+/sbin/zfs set ip:subnet="$ipsubnet" "$DG/$name"
+/sbin/zfs set status:mount="$active" "$DG/$name"
+
+stamp="$(date +%s)"
+volmeta="$DG/$name/$shortname/$ipaddr/$ipsubnet/$accesskey/$secretkey/$apiport/$consoleport/$active"
+if [ -n "$groups" ]; then
+ volmeta="$volmeta/$groups"
+fi
+ETCDCTL_API=3 /pace/etcdput.py "$leaderip" "volumes/S3/$myhost/$DG/$name" "$volmeta"
+ETCDCTL_API=3 /pace/etcdput.py "$leaderip" "sync/volumes/${DG}_$name/request" "volumes_$stamp"
+ETCDCTL_API=3 /pace/etcdput.py "$leaderip" "sync/volumes/${DG}_$name/request/$leader" "volumes_$stamp"
+
+if echo "$active" | grep -q active; then
+ /TopStor/s3.sh "$DG" "$name" "$shortname" "$ipaddr" "$ipsubnet" "$accesskey" "$secretkey" "$apiport" "$consoleport"
+ if [ $? -ne 0 ]; then
+  /TopStor/VolumeDockerChange.py "$ipaddr" "$ipsubnet" S3
+  ETCDCTL_API=3 /pace/etcddel.py "$leaderip" "volumes/S3/$myhost/$DG/$name"
+  /sbin/zfs destroy -rf "$DG/$name"
+  docker exec etcdclient /TopStor/logqueue.py "$(basename "$0")" finish "$userreq"
+  exit 1
+ fi
+ sh /TopStor/s3_group_provision.sh "$leaderip" "$shortname" "$ipaddr" "$apiport" "$accesskey" "$secretkey" "$groups" >/TopStordata/s3_group_provision.log 2>&1 || true
+fi
+
+/TopStor/SnapshotCreateHourlytrend "$leaderip" "$DG" "$name" 0 24 7 system
+/pace/putzpool.py "$leaderip"
+docker exec etcdclient /TopStor/logqueue.py "$(basename "$0")" finish "$userreq"
+exit 0
