@@ -8,13 +8,17 @@ VERSION=$1
 echo "$VERSION" | grep -q "^QSD5"
 if [ $? -eq 0 ]; then
     echo "Version is 5.x series ($VERSION). Skipping offline image load..."
-else
-    # 1. Load the compressed offline image and trap failures
+elif [ -f /TopStor/quickstor-ui.tar.gz ]; then
     echo "Loading image archive..."
     if ! docker load -i /TopStor/quickstor-ui.tar.gz; then
-      echo "ERROR: Failed to load the Docker image archive. Is the file corrupted or missing?" >&2
+      echo "ERROR: Failed to load the Docker image archive. Is the file corrupted?" >&2
       exit 1
     fi
+elif [ -f /topstorweb/Dockerfile ]; then
+    echo "No offline UI image found. docker_setup.sh will build it from /topstorweb."
+else
+    echo "ERROR: Neither /TopStor/quickstor-ui.tar.gz nor /topstorweb/Dockerfile exists." >&2
+    exit 1
 fi
 
 # rely on docker_setup.sh to handle all container destruction and creation.

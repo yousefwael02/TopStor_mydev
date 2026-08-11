@@ -80,7 +80,11 @@ then
 	/TopStor/etcdput.py $myhostip cversion/$myhost $branch-$commit
 fi
 /TopStor/myrepopush.sh $branch
-/TopStor/pre_apply.sh	
+if ! /TopStor/pre_apply.sh "$branch";
+then
+echo pre-application failed for $branch
+exit 1
+fi
 cd /topstorweb
 git show | grep commit
 cd /pace
